@@ -141,6 +141,20 @@ func kebab(input string) string {
 	return result.String()
 }
 
+func sortces(ces []*ast.CallExpr) {
+	slices.SortFunc(ces, func(a, b *ast.CallExpr) int {
+		pa := strings.Split(a.Args[0].(*ast.BasicLit).Value, " ")[1]
+		pb := strings.Split(b.Args[0].(*ast.BasicLit).Value, " ")[1]
+		if pa < pb {
+			return -1
+		} else if pb < pa {
+			return 1
+		} else {
+			return 0
+		}
+	})
+}
+
 func Main() error {
 	args := Args{}
 
@@ -222,6 +236,8 @@ func Main() error {
 		}},
 	}
 	for recvt, ces := range cess {
+		sortces(ces)
+
 		stmts := []ast.Stmt{}
 		for _, ce := range ces {
 			stmts = append(stmts, &ast.ExprStmt{X: ce})
