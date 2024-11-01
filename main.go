@@ -141,20 +141,6 @@ func kebab(input string) string {
 	return result.String()
 }
 
-func sortces(ces []*ast.CallExpr) {
-	slices.SortFunc(ces, func(a, b *ast.CallExpr) int {
-		pa := strings.Split(a.Args[0].(*ast.BasicLit).Value, " ")[1]
-		pb := strings.Split(b.Args[0].(*ast.BasicLit).Value, " ")[1]
-		if pa < pb {
-			return -1
-		} else if pb < pa {
-			return 1
-		} else {
-			return 0
-		}
-	})
-}
-
 type info struct {
 	Method string   `yaml:"method"`
 	Path   string   `yaml:"path"`
