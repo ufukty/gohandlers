@@ -85,13 +85,13 @@ func findTypeSpec(f *ast.File, n string) (*ast.TypeSpec, bool) {
 	return nil, false
 }
 
-func urlparams(ts *ast.TypeSpec) []string {
+func routeparams(ts *ast.TypeSpec) []string {
 	ps := []string{}
 	if st, ok := ts.Type.(*ast.StructType); ok {
 		for _, f := range st.Fields.List {
 			if f.Tag != nil {
 				st := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
-				if v, ok := st.Lookup("path"); ok {
+				if v, ok := st.Lookup("route"); ok {
 					ps = append(ps, v)
 				}
 			}
@@ -192,7 +192,7 @@ func Main() error {
 				m = http.MethodGet
 			}
 
-			ps := urlparams(bq)
+			ps := routeparams(bq)
 			for i := range ps {
 				ps[i] = fmt.Sprintf("{%s}", ps[i])
 			}
