@@ -155,6 +155,12 @@ func sortces(ces []*ast.CallExpr) {
 	})
 }
 
+type info struct {
+	Method string   `yaml:"method"`
+	Path   string   `yaml:"path"`
+	Ref    ast.Expr `yaml:"-"`
+}
+
 func Main() error {
 	args := Args{}
 
@@ -179,7 +185,7 @@ func Main() error {
 	}
 	p := d[maps.Keys(d)[0]]
 
-	cess := map[string][]*ast.CallExpr{} // per receiver type
+	infoss := map[string]map[string]info{} // per receiver type
 	for _, f := range p.Files {
 		if h, ok := findHandler(f); ok {
 			bq, ok := findTypeSpec(f, fmt.Sprintf("%sRequest", h.Name.Name))
@@ -196,7 +202,11 @@ func Main() error {
 			for i := range ps {
 				ps[i] = fmt.Sprintf("{%s}", ps[i])
 			}
-			pattern := fmt.Sprintf("%s /%s/%s", m, kebab(h.Name.Name), strings.Join(ps, "/"))
+
+			path := fmt.Sprintf("/%s", kebab(h.Name.Name))
+			if len(ps) > 0 {
+				path = fmt.Sprintf("%s/%s", path, strings.Join(ps, "/"))
+			}
 
 			var recvt string
 			if h.Recv != nil {
@@ -217,41 +227,87 @@ func Main() error {
 				n = h.Name
 			}
 
-			ce := &ast.CallExpr{
-				Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "r"}, Sel: &ast.Ident{Name: "HandleFunc"}},
-				Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", pattern)}, n},
+			i := info{
+				Method: m,
+				Path:   path,
+				Ref:    n,
 			}
-			if _, ok := cess[recvt]; !ok {
-				cess[recvt] = []*ast.CallExpr{}
+			if _, ok := infoss[recvt]; !ok {
+				infoss[recvt] = map[string]info{}
 			}
-			cess[recvt] = append(cess[recvt], ce)
+			infoss[recvt][h.Name.Name] = i
 		}
 	}
 
 	f := &ast.File{
 		Name: maps.Values(p.Files)[0].Name,
-		Decls: []ast.Decl{&ast.GenDecl{
-			Tok:   token.IMPORT,
-			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", "net/http")}}},
-		}},
+		Decls: []ast.Decl{
+			&ast.GenDecl{
+				Tok:   token.IMPORT,
+				Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", "net/http")}}},
+			},
+			&ast.GenDecl{
+				Tok: token.TYPE,
+				Specs: []ast.Spec{&ast.TypeSpec{
+					Name: &ast.Ident{Name: "HandlerInfo"},
+					Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
+						{
+							Names: []*ast.Ident{{Name: "Method"}}, Type: &ast.Ident{Name: "string"},
+						},
+						{
+							Names: []*ast.Ident{{Name: "Path"}}, Type: &ast.Ident{Name: "string"},
+						},
+						{
+							Names: []*ast.Ident{{Name: "Ref"}},
+							Type:  &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "HandlerFunc"}},
+						},
+					}}},
+				}},
+			},
+		},
 	}
-	for recvt, ces := range cess {
-		sortces(ces)
 
-		stmts := []ast.Stmt{}
-		for _, ce := range ces {
-			stmts = append(stmts, &ast.ExprStmt{X: ce})
+	fds := []ast.Decl{}
+	for recvt, infos := range infoss {
+		elts := []ast.Expr{}
+		for hn, info := range infos {
+			kv := &ast.KeyValueExpr{
+				Key: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", hn)},
+				Value: &ast.CompositeLit{Elts: []ast.Expr{
+					&ast.KeyValueExpr{Key: &ast.Ident{Name: "Method"}, Value: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", info.Method)}},
+					&ast.KeyValueExpr{Key: &ast.Ident{Name: "Path"}, Value: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", info.Path)}},
+					&ast.KeyValueExpr{Key: &ast.Ident{Name: "Ref"}, Value: info.Ref},
+				}},
+			}
+			elts = append(elts, kv)
 		}
 
+		slices.SortFunc(elts, func(a, b ast.Expr) int {
+			ka := a.(*ast.KeyValueExpr).Key.(*ast.BasicLit).Value
+			kb := b.(*ast.KeyValueExpr).Key.(*ast.BasicLit).Value
+			if ka < kb {
+				return -1
+			} else if ka == kb {
+				return 0
+			} else {
+				return 1
+			}
+		})
+
 		fd := &ast.FuncDecl{
-			Name: &ast.Ident{Name: "RegisterHandlers"},
+			Name: &ast.Ident{Name: "ListHandlers"},
 			Type: &ast.FuncType{
-				Params: &ast.FieldList{List: []*ast.Field{{
-					Names: []*ast.Ident{{Name: "r"}},
-					Type:  &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "ServeMux"}}},
-				}}},
+				Params: &ast.FieldList{List: []*ast.Field{}},
+				Results: &ast.FieldList{List: []*ast.Field{
+					{Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "HandlerInfo"}}},
+				}},
 			},
-			Body: &ast.BlockStmt{List: stmts},
+			Body: &ast.BlockStmt{List: []ast.Stmt{
+				&ast.ReturnStmt{Results: []ast.Expr{&ast.CompositeLit{
+					Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "HandlerInfo"}},
+					Elts: elts,
+				}}},
+			}},
 		}
 
 		if recvt != "" {
@@ -261,8 +317,29 @@ func Main() error {
 			}}}
 		}
 
-		f.Decls = append(f.Decls, fd)
+		fds = append(fds, fd)
 	}
+
+	slices.SortFunc(fds, func(a, b ast.Decl) int {
+		if a.(*ast.FuncDecl).Recv == nil {
+			return -1
+		}
+		if b.(*ast.FuncDecl).Recv == nil {
+			return 1
+		}
+
+		at := a.(*ast.FuncDecl).Recv.List[0].Type.(*ast.StarExpr).X.(*ast.Ident).Name
+		bt := b.(*ast.FuncDecl).Recv.List[0].Type.(*ast.StarExpr).X.(*ast.Ident).Name
+
+		if at < bt {
+			return -1
+		} else if at == bt {
+			return 0
+		} else {
+			return 1
+		}
+	})
+	f.Decls = append(f.Decls, fds...)
 
 	o, err := os.Create(filepath.Join(args.Dir, args.Out))
 	if err != nil {
