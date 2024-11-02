@@ -11,16 +11,18 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"slices"
 	"strings"
 	"unicode"
 
 	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
+	"gopkg.in/yaml.v3"
 )
 
 type Args struct {
-	Dir string
-	Out string
+	Dir  string
+	Out  string
+	Yaml string
 }
 
 func recvn(s string) string {
@@ -147,11 +149,23 @@ type info struct {
 	Ref    ast.Expr `yaml:"-"`
 }
 
+func flatten[K comparable, V any](ss []map[K]V) map[K]V {
+	if len(ss) == 0 {
+		return make(map[K]V, 0)
+	}
+	r := make(map[K]V, len(ss)*len(ss[0]))
+	for _, s := range ss {
+		maps.Copy(r, s)
+	}
+	return r
+}
+
 func Main() error {
 	args := Args{}
 
 	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files. one handler and a request binding type is allowed per file")
-	flag.StringVar(&args.Out, "out", "register.go", "output file that will be generated in the 'dir'")
+	flag.StringVar(&args.Out, "out", "handlers.go", "output file that will be generated in the 'dir'")
+	flag.StringVar(&args.Yaml, "yaml", "handlers.yaml", "yaml file that will be generated in the 'dir'")
 	flag.Parse()
 
 	if args.Dir == "" {
@@ -336,6 +350,20 @@ func Main() error {
 	err = format.Node(o, token.NewFileSet(), f)
 	if err != nil {
 		return fmt.Errorf("printing: %w", err)
+	}
+
+	if args.Yaml != "" {
+		o, err := os.Create(filepath.Join(args.Dir, args.Yaml))
+		if err != nil {
+			return fmt.Errorf("creating yaml file: %w", err)
+		}
+		defer o.Close()
+		e := yaml.NewEncoder(o)
+		e.SetIndent(2)
+		err = e.Encode(flatten(maps.Values(infoss)))
+		if err != nil {
+			return fmt.Errorf("writing yaml file: %w", err)
+		}
 	}
 
 	return nil
