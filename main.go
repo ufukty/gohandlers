@@ -175,7 +175,7 @@ func Main() error {
 
 	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files. one handler and a request binding type is allowed per file")
 	flag.StringVar(&args.Out, "out", "handlers.go", "output file that will be generated in the 'dir'")
-	flag.StringVar(&args.Yaml, "yaml", "handlers.yaml", "yaml file that will be generated in the 'dir'")
+	flag.StringVar(&args.Yaml, "yaml", "", "yaml file that will be generated in the 'dir'")
 	flag.Parse()
 
 	if args.Dir == "" {
