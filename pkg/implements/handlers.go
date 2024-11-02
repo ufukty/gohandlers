@@ -15,40 +15,67 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func addnewlines(f string) string {
-	f = strings.ReplaceAll(f, "HandlerInfo{", "HandlerInfo{\n") // beginning composite literal
-	f = strings.ReplaceAll(f, "}, \"", "},\n\"")                // after each line
-	f = strings.ReplaceAll(f, "}}", "},\n}")                    // ending composite literal
+func addnewlines(f string, hit string) string {
+	f = strings.ReplaceAll(f, fmt.Sprintf("%s{", hit), fmt.Sprintf("%s{\n", hit)) // beginning composite literal
+	f = strings.ReplaceAll(f, "}, \"", "},\n\"")                                  // after each line
+	f = strings.ReplaceAll(f, "}}", "},\n}")                                      // ending composite literal
 	return f
 }
 
-func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string, version string) error {
+func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname, hit, hii, version string) error {
 	f := &ast.File{
-		Name: ast.NewIdent(pkgname),
-		Decls: []ast.Decl{
-			&ast.GenDecl{
-				Tok:   token.IMPORT,
-				Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", "net/http")}}},
-			},
-			&ast.GenDecl{
-				Tok: token.TYPE,
-				Specs: []ast.Spec{&ast.TypeSpec{
-					Name: &ast.Ident{Name: "HandlerInfo"},
-					Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
-						{
-							Names: []*ast.Ident{{Name: "Method"}}, Type: &ast.Ident{Name: "string"},
-						},
-						{
-							Names: []*ast.Ident{{Name: "Path"}}, Type: &ast.Ident{Name: "string"},
-						},
-						{
-							Names: []*ast.Ident{{Name: "Ref"}},
-							Type:  &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "HandlerFunc"}},
-						},
-					}}},
-				}},
-			},
-		},
+		Name:  ast.NewIdent(pkgname),
+		Decls: []ast.Decl{},
+	}
+
+	if hii != "" {
+		i := &ast.GenDecl{
+			Tok:   token.IMPORT,
+			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", hii)}}},
+		}
+		f.Decls = append(f.Decls, i)
+	}
+
+	if hit == "" {
+		i := &ast.GenDecl{
+			Tok:   token.IMPORT,
+			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", "net/http")}}},
+		}
+
+		gd := &ast.GenDecl{
+			Tok: token.TYPE,
+			Specs: []ast.Spec{&ast.TypeSpec{
+				Name: &ast.Ident{Name: "HandlerInfo"},
+				Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
+					{
+						Names: []*ast.Ident{{Name: "Method"}}, Type: &ast.Ident{Name: "string"},
+					},
+					{
+						Names: []*ast.Ident{{Name: "Path"}}, Type: &ast.Ident{Name: "string"},
+					},
+					{
+						Names: []*ast.Ident{{Name: "Ref"}},
+						Type:  &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "HandlerFunc"}},
+					},
+				}}},
+			}},
+		}
+		f.Decls = append(f.Decls, i, gd)
+	}
+
+	var hi ast.Expr
+	if hit == "" {
+		hi = &ast.Ident{Name: "HandlerInfo"}
+	} else {
+		ss := strings.Split(hit, ".")
+		switch len(ss) {
+		case 2:
+			hi = &ast.SelectorExpr{X: ast.NewIdent(ss[0]), Sel: ast.NewIdent(ss[1])}
+		case 1:
+			hi = ast.NewIdent(ss[0])
+		default:
+			return fmt.Errorf("expected none or only one dot in the handler info type, found: %d", len(ss))
+		}
 	}
 
 	fds := []ast.Decl{}
@@ -83,12 +110,12 @@ func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.I
 			Type: &ast.FuncType{
 				Params: &ast.FieldList{List: []*ast.Field{}},
 				Results: &ast.FieldList{List: []*ast.Field{
-					{Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "HandlerInfo"}}},
+					{Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: hi}},
 				}},
 			},
 			Body: &ast.BlockStmt{List: []ast.Stmt{
 				&ast.ReturnStmt{Results: []ast.Expr{&ast.CompositeLit{
-					Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "HandlerInfo"}},
+					Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: hi},
 					Elts: elts,
 				}}},
 			}},
@@ -136,7 +163,12 @@ func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.I
 		return fmt.Errorf("creating output file: %w", err)
 	}
 	defer o.Close()
-	bt, err := format.Source([]byte(addnewlines(b.String())))
+
+	h := "HandlerInfo"
+	if hit != "" {
+		h = hit
+	}
+	bt, err := format.Source([]byte(addnewlines(b.String(), h)))
 	if err != nil {
 		return fmt.Errorf("formatting output file: %w", err)
 	}
