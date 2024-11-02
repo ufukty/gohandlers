@@ -22,21 +22,21 @@ func addnewlines(f string, hit string) string {
 	return f
 }
 
-func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname, hit, hii, version string) error {
+func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname, typ, imp, version string) error {
 	f := &ast.File{
 		Name:  ast.NewIdent(pkgname),
 		Decls: []ast.Decl{},
 	}
 
-	if hii != "" {
+	if imp != "" {
 		i := &ast.GenDecl{
 			Tok:   token.IMPORT,
-			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", hii)}}},
+			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", imp)}}},
 		}
 		f.Decls = append(f.Decls, i)
 	}
 
-	if hit == "" {
+	if typ == "" {
 		i := &ast.GenDecl{
 			Tok:   token.IMPORT,
 			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", "net/http")}}},
@@ -64,10 +64,10 @@ func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.I
 	}
 
 	var hi ast.Expr
-	if hit == "" {
+	if typ == "" {
 		hi = &ast.Ident{Name: "HandlerInfo"}
 	} else {
-		ss := strings.Split(hit, ".")
+		ss := strings.Split(typ, ".")
 		switch len(ss) {
 		case 2:
 			hi = &ast.SelectorExpr{X: ast.NewIdent(ss[0]), Sel: ast.NewIdent(ss[1])}
@@ -165,8 +165,8 @@ func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.I
 	defer o.Close()
 
 	h := "HandlerInfo"
-	if hit != "" {
-		h = hit
+	if typ != "" {
+		h = typ
 	}
 	bt, err := format.Source([]byte(addnewlines(b.String(), h)))
 	if err != nil {
