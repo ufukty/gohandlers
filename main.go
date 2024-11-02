@@ -105,6 +105,20 @@ func routeparams(ts *ast.TypeSpec) []string {
 	return ps
 }
 
+func containsbody(ts *ast.TypeSpec) bool {
+	if st, ok := ts.Type.(*ast.StructType); ok {
+		for _, f := range st.Fields.List {
+			if f.Tag != nil {
+				st := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
+				if _, ok := st.Lookup("json"); ok {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 var methods = []string{
 	http.MethodGet,
 	http.MethodHead,
@@ -205,8 +219,14 @@ func Main() error {
 
 			m, ok := findMethod(h)
 			if !ok {
-				m = http.MethodGet
+				if bq != nil && containsbody(bq) {
+					m = http.MethodPost
+				} else {
+					m = http.MethodGet
+				}
+				fmt.Fprintf(os.Stderr, "notice: method %q implicitly assigned to %q\n", m, h.Name.Name)
 			}
+			fmt.Printf("adding %s %s...\n", m, h.Name.Name)
 
 			ps := routeparams(bq)
 			for i := range ps {
