@@ -15,10 +15,6 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func recvn(s string) string {
-	return strings.ToLower(string(s[0:2]))
-}
-
 func addnewlines(f string) string {
 	f = strings.ReplaceAll(f, "HandlerInfo{", "HandlerInfo{\n") // beginning composite literal
 	f = strings.ReplaceAll(f, "}, \"", "},\n\"")                // after each line
@@ -26,7 +22,7 @@ func addnewlines(f string) string {
 	return f
 }
 
-func HandlersFile(dst string, infoss map[string]map[string]inspects.Info, pkgname string, version string) error {
+func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string, version string) error {
 	f := &ast.File{
 		Name: ast.NewIdent(pkgname),
 		Decls: []ast.Decl{
@@ -98,10 +94,10 @@ func HandlersFile(dst string, infoss map[string]map[string]inspects.Info, pkgnam
 			}},
 		}
 
-		if recvt != "" {
+		if recvt.Type != "" {
 			fd.Recv = &ast.FieldList{List: []*ast.Field{{
-				Names: []*ast.Ident{{Name: recvn(recvt)}},
-				Type:  &ast.StarExpr{X: &ast.Ident{Name: recvt}},
+				Names: []*ast.Ident{{Name: recvt.Name}},
+				Type:  &ast.StarExpr{X: &ast.Ident{Name: recvt.Type}},
 			}}}
 		}
 

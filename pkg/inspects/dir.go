@@ -153,7 +153,11 @@ type Info struct {
 	Ref    ast.Expr
 }
 
-func Dir(dir string) (map[string]map[string]Info, string, error) {
+type Receiver struct {
+	Name, Type string
+}
+
+func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 	d, err := parser.ParseDir(token.NewFileSet(), dir, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
 		return nil, "", fmt.Errorf("parsing files in directory: %w", err)
@@ -166,7 +170,7 @@ func Dir(dir string) (map[string]map[string]Info, string, error) {
 	}
 	p := d[maps.Keys(d)[0]]
 
-	infoss := map[string]map[string]Info{} // per receiver type
+	infoss := map[Receiver]map[string]Info{}
 	for _, f := range p.Files {
 		if h, ok := findHandler(f); ok {
 			bq, ok := findTypeSpec(f, fmt.Sprintf("%sRequest", h.Name.Name))
@@ -214,15 +218,16 @@ func Dir(dir string) (map[string]map[string]Info, string, error) {
 				n = h.Name
 			}
 
+			r := Receiver{recvn(recvt), recvt}
 			i := Info{
 				Method: m,
 				Path:   path,
 				Ref:    n,
 			}
-			if _, ok := infoss[recvt]; !ok {
-				infoss[recvt] = map[string]Info{}
+			if _, ok := infoss[r]; !ok {
+				infoss[r] = map[string]Info{}
 			}
-			infoss[recvt][h.Name.Name] = i
+			infoss[r][h.Name.Name] = i
 		}
 	}
 

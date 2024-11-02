@@ -13,7 +13,7 @@ type YamlHandler struct {
 	Path   string `yaml:"path"`
 }
 
-func YamlFile(dst string, infoss map[string]map[string]inspects.Info) error {
+func YamlFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info) error {
 	hs := map[string]YamlHandler{}
 	for _, infos := range infoss {
 		for n, h := range infos {
