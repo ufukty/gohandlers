@@ -15,68 +15,26 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func addnewlines(f string, hit string) string {
+func addnewlines(f string) string {
+	hit := "reception.HandlerInfo"
 	f = strings.ReplaceAll(f, fmt.Sprintf("%s{", hit), fmt.Sprintf("%s{\n", hit)) // beginning composite literal
 	f = strings.ReplaceAll(f, "}, \"", "},\n\"")                                  // after each line
 	f = strings.ReplaceAll(f, "}}", "},\n}")                                      // ending composite literal
 	return f
 }
 
-func ListFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname, typ, imp, version string) error {
+func ListFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname, version string) error {
 	f := &ast.File{
 		Name:  ast.NewIdent(pkgname),
 		Decls: []ast.Decl{},
 	}
 
-	if imp != "" {
-		i := &ast.GenDecl{
-			Tok:   token.IMPORT,
-			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", imp)}}},
-		}
-		f.Decls = append(f.Decls, i)
-	}
+	f.Decls = append(f.Decls, &ast.GenDecl{
+		Tok:   token.IMPORT,
+		Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", "logbook/internal/web/reception")}}},
+	})
 
-	if typ == "" {
-		i := &ast.GenDecl{
-			Tok:   token.IMPORT,
-			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", "net/http")}}},
-		}
-
-		gd := &ast.GenDecl{
-			Tok: token.TYPE,
-			Specs: []ast.Spec{&ast.TypeSpec{
-				Name: &ast.Ident{Name: "HandlerInfo"},
-				Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
-					{
-						Names: []*ast.Ident{{Name: "Method"}}, Type: &ast.Ident{Name: "string"},
-					},
-					{
-						Names: []*ast.Ident{{Name: "Path"}}, Type: &ast.Ident{Name: "string"},
-					},
-					{
-						Names: []*ast.Ident{{Name: "Ref"}},
-						Type:  &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "HandlerFunc"}},
-					},
-				}}},
-			}},
-		}
-		f.Decls = append(f.Decls, i, gd)
-	}
-
-	var hi ast.Expr
-	if typ == "" {
-		hi = &ast.Ident{Name: "HandlerInfo"}
-	} else {
-		ss := strings.Split(typ, ".")
-		switch len(ss) {
-		case 2:
-			hi = &ast.SelectorExpr{X: ast.NewIdent(ss[0]), Sel: ast.NewIdent(ss[1])}
-		case 1:
-			hi = ast.NewIdent(ss[0])
-		default:
-			return fmt.Errorf("expected none or only one dot in the handler info type, found: %d", len(ss))
-		}
-	}
+	hi := &ast.SelectorExpr{X: ast.NewIdent("reception"), Sel: ast.NewIdent("HandlerInfo")}
 
 	fds := []ast.Decl{}
 	for recvt, infos := range infoss {
@@ -164,11 +122,7 @@ func ListFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info,
 	}
 	defer o.Close()
 
-	h := "HandlerInfo"
-	if typ != "" {
-		h = typ
-	}
-	bt, err := format.Source([]byte(addnewlines(b.String(), h)))
+	bt, err := format.Source([]byte(addnewlines(b.String())))
 	if err != nil {
 		return fmt.Errorf("formatting output file: %w", err)
 	}
