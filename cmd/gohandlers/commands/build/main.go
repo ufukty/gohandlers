@@ -1,4 +1,4 @@
-package main
+package build
 
 import (
 	"bytes"
@@ -359,11 +359,4 @@ func Main() error {
 	fmt.Fprint(fh, post(b.String()))
 
 	return nil
-}
-
-func main() {
-	if err := Main(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
 }
