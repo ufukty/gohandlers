@@ -7,6 +7,7 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/pkg/inspects"
 	"os"
 	"path/filepath"
@@ -356,6 +357,7 @@ func Main() error {
 	if err != nil {
 		return fmt.Errorf("printing: %w", err)
 	}
+	fmt.Fprint(fh, version.Top())
 	fmt.Fprint(fh, post(b.String()))
 
 	return nil

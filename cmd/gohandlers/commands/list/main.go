@@ -3,7 +3,6 @@ package list
 import (
 	"flag"
 	"fmt"
-	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/pkg/implements"
 	"gohandlers/pkg/inspects"
 	"path/filepath"
@@ -30,7 +29,7 @@ func Main() error {
 		return fmt.Errorf("inspecting directory and handlers: %w", err)
 	}
 
-	err = implements.ListFile(filepath.Join(args.Dir, args.Out), infoss, pkgname, version.Version)
+	err = implements.ListFile(filepath.Join(args.Dir, args.Out), infoss, pkgname)
 	if err != nil {
 		return fmt.Errorf("creating the main file: %w", err)
 	}
