@@ -22,7 +22,7 @@ type Args struct {
 func Main() error {
 	args := Args{}
 	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files. one handler and a request binding type is allowed per file")
-	flag.StringVar(&args.Out, "out", "handlers.go", "output file that will be generated in the 'dir'")
+	flag.StringVar(&args.Out, "out", "handlers.gh.go", "output file that will be generated in the 'dir'")
 	flag.StringVar(&args.Type, "type", "", "the type substituded with HandlerInfo")
 	flag.StringVar(&args.Import, "import", "", "the package contains the hit declaration")
 	flag.StringVar(&args.Yaml, "yaml", "", "yaml file that will be generated in the 'dir'")

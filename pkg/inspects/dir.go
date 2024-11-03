@@ -77,14 +77,20 @@ func findTypeSpec(f *ast.File, n string) (*ast.TypeSpec, bool) {
 	return nil, false
 }
 
-func routeparams(ts *ast.TypeSpec) []string {
-	ps := []string{}
+type RequestTypeInfo struct {
+	Typename     string
+	RouteParams  map[string]string // route-param -> field-name
+	ContainsBody bool
+}
+
+func routeparams(ts *ast.TypeSpec) map[string]string {
+	ps := map[string]string{}
 	if st, ok := ts.Type.(*ast.StructType); ok {
 		for _, f := range st.Fields.List {
 			if f.Tag != nil {
 				st := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
 				if v, ok := st.Lookup("route"); ok {
-					ps = append(ps, v)
+					ps[v] = f.Names[0].Name
 				}
 			}
 		}
@@ -148,9 +154,10 @@ func kebab(input string) string {
 }
 
 type Info struct {
-	Method string
-	Path   string
-	Ref    ast.Expr
+	Method      string
+	Path        string
+	Ref         ast.Expr
+	RequestType *RequestTypeInfo
 }
 
 type Receiver struct {
@@ -173,14 +180,21 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 	infoss := map[Receiver]map[string]Info{}
 	for _, f := range p.Files {
 		if h, ok := findHandler(f); ok {
-			bq, ok := findTypeSpec(f, fmt.Sprintf("%sRequest", h.Name.Name))
+			rbtn := fmt.Sprintf("%sRequest", h.Name.Name)
+			bq, ok := findTypeSpec(f, rbtn)
 			if !ok {
 				continue
 			}
 
+			rti := &RequestTypeInfo{
+				Typename:     rbtn,
+				RouteParams:  map[string]string{},
+				ContainsBody: containsbody(bq),
+			}
+
 			m, ok := findMethod(h)
 			if !ok {
-				if bq != nil && containsbody(bq) {
+				if rti.ContainsBody {
 					m = http.MethodPost
 				} else {
 					m = http.MethodGet
@@ -189,9 +203,10 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 			}
 			fmt.Printf("adding %s %s...\n", m, h.Name.Name)
 
-			ps := routeparams(bq)
-			for i := range ps {
-				ps[i] = fmt.Sprintf("{%s}", ps[i])
+			rti.RouteParams = routeparams(bq)
+			ps := []string{}
+			for i := range rti.RouteParams {
+				ps = append(ps, fmt.Sprintf("{%s}", i))
 			}
 
 			path := fmt.Sprintf("/%s", kebab(h.Name.Name))
@@ -220,9 +235,10 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 
 			r := Receiver{recvn(recvt), recvt}
 			i := Info{
-				Method: m,
-				Path:   path,
-				Ref:    n,
+				Method:      m,
+				Path:        path,
+				Ref:         n,
+				RequestType: rti,
 			}
 			if _, ok := infoss[r]; !ok {
 				infoss[r] = map[string]Info{}
