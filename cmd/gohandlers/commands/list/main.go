@@ -34,7 +34,7 @@ func Main() error {
 		return fmt.Errorf("inspecting directory and handlers: %w", err)
 	}
 
-	err = implements.HandlersFile(filepath.Join(args.Dir, args.Out), infoss, pkgname, args.Type, args.Import, version.Version)
+	err = implements.ListFile(filepath.Join(args.Dir, args.Out), infoss, pkgname, args.Type, args.Import, version.Version)
 	if err != nil {
 		return fmt.Errorf("creating the main file: %w", err)
 	}

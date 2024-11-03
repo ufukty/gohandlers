@@ -22,7 +22,7 @@ func addnewlines(f string, hit string) string {
 	return f
 }
 
-func HandlersFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname, typ, imp, version string) error {
+func ListFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname, typ, imp, version string) error {
 	f := &ast.File{
 		Name:  ast.NewIdent(pkgname),
 		Decls: []ast.Decl{},
