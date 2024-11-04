@@ -17,6 +17,7 @@ import (
 )
 
 func addnewlines(f string) string {
+	f = strings.ReplaceAll(f, "}\nfunc", "}\n\nfunc")
 	hit := "reception.HandlerInfo"
 	f = strings.ReplaceAll(f, fmt.Sprintf("%s{", hit), fmt.Sprintf("%s{\n", hit)) // beginning composite literal
 	f = strings.ReplaceAll(f, "}, \"", "},\n\"")                                  // after each line
