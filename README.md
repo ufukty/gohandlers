@@ -10,20 +10,19 @@ gohandlers allows defining the path and method information in one place and to g
 gohandlers [command] <command args>
 
 commands:
-    list   : Produces the file contains ListHandlers function/methods
-    build  : Produces the file contains Build methods for binding types
-    parse  : Produces the file contains Parse methods for binding types
-    yaml   : Produces a yaml file contains handler paths and methods for non-Go clients
+    bindings : Produces the file contains Build and Parse methods for binding types
+    list     : Produces the file contains ListHandlers function/methods
+    yaml     : Produces a yaml file contains handler paths and methods for non-Go clients
 
 Run to get help on specific command, where available:
     gohandlers [command] --help
 ```
 
-## Files
+## Commands
 
-gohandlers can generate various type of files.
+gohandlers provides multiple commands each produce a file.
 
-**list.gh.go** — Listing handlers for router registration
+### Listing handlers to register into a router with `list` command
 
 gohandlers can generate a function which returns a `map` of handlers. This allows developer to register handlers to `http.ServeMux` (or a router of dev's choice) by simply iterating over it and call the router's method.
 
@@ -37,20 +36,18 @@ func (p *Public) ListHandlers() map[string]reception.HandlerInfo
 func (p *Private) ListHandlers() map[string]reception.HandlerInfo
 ```
 
-**parse.gh.go** — Parsers are for populating binding types
+### Implementing parser and builder methods on bindings with `bindings` command
 
-gohandlers can produce a file which contains a series of `Parse` methods implemented on each binding type. Those methods accept `*http.Request` or `*http.Response` values for request and response binding types, respectively. Parse method uses the argument to populate fields of binding type.
+gohandlers can produce a file which contains a series of `Build` and `Parse` methods implemented on available binding types.
+
+Parse methods accept `*http.Request` or `*http.Response` values for request and response binding types, respectively. Those methods use the argument to populate fields of binding type.
 
 ```go
 func (bq XRequest) Parse(rq *http.Request) error
 func (bs XResponse) Parse(rs *http.Response) error
 ```
 
-The produced file named as `parse.gh.go` by default.
-
-**build.gh.go** — Builders are for creating requests and responses to use with standard library
-
-gohandlers can produce a file which contains a series of `Build` methods implemented on each binding type. Those methods returns an instance of `*http.Request` or `*http.Response` reflects the information contained in the binding type. Caller can use `*http.Request` value to call `http.DefaultClient.Do` or dev's other choice.
+`Build` methods returns an instance of `*http.Request` or `*http.Response` reflects the information contained in the binding type. Caller can use `*http.Request` value to call `http.DefaultClient.Do` or dev's other choice.
 
 ```go
 func (bq XRequest) Build(host ) (*http.Request, error)
@@ -58,6 +55,8 @@ func (bs XResponse) Build() (*http.Response, error)
 ```
 
 Build method on requests needs host information as `http.NewRequest` asks for it.
+
+The produced file named as `bindings.gh.go` by default.
 
 ## Features
 
