@@ -5,9 +5,6 @@ import (
 	"go/ast"
 	"go/token"
 	"gohandlers/pkg/inspects"
-	"slices"
-
-	"golang.org/x/exp/maps"
 )
 
 // produces the bqtn.Build method
@@ -46,20 +43,10 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 		},
 	)
 	replacements := []ast.Stmt{}
-	o := maps.Keys(info.RequestType.RouteParams)
-	slices.SortFunc(o, func(a, b string) int {
-		va := info.RequestType.RouteParams[a]
-		vb := info.RequestType.RouteParams[b]
-		if va < vb {
-			return -1
-		} else if va > vb {
-			return 1
-		} else {
-			return 0
-		}
-	})
-	for _, routeparam := range o {
+
+	for _, routeparam := range keysSortedByValues(info.RequestType.RouteParams) {
 		fieldname := info.RequestType.RouteParams[routeparam]
+
 		replacements = append(replacements,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "encoded"}, &ast.Ident{Name: "err"}},

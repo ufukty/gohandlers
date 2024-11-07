@@ -11,7 +11,10 @@ import (
 	"gohandlers/pkg/inspects"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
+
+	"golang.org/x/exp/maps"
 )
 
 func ternary[T any](cond bool, t, f T) T {
@@ -23,6 +26,22 @@ func ternary[T any](cond bool, t, f T) T {
 
 func quotes(s string) string {
 	return fmt.Sprintf("%q", s)
+}
+
+func keysSortedByValues(src map[string]string) []string {
+	o := maps.Keys(src)
+	slices.SortFunc(o, func(a, b string) int {
+		va := src[a]
+		vb := src[b]
+		if va < vb {
+			return -1
+		} else if va > vb {
+			return 1
+		} else {
+			return 0
+		}
+	})
+	return o
 }
 
 type Args struct {
