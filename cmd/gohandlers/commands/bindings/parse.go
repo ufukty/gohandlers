@@ -66,7 +66,7 @@ func bqParse(info inspects.Info) *ast.FuncDecl {
 	}
 
 	for _, qp := range keysSortedByValues(info.RequestType.QueryParams) {
-		fn := info.RequestType.RouteParams[qp]
+		fn := info.RequestType.QueryParams[qp]
 
 		fd.Body.List = append(fd.Body.List,
 			&ast.AssignStmt{
