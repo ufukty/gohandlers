@@ -90,6 +90,10 @@ func Main() error {
 		},
 	}
 
+	if needsjoin(infoss) {
+		f.Decls = append(f.Decls, join())
+	}
+
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]
 		if i.RequestType != nil {

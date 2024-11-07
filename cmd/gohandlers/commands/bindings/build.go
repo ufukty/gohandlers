@@ -259,7 +259,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 				Args: []ast.Expr{
 					&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", info.Method)},
 					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "urls"}, Sel: &ast.Ident{Name: "Join"}},
+						Fun: &ast.Ident{Name: "join"},
 						Args: []ast.Expr{
 							&ast.CallExpr{Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "h"}, Sel: &ast.Ident{Name: "String"}}, Args: nil},
 							&ast.Ident{Name: "uri"},
