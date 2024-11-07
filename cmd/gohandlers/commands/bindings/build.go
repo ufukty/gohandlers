@@ -6,6 +6,8 @@ import (
 	"go/token"
 	"gohandlers/pkg/inspects"
 	"slices"
+
+	"golang.org/x/exp/maps"
 )
 
 // produces the bqtn.Build method
@@ -30,16 +32,55 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 		Body: &ast.BlockStmt{List: []ast.Stmt{}},
 	}
 
+	type symboltable struct {
+		err     bool
+		encoded bool
+	}
+	symbols := symboltable{}
+
 	fd.Body.List = append(fd.Body.List,
 		&ast.AssignStmt{
 			Lhs: []ast.Expr{&ast.Ident{Name: "uri"}},
 			Tok: token.DEFINE,
-			Rhs: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", info.Path)}},
+			Rhs: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(info.Path)}},
 		},
 	)
 	replacements := []ast.Stmt{}
-	for routeparam, fieldname := range info.RequestType.RouteParams {
+	o := maps.Keys(info.RequestType.RouteParams)
+	slices.SortFunc(o, func(a, b string) int {
+		va := info.RequestType.RouteParams[a]
+		vb := info.RequestType.RouteParams[b]
+		if va < vb {
+			return -1
+		} else if va > vb {
+			return 1
+		} else {
+			return 0
+		}
+	})
+	for _, routeparam := range o {
+		fieldname := info.RequestType.RouteParams[routeparam]
 		replacements = append(replacements,
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{&ast.Ident{Name: "encoded"}, &ast.Ident{Name: "err"}},
+				Tok: ternary(symbols.encoded && symbols.err, token.ASSIGN, token.DEFINE),
+				Rhs: []ast.Expr{&ast.CallExpr{Fun: &ast.SelectorExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: "Root"}}, Sel: &ast.Ident{Name: "ToRoute"}}}},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
+				Body: &ast.BlockStmt{List: []ast.Stmt{
+					&ast.ReturnStmt{Results: []ast.Expr{
+						&ast.Ident{Name: "nil"},
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+							Args: []ast.Expr{
+								&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s.%s.ToRoute: %%w", info.RequestType.Typename, fieldname))},
+								&ast.Ident{Name: "err"},
+							},
+						},
+					}},
+				}},
+			},
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "uri"}},
 				Tok: token.ASSIGN,
@@ -48,29 +89,17 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 						Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "strings"}, Sel: &ast.Ident{Name: "Replace"}},
 						Args: []ast.Expr{
 							&ast.Ident{Name: "uri"},
-							&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", fmt.Sprintf("{%s}", routeparam))},
-							&ast.CallExpr{
-								Fun:  &ast.Ident{Name: "string"},
-								Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fieldname}}},
-							},
+							&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("{%s}", routeparam))},
+							&ast.Ident{Name: "encoded"},
 							&ast.BasicLit{Kind: token.INT, Value: "1"},
 						},
 					},
 				},
 			},
 		)
+		symbols.encoded = true
+		symbols.err = true
 	}
-	slices.SortFunc(replacements, func(a, b ast.Stmt) int {
-		va := a.(*ast.AssignStmt).Rhs[0].(*ast.CallExpr).Args[1].(*ast.BasicLit).Value
-		vb := b.(*ast.AssignStmt).Rhs[0].(*ast.CallExpr).Args[1].(*ast.BasicLit).Value
-		if va < vb {
-			return -1
-		} else if va == vb {
-			return 0
-		} else {
-			return 1
-		}
-	})
 	fd.Body.List = append(fd.Body.List, replacements...)
 
 	if info.RequestType.ContainsBody {
