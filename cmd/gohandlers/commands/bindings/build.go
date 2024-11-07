@@ -44,8 +44,8 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 	)
 	replacements := []ast.Stmt{}
 
-	for _, routeparam := range keysSortedByValues(info.RequestType.RouteParams) {
-		fieldname := info.RequestType.RouteParams[routeparam]
+	for _, rp := range keysSortedByValues(info.RequestType.RouteParams) {
+		fn := info.RequestType.RouteParams[rp]
 
 		replacements = append(replacements,
 			&ast.AssignStmt{
@@ -61,7 +61,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 						&ast.CallExpr{
 							Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
 							Args: []ast.Expr{
-								&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s.%s.ToRoute: %%w", info.RequestType.Typename, fieldname))},
+								&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s.%s.ToRoute: %%w", info.RequestType.Typename, fn))},
 								&ast.Ident{Name: "err"},
 							},
 						},
@@ -76,7 +76,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 						Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "strings"}, Sel: &ast.Ident{Name: "Replace"}},
 						Args: []ast.Expr{
 							&ast.Ident{Name: "uri"},
-							&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("{%s}", routeparam))},
+							&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("{%s}", rp))},
 							&ast.Ident{Name: "encoded"},
 							&ast.BasicLit{Kind: token.INT, Value: "1"},
 						},
