@@ -112,25 +112,51 @@ func X(w http.ResponseWriter, r *http.Request)
 
 gohandlers implicitly assign most fitting HTTP method to every handler that doesn't specify its prefered HTTP method on the top-of-the handler comment block. The handler is assigned as `GET` if there is no `json` tag specified field in its request binding type. Otherwise it marked as a `POST` request. gohandler prints notice to terminal for implicit method assignments per handler.
 
-**Type respecting field value assignment**
+**User provided serialization and deserialization**
 
 Values in an incoming HTTP requests are always textual even when they are not meant to be processed as a text. A parsing process should perform the type conversions from text to intented type. Also, the process should take failures in conversion into account. gohandlers implement `Parse` methods with such care.
 
-gohandlers expects fields of binding structs to only be in the types which explicitly defines the deserialization method.
+gohandlers expects fields of binding structs to only be in the types which explicitly defines the serialization and deserialization method from route paramaters and query parameters.
 
-The signature for the method every type should implement:
+There is 2 interfaces for the types that is intended to be used for fields.
+
+- For fields used for route parameters, the type needs to conform `Routier` interface.
+- For fields used for query parameters, the type needs to conform `Querier` interface.
 
 ```go
-func (x *X) Set(v string) error
+type Routier interface {
+  FromRoute(string) error
+  ToRoute() (string, error)
+}
+
+type Querier interface {
+  FromQuery(string) error
+  ToQuery() (string, error)
+}
 ```
 
 Such as:
 
 ```go
 type UserId int
-func (uid *UserId) Set(s string) error
+
+func (uid *UserId) FromRoute(s string) error { /* ... */ }
+func (uid *UserId) ToRoute() (string, error) { /* ... */ }
+
+type XRequest struct {
+  Uid UserId `route:"uid"`
+}
+
+func X(w http.ResponseWriter, r *http.Request) {}
 ```
 
-Now the `UserId` can be used as a field's type in a binding type. Value assignment in the `Parse` method for related field of this type will involve the call of `Set` method instead of using `=` operator. Following line in the `Parse` method will check if `Set` returned an error. If so, the `Parse` method will also return early after wrap the error. gohandlers will follow the import path for examining the type's declaration and methods.
+## Miscellaneous
 
-Any request field's type that is neither textual nor implements `Set` method will lead the generation to exit with failure. The types will be listed on terminal to allow dev to fix the issue.
+Outline of the geneated methods' usage:
+
+```
+┌─────── Client ───────┐   ┌─────── Server ───────┐
+│  Request.Build  ─────┼───┼─► Request.Parse      │
+│    Response.Parse ◄──┼───┼──── Response.Build   │
+└──────────────────────┘   └──────────────────────┘
+```
