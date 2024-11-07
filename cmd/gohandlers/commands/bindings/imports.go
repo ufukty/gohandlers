@@ -7,10 +7,10 @@ import (
 	"slices"
 )
 
-func pathvarimports(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func needsStrings(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
-			if info.RequestType != nil && len(info.RequestType.RouteParams) > 0 {
+			if info.RequestType != nil {
 				return true
 			}
 		}
@@ -42,7 +42,7 @@ func imports(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"mime"`}},
 		)
 	}
-	if pathvarimports(infoss) {
+	if needsStrings(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"strings"`}},
 		)
