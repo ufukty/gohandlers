@@ -42,12 +42,11 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 			Rhs: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(info.Path)}},
 		},
 	)
-	replacements := []ast.Stmt{}
 
 	for _, rp := range keysSortedByValues(info.RequestType.RouteParams) {
 		fn := info.RequestType.RouteParams[rp]
 
-		replacements = append(replacements,
+		fd.Body.List = append(fd.Body.List,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "encoded"}, &ast.Ident{Name: "err"}},
 				Tok: ternary(symbols.encoded && symbols.err, token.ASSIGN, token.DEFINE),
@@ -87,7 +86,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 		symbols.encoded = true
 		symbols.err = true
 	}
-	fd.Body.List = append(fd.Body.List, replacements...)
+
 
 	if info.RequestType.ContainsBody {
 		fd.Body.List = append(fd.Body.List,
