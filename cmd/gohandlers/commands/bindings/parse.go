@@ -30,7 +30,9 @@ func bqParse(info inspects.Info) *ast.FuncDecl {
 	}
 	symbols := symboltable{}
 
-	for rp, fn := range info.RequestType.RouteParams {
+	for _, rp := range keysSortedByValues(info.RequestType.RouteParams) {
+		fn := info.RequestType.RouteParams[rp]
+
 		fd.Body.List = append(fd.Body.List,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
@@ -63,7 +65,9 @@ func bqParse(info inspects.Info) *ast.FuncDecl {
 		symbols.err = true
 	}
 
-	for qp, fn := range info.RequestType.QueryParams {
+	for _, qp := range keysSortedByValues(info.RequestType.QueryParams) {
+		fn := info.RequestType.RouteParams[qp]
+
 		fd.Body.List = append(fd.Body.List,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "q"}},
