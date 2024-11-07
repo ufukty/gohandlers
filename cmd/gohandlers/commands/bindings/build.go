@@ -203,26 +203,3 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 
 	return fd
 }
-
-func bqBuildFuncs(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
-	fds := []ast.Decl{}
-	for _, infos := range infoss {
-		for _, info := range infos {
-			if info.RequestType != nil {
-				fds = append(fds, bqBuild(info))
-			}
-		}
-	}
-	slices.SortFunc(fds, func(a, b ast.Decl) int {
-		na := a.(*ast.FuncDecl).Recv.List[0].Type.(*ast.Ident).Name
-		nb := b.(*ast.FuncDecl).Recv.List[0].Type.(*ast.Ident).Name
-		if na < nb {
-			return -1
-		} else if na == nb {
-			return 0
-		} else {
-			return 1
-		}
-	})
-	return fds
-}

@@ -67,7 +67,13 @@ func Main() error {
 		},
 	}
 
-	f.Decls = append(f.Decls, bqBuildFuncs(infoss)...)
+	for _, o := range ordered(infoss) {
+		i := infoss[o.receiver][o.handler]
+		if i.RequestType != nil {
+			f.Decls = append(f.Decls, bqBuild(i))
+			f.Decls = append(f.Decls, bqParse(i))
+		}
+	}
 
 	if args.Out == "" {
 		args.Out = "bindings.gh.go"
