@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"gohandlers/cmd/gohandlers/commands/build"
+	"gohandlers/cmd/gohandlers/commands/bindings"
 	"gohandlers/cmd/gohandlers/commands/list"
 	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/cmd/gohandlers/commands/yaml"
@@ -14,10 +14,10 @@ import (
 
 func Main() error {
 	commands := map[string]func() error{
-		"build":   build.Main,
-		"list":    list.Main,
-		"version": version.Main,
-		"yaml":    yaml.Main,
+		"bindings": bindings.Main,
+		"list":     list.Main,
+		"version":  version.Main,
+		"yaml":     yaml.Main,
 	}
 
 	if len(os.Args) < 2 {
