@@ -21,6 +21,10 @@ func ternary[T any](cond bool, t, f T) T {
 	return f
 }
 
+func quotes(s string) string {
+	return fmt.Sprintf("%q", s)
+}
+
 type Args struct {
 	Dir  string
 	Out  string
@@ -70,8 +74,11 @@ func Main() error {
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]
 		if i.RequestType != nil {
-			f.Decls = append(f.Decls, bqBuild(i))
-			f.Decls = append(f.Decls, bqParse(i))
+			notempty := i.RequestType.ContainsBody || len(i.RequestType.RouteParams) > 0 || len(i.RequestType.QueryParams) > 0
+			if notempty {
+				f.Decls = append(f.Decls, bqBuild(i))
+				f.Decls = append(f.Decls, bqParse(i))
+			}
 		}
 	}
 

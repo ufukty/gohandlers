@@ -80,22 +80,27 @@ func findTypeSpec(f *ast.File, n string) (*ast.TypeSpec, bool) {
 type RequestTypeInfo struct {
 	Typename     string
 	RouteParams  map[string]string // route-param -> field-name
+	QueryParams  map[string]string // query-param -> field-name
 	ContainsBody bool
 }
 
-func routeparams(ts *ast.TypeSpec) map[string]string {
-	ps := map[string]string{}
+func (rti *RequestTypeInfo) inspectparams(ts *ast.TypeSpec) {
+	rti.RouteParams = map[string]string{}
+	rti.QueryParams = map[string]string{}
+
 	if st, ok := ts.Type.(*ast.StructType); ok {
 		for _, f := range st.Fields.List {
 			if f.Tag != nil {
 				st := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
 				if v, ok := st.Lookup("route"); ok {
-					ps[v] = f.Names[0].Name
+					rti.RouteParams[v] = f.Names[0].Name
+				}
+				if v, ok := st.Lookup("query"); ok {
+					rti.QueryParams[v] = f.Names[0].Name
 				}
 			}
 		}
 	}
-	return ps
 }
 
 func containsbody(ts *ast.TypeSpec) bool {
@@ -203,7 +208,8 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 			}
 			fmt.Printf("adding %s %s...\n", m, h.Name.Name)
 
-			rti.RouteParams = routeparams(bq)
+			rti.inspectparams(bq)
+
 			ps := []string{}
 			for i := range rti.RouteParams {
 				ps = append(ps, fmt.Sprintf("{%s}", i))
