@@ -67,7 +67,7 @@ func Main() error {
 		},
 	}
 
-	f.Decls = append(f.Decls, buildfuncs(infoss)...)
+	f.Decls = append(f.Decls, bqBuildFuncs(infoss)...)
 
 	if args.Out == "" {
 		args.Out = "bindings.gh.go"

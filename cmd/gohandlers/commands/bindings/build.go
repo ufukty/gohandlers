@@ -9,7 +9,7 @@ import (
 )
 
 // produces the bqtn.Build method
-func build(info inspects.Info) *ast.FuncDecl {
+func bqBuild(info inspects.Info) *ast.FuncDecl {
 	fd := &ast.FuncDecl{
 		Recv: &ast.FieldList{List: []*ast.Field{
 			{Names: []*ast.Ident{{Name: "bq"}}, Type: &ast.Ident{Name: info.RequestType.Typename}},
@@ -204,12 +204,12 @@ func build(info inspects.Info) *ast.FuncDecl {
 	return fd
 }
 
-func buildfuncs(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
+func bqBuildFuncs(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
 	fds := []ast.Decl{}
 	for _, infos := range infoss {
 		for _, info := range infos {
 			if info.RequestType != nil {
-				fds = append(fds, build(info))
+				fds = append(fds, bqBuild(info))
 			}
 		}
 	}
