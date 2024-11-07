@@ -131,7 +131,7 @@ type Routier interface {
 
 type Querier interface {
   FromQuery(string) error
-  ToQuery() (string, error)
+  ToQuery() (string, bool, error)
 }
 ```
 
@@ -149,6 +149,8 @@ type XRequest struct {
 
 func X(w http.ResponseWriter, r *http.Request) {}
 ```
+
+Since query parameters are optional, the `Querier` interface method `ToQuery` returns a boolean in the middle of output argument list which represents the availability of a value. Different than returning an error, when this value returned `false`, the `Build` method continues to execution without returning or including a section for that query parameter in the URI.
 
 ## Miscellaneous
 
