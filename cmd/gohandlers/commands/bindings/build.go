@@ -32,6 +32,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 	type symboltable struct {
 		err     bool
 		encoded bool
+		ok      bool
 	}
 	symbols := symboltable{}
 
@@ -87,6 +88,110 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 		symbols.err = true
 	}
 
+	if len(info.RequestType.QueryParams) > 0 {
+		fd.Body.List = append(fd.Body.List,
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{&ast.Ident{Name: "q"}},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{&ast.CompositeLit{Type: &ast.ArrayType{Elt: &ast.Ident{Name: "string"}}}},
+			},
+		)
+
+		for _, qp := range keysSortedByValues(info.RequestType.QueryParams) {
+			fn := info.RequestType.QueryParams[qp]
+
+			fd.Body.List = append(fd.Body.List,
+				&ast.AssignStmt{
+					Lhs: []ast.Expr{&ast.Ident{Name: "encoded"}, &ast.Ident{Name: "ok"}, &ast.Ident{Name: "err"}},
+					Tok: ternary(symbols.encoded && symbols.ok && symbols.err, token.ASSIGN, token.DEFINE),
+					Rhs: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}},
+								Sel: &ast.Ident{Name: "ToQuery"},
+							},
+						},
+					},
+				},
+				&ast.IfStmt{
+					Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
+					Body: &ast.BlockStmt{List: []ast.Stmt{
+						&ast.ReturnStmt{
+							Results: []ast.Expr{
+								&ast.Ident{Name: "nil"},
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+									Args: []ast.Expr{
+										&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s.%s.ToQuery: %%w", info.RequestType.Typename, fn))},
+										&ast.Ident{Name: "err"},
+									},
+								},
+							},
+						},
+					}},
+				},
+				&ast.IfStmt{
+					Cond: &ast.Ident{Name: "ok"},
+					Body: &ast.BlockStmt{List: []ast.Stmt{
+						&ast.AssignStmt{
+							Lhs: []ast.Expr{&ast.Ident{Name: "q"}},
+							Tok: token.ASSIGN,
+							Rhs: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.Ident{Name: "append"},
+									Args: []ast.Expr{
+										&ast.Ident{Name: "q"},
+										&ast.CallExpr{
+											Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Sprintf"}},
+											Args: []ast.Expr{
+												&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s=%%s", qp))},
+												&ast.Ident{Name: "encoded"},
+											},
+										},
+									},
+								},
+							},
+						},
+					}},
+				},
+			)
+			symbols.ok = true
+			symbols.encoded = true
+			symbols.err = true
+		}
+
+		fd.Body.List = append(fd.Body.List,
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X:  &ast.CallExpr{Fun: &ast.Ident{Name: "len"}, Args: []ast.Expr{&ast.Ident{Name: "q"}}},
+					Op: token.GTR,
+					Y:  &ast.BasicLit{Kind: token.INT, Value: "0"},
+				},
+				Body: &ast.BlockStmt{List: []ast.Stmt{
+					&ast.AssignStmt{
+						Lhs: []ast.Expr{&ast.Ident{Name: "uri"}},
+						Tok: token.ASSIGN,
+						Rhs: []ast.Expr{
+							&ast.CallExpr{
+								Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Sprintf"}},
+								Args: []ast.Expr{
+									&ast.BasicLit{Kind: token.STRING, Value: `"%s?%s"`},
+									&ast.Ident{Name: "uri"},
+									&ast.CallExpr{
+										Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "strings"}, Sel: &ast.Ident{Name: "Join"}},
+										Args: []ast.Expr{
+											&ast.Ident{Name: "q"},
+											&ast.BasicLit{Kind: token.STRING, Value: quotes("&")},
+										},
+									},
+								},
+							},
+						},
+					},
+				}},
+			},
+		)
+	}
 
 	if info.RequestType.ContainsBody {
 		fd.Body.List = append(fd.Body.List,
@@ -100,7 +205,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 			},
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: token.DEFINE,
+				Tok: ternary(symbols.err, token.ASSIGN, token.DEFINE),
 				Rhs: []ast.Expr{&ast.CallExpr{
 					Fun: &ast.SelectorExpr{
 						X: &ast.CallExpr{
@@ -126,6 +231,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 				}}}},
 			},
 		)
+		symbols.err = true
 	}
 
 	fd.Body.List = append(fd.Body.List,
