@@ -112,13 +112,13 @@ func X(w http.ResponseWriter, r *http.Request)
 
 gohandlers implicitly assign most fitting HTTP method to every handler that doesn't specify its prefered HTTP method on the top-of-the handler comment block. The handler is assigned as `GET` if there is no `json` tag specified field in its request binding type. Otherwise it marked as a `POST` request. gohandler prints notice to terminal for implicit method assignments per handler.
 
-**Type aware assignments**
+**Type respecting field value assignment**
 
-Assigning values from text based http request to type aware binding type fields should take the failures into account. gohandlers implement `Parse` methods with care.
+Values in an incoming HTTP requests are always textual even when they are not meant to be processed as a text. A parsing process should perform the type conversions from text to intented type. Also, the process should take failures in conversion into account. gohandlers implement `Parse` methods with such care.
 
-Code generation involves checking the field types to see if they are also text based or not. Text based types such as `string` and `[]byte` results with explicit `=` assignment statements appear in the body of `Parse` methods. The custom types which embeds those types will result the right hand side of the assignment get wrapped with explicit conversion.
+gohandlers expects fields of binding structs to only be in the types which explicitly defines the deserialization method.
 
-For non-textual types; gohandlers checks if they implement a `Set` method which accepts a string value and returns an error if the assignment fails. The method should set the variable's value based on the argument.
+The signature for the method every type should implement:
 
 ```go
 func (x *X) Set(v string) error
@@ -128,15 +128,7 @@ Such as:
 
 ```go
 type UserId int
-
-func (uid *UserId) Set(s string) error {
-  i, err := strconv.Atoi(s)
-  if err != nil {
-    return fmt.Errorf("converting text to number: %w", err)
-  }
-  uid = UserId(i)
-  return nil
-}
+func (uid *UserId) Set(s string) error
 ```
 
 Now the `UserId` can be used as a field's type in a binding type. Value assignment in the `Parse` method for related field of this type will involve the call of `Set` method instead of using `=` operator. Following line in the `Parse` method will check if `Set` returned an error. If so, the `Parse` method will also return early after wrap the error. gohandlers will follow the import path for examining the type's declaration and methods.
