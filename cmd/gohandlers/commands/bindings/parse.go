@@ -65,9 +65,7 @@ func bqParse(info inspects.Info) *ast.FuncDecl {
 		symbols.err = true
 	}
 
-	for _, qp := range keysSortedByValues(info.RequestType.QueryParams) {
-		fn := info.RequestType.QueryParams[qp]
-
+	if len(info.RequestType.QueryParams) > 0 {
 		fd.Body.List = append(fd.Body.List,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "q"}},
@@ -77,44 +75,51 @@ func bqParse(info inspects.Info) *ast.FuncDecl {
 					Sel: &ast.Ident{Name: "Query"},
 				}}},
 			},
-			&ast.IfStmt{
-				Cond: &ast.CallExpr{
-					Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "q"}, Sel: &ast.Ident{Name: "Has"}},
-					Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(qp)}},
-				},
-				Body: &ast.BlockStmt{List: []ast.Stmt{
-					&ast.AssignStmt{
-						Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-						Tok: token.DEFINE,
-						Rhs: []ast.Expr{
-							&ast.CallExpr{
-								Fun: &ast.SelectorExpr{
-									X: &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}}, Sel: &ast.Ident{Name: "FromQuery"},
+		)
+
+		for _, qp := range keysSortedByValues(info.RequestType.QueryParams) {
+			fn := info.RequestType.QueryParams[qp]
+
+			fd.Body.List = append(fd.Body.List,
+				&ast.IfStmt{
+					Cond: &ast.CallExpr{
+						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "q"}, Sel: &ast.Ident{Name: "Has"}},
+						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(qp)}},
+					},
+					Body: &ast.BlockStmt{List: []ast.Stmt{
+						&ast.AssignStmt{
+							Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
+							Tok: token.DEFINE,
+							Rhs: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X: &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}}, Sel: &ast.Ident{Name: "FromQuery"},
+									},
+									Args: []ast.Expr{&ast.CallExpr{
+										Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "q"}, Sel: &ast.Ident{Name: "Get"}},
+										Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(qp)}},
+									}},
 								},
-								Args: []ast.Expr{&ast.CallExpr{
-									Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "q"}, Sel: &ast.Ident{Name: "Get"}},
-									Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(qp)}},
-								}},
 							},
 						},
-					},
-					&ast.IfStmt{
-						Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-						Body: &ast.BlockStmt{List: []ast.Stmt{
-							&ast.ReturnStmt{Results: []ast.Expr{
-								&ast.CallExpr{
-									Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-									Args: []ast.Expr{
-										&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s.%s.FromQuery: %%w", info.RequestType.Typename, fn))},
-										&ast.Ident{Name: "err"},
+						&ast.IfStmt{
+							Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
+							Body: &ast.BlockStmt{List: []ast.Stmt{
+								&ast.ReturnStmt{Results: []ast.Expr{
+									&ast.CallExpr{
+										Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+										Args: []ast.Expr{
+											&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s.%s.FromQuery: %%w", info.RequestType.Typename, fn))},
+											&ast.Ident{Name: "err"},
+										},
 									},
-								},
+								}},
 							}},
-						}},
-					},
-				}},
-			},
-		)
+						},
+					}},
+				},
+			)
+		}
 	}
 
 	if info.RequestType.ContainsBody {
