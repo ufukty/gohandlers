@@ -55,6 +55,17 @@ func post(src string) string {
 	return src
 }
 
+func filterByRecv(infoss map[inspects.Receiver]map[string]inspects.Info, recvt string) (map[inspects.Receiver]map[string]inspects.Info, error) {
+	for recv := range infoss {
+		if recvt == recv.Type {
+			return map[inspects.Receiver]map[string]inspects.Info{
+				recv: infoss[recv],
+			}, nil
+		}
+	}
+	return nil, fmt.Errorf("receiver not found: %s", recvt)
+}
+
 func Main() error {
 	args := &Args{}
 	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files")
@@ -73,13 +84,9 @@ func Main() error {
 	}
 
 	if args.Recv != "" {
-		for recv := range infoss {
-			if args.Recv == recv.Type {
-				infoss = map[inspects.Receiver]map[string]inspects.Info{
-					recv: infoss[recv],
-				}
-				break
-			}
+		infoss, err = filterByRecv(infoss, args.Recv)
+		if err != nil {
+			return fmt.Errorf("filtering binding types based on the receiver type of handlers: %w", err)
 		}
 	}
 
