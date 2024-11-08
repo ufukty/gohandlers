@@ -3,7 +3,6 @@ package yaml
 import (
 	"flag"
 	"fmt"
-	"gohandlers/pkg/implements"
 	"gohandlers/pkg/inspects"
 	"path/filepath"
 )
@@ -29,7 +28,7 @@ func Main() error {
 		return fmt.Errorf("inspecting directory and handlers: %w", err)
 	}
 
-	err = implements.YamlFile(filepath.Join(args.Dir, args.Out), infoss)
+	err = create(filepath.Join(args.Dir, args.Out), infoss)
 	if err != nil {
 		return fmt.Errorf("creating the yaml file: %w", err)
 	}

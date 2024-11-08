@@ -1,4 +1,4 @@
-package implements
+package list
 
 import (
 	"bytes"
@@ -25,7 +25,7 @@ func addnewlines(f string) string {
 	return f
 }
 
-func ListFile(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string) error {
+func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string) error {
 	f := &ast.File{
 		Name:  ast.NewIdent(pkgname),
 		Decls: []ast.Decl{},
