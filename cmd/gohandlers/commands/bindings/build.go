@@ -48,7 +48,10 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "encoded"}, &ast.Ident{Name: "err"}},
 				Tok: ternary(symbols.encoded && symbols.err, token.ASSIGN, token.DEFINE),
-				Rhs: []ast.Expr{&ast.CallExpr{Fun: &ast.SelectorExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: "Root"}}, Sel: &ast.Ident{Name: "ToRoute"}}}},
+				Rhs: []ast.Expr{&ast.CallExpr{Fun: &ast.SelectorExpr{
+					X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}},
+					Sel: &ast.Ident{Name: "ToRoute"},
+				}}},
 			},
 			&ast.IfStmt{
 				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
