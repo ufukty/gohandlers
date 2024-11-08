@@ -152,6 +152,22 @@ func X(w http.ResponseWriter, r *http.Request) {}
 
 Since query parameters are optional, the `Querier` interface method `ToQuery` returns a boolean in the middle of output argument list which represents the availability of a value. Different than returning an error, when this value returned `false`, the `Build` method continues to execution without returning or including a section for that query parameter in the URI.
 
+**Centralized declaration for `HandlerInfo`**
+
+gohandlers can refer to an existing declaration of `HandlerInfo` instead to define another one per-file. Manually implementing the type and referring to it from every file can reduce the complexity of router registration in architectures such as microservices where the handler declarations of the project splitted to packages across repository.
+
+The type is needed to have 3 fields as such:
+
+```go
+type HandlerInfo struct {
+	Method string
+	Path   string
+	Ref    http.HandlerFunc
+}
+```
+
+Use the related parameters in `list` subcommand to direct gohandlers to use custom declaration in return type of `ListHandlers` function and methods and import the package declares the type.
+
 ## Miscellaneous
 
 Outline of the geneated methods' usage:

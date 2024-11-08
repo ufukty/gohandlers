@@ -29,33 +29,64 @@ func addnewlines(f string) string {
 	return f
 }
 
-func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string) error {
+func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string, hi HandlerInfo) error {
 	f := &ast.File{
 		Name:  ast.NewIdent(pkgname),
 		Decls: []ast.Decl{},
 	}
 
+	imports := []ast.Spec{}
+	if hi.ImportPath != "" {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: quotes(hi.ImportPath)}},
+		)
+	} else {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: quotes("net/http")}},
+		)
+	}
+
 	f.Decls = append(f.Decls,
 		&ast.GenDecl{
 			Tok:   token.IMPORT,
-			Specs: []ast.Spec{&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: quotes("net/http")}}},
-		},
-		&ast.GenDecl{
-			Tok: token.TYPE,
-			Specs: []ast.Spec{
-				&ast.TypeSpec{
-					Name: &ast.Ident{Name: "HandlerInfo"},
-					Type: &ast.StructType{Fields: &ast.FieldList{
-						List: []*ast.Field{
-							{Names: []*ast.Ident{{Name: "Method"}}, Type: &ast.Ident{Name: "string"}},
-							{Names: []*ast.Ident{{Name: "Path"}}, Type: &ast.Ident{Name: "string"}},
-							{Names: []*ast.Ident{{Name: "Ref"}}, Type: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "HandlerFunc"}}},
-						},
-					}},
-				},
-			},
+			Specs: imports,
 		},
 	)
+
+	if hi.Typename == "" {
+		f.Decls = append(f.Decls,
+			&ast.GenDecl{
+				Tok: token.TYPE,
+				Specs: []ast.Spec{
+					&ast.TypeSpec{
+						Name: &ast.Ident{Name: "HandlerInfo"},
+						Type: &ast.StructType{Fields: &ast.FieldList{
+							List: []*ast.Field{
+								{Names: []*ast.Ident{{Name: "Method"}}, Type: &ast.Ident{Name: "string"}},
+								{Names: []*ast.Ident{{Name: "Path"}}, Type: &ast.Ident{Name: "string"}},
+								{Names: []*ast.Ident{{Name: "Ref"}}, Type: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "HandlerFunc"}}},
+							},
+						}},
+					},
+				},
+			},
+		)
+	}
+
+	var handlerinfo ast.Expr
+	if hi.Typename == "" {
+		handlerinfo = &ast.Ident{Name: "HandlerInfo"}
+	} else {
+		fgrs := strings.Split(hi.Typename, ".")
+		switch len(fgrs) {
+		case 2:
+			handlerinfo = &ast.SelectorExpr{X: ast.NewIdent(fgrs[0]), Sel: ast.NewIdent(fgrs[1])}
+		case 1:
+			handlerinfo = ast.NewIdent(hi.Typename)
+		default:
+			return fmt.Errorf("unexpected number of dots in the value for HandlerInfo substitution: %s", hi.Typename)
+		}
+	}
 
 	fds := []ast.Decl{}
 	for recvt, infos := range infoss {
@@ -89,12 +120,12 @@ func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, p
 			Type: &ast.FuncType{
 				Params: &ast.FieldList{List: []*ast.Field{}},
 				Results: &ast.FieldList{List: []*ast.Field{
-					{Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "HandlerInfo"}}},
+					{Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: handlerinfo}},
 				}},
 			},
 			Body: &ast.BlockStmt{List: []ast.Stmt{
 				&ast.ReturnStmt{Results: []ast.Expr{&ast.CompositeLit{
-					Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "HandlerInfo"}},
+					Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: handlerinfo},
 					Elts: elts,
 				}}},
 			}},

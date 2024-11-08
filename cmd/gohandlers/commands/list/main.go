@@ -7,15 +7,23 @@ import (
 	"path/filepath"
 )
 
+type HandlerInfo struct {
+	Typename   string
+	ImportPath string
+}
+
 type Args struct {
 	Dir string
 	Out string
+	Hi  HandlerInfo
 }
 
 func Main() error {
 	args := Args{}
 	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files. one handler and a request binding type is allowed per file")
 	flag.StringVar(&args.Out, "out", "list.gh.go", "output file that will be generated in the 'dir'")
+	flag.StringVar(&args.Hi.Typename, "hi-type", "", "the string to be substituted with mentions of HandlerInfo")
+	flag.StringVar(&args.Hi.ImportPath, "hi-import", "", "the package to import for custom implementation of HandlerInfo")
 	flag.Parse()
 
 	if args.Dir == "" {
@@ -28,7 +36,7 @@ func Main() error {
 		return fmt.Errorf("inspecting directory and handlers: %w", err)
 	}
 
-	err = create(filepath.Join(args.Dir, args.Out), infoss, pkgname)
+	err = create(filepath.Join(args.Dir, args.Out), infoss, pkgname, args.Hi)
 	if err != nil {
 		return fmt.Errorf("creating the main file: %w", err)
 	}
