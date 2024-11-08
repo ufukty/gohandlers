@@ -16,10 +16,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 		Name: &ast.Ident{Name: "Build"},
 		Type: &ast.FuncType{
 			Params: &ast.FieldList{List: []*ast.Field{
-				{
-					Names: []*ast.Ident{{Name: "lb"}},
-					Type:  &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "balancer"}, Sel: &ast.Ident{Name: "LoadBalancer"}}},
-				},
+				{Names: []*ast.Ident{{Name: "host"}}, Type: &ast.Ident{Name: "string"}},
 			}},
 			Results: &ast.FieldList{List: []*ast.Field{
 				{Type: &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "Request"}}}},
@@ -236,34 +233,15 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 
 	fd.Body.List = append(fd.Body.List,
 		&ast.AssignStmt{
-			Lhs: []ast.Expr{&ast.Ident{Name: "h"}, &ast.Ident{Name: "err"}},
-			Tok: token.DEFINE,
-			Rhs: []ast.Expr{&ast.CallExpr{Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "lb"}, Sel: &ast.Ident{Name: "Next"}}, Args: nil}},
-		},
-		&ast.IfStmt{
-			Init: nil,
-			Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-			Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{
-				&ast.Ident{Name: "nil"},
-				&ast.CallExpr{
-					Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-					Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"lb.Next: %w"`}, &ast.Ident{Name: "err"}},
-				},
-			}}}},
-		},
-		&ast.AssignStmt{
 			Lhs: []ast.Expr{&ast.Ident{Name: "r"}, &ast.Ident{Name: "err"}},
 			Tok: token.DEFINE,
 			Rhs: []ast.Expr{&ast.CallExpr{
 				Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "NewRequest"}},
 				Args: []ast.Expr{
-					&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", info.Method)},
+					&ast.BasicLit{Kind: token.STRING, Value: quotes(info.Method)},
 					&ast.CallExpr{
-						Fun: &ast.Ident{Name: "join"},
-						Args: []ast.Expr{
-							&ast.CallExpr{Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "h"}, Sel: &ast.Ident{Name: "String"}}, Args: nil},
-							&ast.Ident{Name: "uri"},
-						},
+						Fun:  &ast.Ident{Name: "join"},
+						Args: []ast.Expr{&ast.Ident{Name: "host"}, &ast.Ident{Name: "uri"}},
 					},
 					&ast.Ident{Name: ternary(info.RequestType.ContainsBody, "body", "nil")},
 				},
@@ -280,7 +258,8 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 					},
 				}},
 			}},
-		})
+		},
+	)
 
 	if info.RequestType.ContainsBody {
 		fd.Body.List = append(fd.Body.List,

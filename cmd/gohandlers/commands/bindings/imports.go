@@ -32,7 +32,6 @@ func bodyimports(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 func imports(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
-		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"logbook/internal/web/balancer"`}},
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
 	}
 	if bodyimports(infoss) {
