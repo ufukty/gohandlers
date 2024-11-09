@@ -215,6 +215,7 @@ func handlerMethod(h *ast.FuncDecl, rti *RequestTypeInfo) string {
 	var okBq bool
 	if rti != nil {
 		mBq = decideMethodFromRequest(rti)
+		okBq = true
 	}
 
 	switch {
