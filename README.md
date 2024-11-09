@@ -10,8 +10,9 @@ gohandlers allows defining the path and method information in one place and to g
 gohandlers [command] <command args>
 
 commands:
-    bindings : Produces the file contains Build and Parse methods for binding types
-    list     : Produces the file contains ListHandlers function/methods
+    bindings : Produces a file contains Build and Parse methods for binding types
+    client   : Produces a file contains Client and its methods
+    list     : Produces a file contains ListHandlers function/methods
     yaml     : Produces a yaml file contains handler paths and methods for non-Go clients
 
 Run to get help on specific command, where available:
@@ -57,6 +58,30 @@ func (bs XResponse) Build() (*http.Response, error)
 Build method on requests needs host information as `http.NewRequest` asks for it.
 
 The produced file named as `bindings.gh.go` by default.
+
+### Implementing a client
+
+gohandlers can produce a file contains the Client struct type and its methods. Each method is named as an handler; accepts a request binding type and returns `*http.Response`, or if it is available the response binding type. Client methods use `http.DefaultClient`s `Do` method to send requests and asks the member `Pool` to provide the address of host per request. This enables load balancing to set up at initialization and simplifies the structure of caller.
+
+```go
+type Pool interface {
+	Host() (string, error)
+}
+
+type Client struct {
+	p Pool
+}
+
+func NewClient(p Pool) *Client {
+	return &Client{p: p}
+}
+
+// partial bindings
+func (c *Client) CreateUser(bq *CreateUserDetails) (*http.Response, error)
+
+// full bindings
+func (c *Client) GetProfile(bq *GetProfileRequest) (*GetProfileResponse, error)
+```
 
 ## Features
 
@@ -175,6 +200,6 @@ Outline of the geneated methods' usage:
 ```
 ┌─────── Client ───────┐   ┌─────── Server ───────┐
 │  Request.Build  ─────┼───┼─► Request.Parse      │
-│    Response.Parse ◄──┼───┼──── Response.Build   │
+│    Response.Parse ◄──┼───┼──── Response.Write   │
 └──────────────────────┘   └──────────────────────┘
 ```
