@@ -15,10 +15,6 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-func recvn(s string) string {
-	return strings.ToLower(string(s[0:2]))
-}
-
 func linearize(n ast.Node) []string {
 	literals := []string{}
 	ast.Inspect(n, func(n ast.Node) bool {
@@ -64,19 +60,6 @@ func findHandler(f *ast.File) (*ast.FuncDecl, bool) {
 	return nil, false
 }
 
-func findTypeSpec(f *ast.File, n string) (*ast.TypeSpec, bool) {
-	for _, d := range f.Decls {
-		if gd, ok := d.(*ast.GenDecl); ok && gd.Tok == token.TYPE {
-			for _, s := range gd.Specs {
-				if ts, ok := s.(*ast.TypeSpec); ok && ts.Name.Name == n {
-					return ts, true
-				}
-			}
-		}
-	}
-	return nil, false
-}
-
 type RequestTypeInfo struct {
 	Typename     string
 	RouteParams  map[string]string // route-param -> field-name
@@ -112,6 +95,44 @@ func rti(rqtn string, ts *ast.TypeSpec) *RequestTypeInfo {
 	return rti
 }
 
+func receiverType(h *ast.FuncDecl) (string, error) {
+	if h.Recv == nil {
+		return "", nil
+	}
+	switch t := h.Recv.List[0].Type.(type) {
+	case *ast.StarExpr:
+		return t.X.(*ast.Ident).Name, nil
+	case *ast.Ident:
+		return t.Name, nil
+	default:
+		return "", fmt.Errorf("unknown type (%T) found in receiver type detection for handler %q", t, h.Name.Name)
+	}
+}
+
+func recvn(s string) string {
+	return strings.ToLower(string(s[0:2]))
+}
+
+func ref(h *ast.FuncDecl, recvt string) ast.Expr {
+	if h.Recv != nil {
+		return &ast.SelectorExpr{X: &ast.Ident{Name: recvn(recvt)}, Sel: h.Name}
+	}
+	return h.Name
+}
+
+func findTypeSpec(f *ast.File, n string) (*ast.TypeSpec, bool) {
+	for _, d := range f.Decls {
+		if gd, ok := d.(*ast.GenDecl); ok && gd.Tok == token.TYPE {
+			for _, s := range gd.Specs {
+				if ts, ok := s.(*ast.TypeSpec); ok && ts.Name.Name == n {
+					return ts, true
+				}
+			}
+		}
+	}
+	return nil, false
+}
+
 var methods = []string{
 	http.MethodGet,
 	http.MethodHead,
@@ -136,69 +157,6 @@ func findMethodInDocs(fd *ast.FuncDecl) (string, bool) {
 		}
 	}
 	return "", false
-}
-
-func kebab(input string) string {
-	var result strings.Builder
-	for i, r := range input {
-		if unicode.IsUpper(r) {
-			if i != 0 {
-				result.WriteRune('-')
-			}
-			result.WriteRune(unicode.ToLower(r))
-		} else {
-			result.WriteRune(r)
-		}
-	}
-	return result.String()
-}
-
-type Info struct {
-	Method      string
-	Path        string
-	Ref         ast.Expr
-	RequestType *RequestTypeInfo
-}
-
-type Receiver struct {
-	Name, Type string
-}
-
-func receiverType(h *ast.FuncDecl) (string, error) {
-	if h.Recv == nil {
-		return "", nil
-	}
-	switch t := h.Recv.List[0].Type.(type) {
-	case *ast.StarExpr:
-		return t.X.(*ast.Ident).Name, nil
-	case *ast.Ident:
-		return t.Name, nil
-	default:
-		return "", fmt.Errorf("unknown type (%T) found in receiver type detection for handler %q", t, h.Name.Name)
-	}
-}
-
-func handlerPath(h *ast.FuncDecl, rti *RequestTypeInfo) string {
-	ps := []string{}
-	if rti != nil {
-		for i := range rti.RouteParams {
-			ps = append(ps, fmt.Sprintf("{%s}", i))
-		}
-	}
-
-	path := fmt.Sprintf("/%s", kebab(h.Name.Name))
-	if len(ps) > 0 {
-		path = fmt.Sprintf("%s/%s", path, strings.Join(ps, "/"))
-	}
-	return path
-
-}
-
-func ref(h *ast.FuncDecl, recvt string) ast.Expr {
-	if h.Recv != nil {
-		return &ast.SelectorExpr{X: &ast.Ident{Name: recvn(recvt)}, Sel: h.Name}
-	}
-	return h.Name
 }
 
 func decideMethodFromRequest(rti *RequestTypeInfo) string {
@@ -247,6 +205,48 @@ func handlerMethod(h *ast.FuncDecl, rti *RequestTypeInfo) string {
 	}
 
 	return "" // can't reach here
+}
+
+func kebab(input string) string {
+	var result strings.Builder
+	for i, r := range input {
+		if unicode.IsUpper(r) {
+			if i != 0 {
+				result.WriteRune('-')
+			}
+			result.WriteRune(unicode.ToLower(r))
+		} else {
+			result.WriteRune(r)
+		}
+	}
+	return result.String()
+}
+
+func handlerPath(h *ast.FuncDecl, rti *RequestTypeInfo) string {
+	ps := []string{}
+	if rti != nil {
+		for i := range rti.RouteParams {
+			ps = append(ps, fmt.Sprintf("{%s}", i))
+		}
+	}
+
+	path := fmt.Sprintf("/%s", kebab(h.Name.Name))
+	if len(ps) > 0 {
+		path = fmt.Sprintf("%s/%s", path, strings.Join(ps, "/"))
+	}
+	return path
+
+}
+
+type Receiver struct {
+	Name, Type string
+}
+
+type Info struct {
+	Method      string
+	Path        string
+	Ref         ast.Expr
+	RequestType *RequestTypeInfo
 }
 
 func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
