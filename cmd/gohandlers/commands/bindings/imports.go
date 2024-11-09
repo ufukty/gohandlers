@@ -24,6 +24,9 @@ func bodyimports(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 			if info.RequestType != nil && info.RequestType.ContainsBody {
 				return true
 			}
+			if info.ResponseType != nil && info.ResponseType.ContainsBody {
+				return true
+			}
 		}
 	}
 	return false
