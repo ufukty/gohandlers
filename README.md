@@ -133,6 +133,10 @@ gohandlers checks top-of-the handler comment lines to assign a HTTP method to th
 func X(w http.ResponseWriter, r *http.Request)
 ```
 
+**Method mismatch warning**
+
+gohandlers prints warnings when an handler is declared a method mismatch with the request binding type. Such as one asks a request body and other doesn't.
+
 **Automatic method detection**
 
 gohandlers implicitly assign most fitting HTTP method to every handler that doesn't specify its prefered HTTP method on the top-of-the handler comment block. The handler is assigned as `GET` if there is no `json` tag specified field in its request binding type. Otherwise it marked as a `POST` request. gohandler prints notice to terminal for implicit method assignments per handler.
