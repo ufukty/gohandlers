@@ -114,13 +114,24 @@ func funcdecl(hn string, hi inspects.Info, pkgsrc string) *ast.FuncDecl {
 						Y:  &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "StatusOK"}},
 					},
 					Body: &ast.BlockStmt{List: []ast.Stmt{
-						&ast.ReturnStmt{Results: []ast.Expr{
-							&ast.Ident{Name: "nil"},
-							&ast.CallExpr{
-								Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-								Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"status is not 200"`}},
+						&ast.ReturnStmt{
+							Results: []ast.Expr{
+								&ast.Ident{Name: "rs"},
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+									Args: []ast.Expr{
+										&ast.BasicLit{Kind: token.STRING, Value: `"non-200 status code: %d (%s)"`},
+										&ast.SelectorExpr{X: &ast.Ident{Name: "rs"}, Sel: &ast.Ident{Name: "StatusCode"}},
+										&ast.CallExpr{
+											Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "StatusText"}},
+											Args: []ast.Expr{
+												&ast.SelectorExpr{X: &ast.Ident{Name: "rs"}, Sel: &ast.Ident{Name: "StatusCode"}},
+											},
+										},
+									},
+								},
 							},
-						}},
+						},
 					}},
 				},
 				&ast.ReturnStmt{
