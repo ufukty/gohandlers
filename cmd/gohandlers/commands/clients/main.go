@@ -13,9 +13,10 @@ import (
 )
 
 type Args struct {
-	Dir string
-	Out string
-	Pkg string
+	Dir    string
+	Out    string
+	Pkg    string
+	Import string
 }
 
 func post(src string) string {
@@ -29,6 +30,7 @@ func Main() error {
 	flag.StringVar(&args.Dir, "dir", "", "input directory")
 	flag.StringVar(&args.Out, "out", "", "output directory")
 	flag.StringVar(&args.Pkg, "pkg", "", "package name for the generated file")
+	flag.StringVar(&args.Import, "import", "", "the import path of package declares binding types")
 	flag.Parse()
 
 	if args.Dir == "" || args.Out == "" || args.Pkg == "" {
@@ -41,7 +43,7 @@ func Main() error {
 		return fmt.Errorf("inspecting files: %w", err)
 	}
 
-	f := file(infoss, args.Pkg, pkgsrc)
+	f := file(infoss, args.Pkg, pkgsrc, args.Import)
 
 	fh, err := os.Create(args.Out)
 	if err != nil {

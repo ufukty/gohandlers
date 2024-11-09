@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"gohandlers/pkg/inspects"
@@ -14,7 +15,7 @@ func ternary[T any](cond bool, t, f T) T {
 	return f
 }
 
-func funcdecl(hn string, hi inspects.Info, pkgsrc string) *ast.FuncDecl {
+func funcdecl(hn string, hi inspects.Info, pkgsrc string, imported bool) *ast.FuncDecl {
 	fd := &ast.FuncDecl{
 		Recv: &ast.FieldList{List: []*ast.Field{
 			{Names: []*ast.Ident{{Name: "c"}}, Type: &ast.StarExpr{X: &ast.Ident{Name: "Client"}}},
@@ -24,7 +25,11 @@ func funcdecl(hn string, hi inspects.Info, pkgsrc string) *ast.FuncDecl {
 			Params: &ast.FieldList{List: []*ast.Field{
 				{
 					Names: []*ast.Ident{{Name: "bq"}},
-					Type:  &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: pkgsrc}, Sel: &ast.Ident{Name: hi.RequestType.Typename}}},
+					Type: &ast.StarExpr{X: ternary[ast.Expr](
+						imported,
+						&ast.SelectorExpr{X: &ast.Ident{Name: pkgsrc}, Sel: &ast.Ident{Name: hi.RequestType.Typename}},
+						&ast.Ident{Name: hi.RequestType.Typename},
+					)},
 				},
 			}},
 		},
@@ -32,8 +37,13 @@ func funcdecl(hn string, hi inspects.Info, pkgsrc string) *ast.FuncDecl {
 	}
 
 	if hi.ResponseType != nil {
+		rt := ternary[ast.Expr](
+			imported,
+			&ast.SelectorExpr{X: &ast.Ident{Name: pkgsrc}, Sel: &ast.Ident{Name: hi.ResponseType.Typename}},
+			&ast.Ident{Name: hi.ResponseType.Typename},
+		)
 		fd.Type.Results = &ast.FieldList{List: []*ast.Field{
-			{Type: &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: pkgsrc}, Sel: &ast.Ident{Name: hi.ResponseType.Typename}}}},
+			{Type: &ast.StarExpr{X: rt}},
 			{Type: &ast.Ident{Name: "error"}},
 		}}
 	} else {
@@ -152,18 +162,17 @@ func funcdecl(hn string, hi inspects.Info, pkgsrc string) *ast.FuncDecl {
 	)
 
 	if hi.ResponseType != nil {
+		rt := ternary[ast.Expr](
+			imported,
+			&ast.SelectorExpr{X: &ast.Ident{Name: pkgsrc}, Sel: &ast.Ident{Name: hi.ResponseType.Typename}},
+			&ast.Ident{Name: hi.ResponseType.Typename},
+		)
+
 		fd.Body.List = append(fd.Body.List,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "bs"}},
 				Tok: token.DEFINE,
-				Rhs: []ast.Expr{
-					&ast.UnaryExpr{
-						Op: token.AND,
-						X: &ast.CompositeLit{
-							Type: &ast.SelectorExpr{X: &ast.Ident{Name: pkgsrc}, Sel: &ast.Ident{Name: hi.ResponseType.Typename}},
-						},
-					},
-				},
+				Rhs: []ast.Expr{&ast.UnaryExpr{Op: token.AND, X: &ast.CompositeLit{Type: rt}}},
 			},
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
@@ -199,70 +208,89 @@ func funcdecl(hn string, hi inspects.Info, pkgsrc string) *ast.FuncDecl {
 	return fd
 }
 
-func file(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst string, pkgsrc string) *ast.File {
+func file(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc, importpkg string) *ast.File {
 	f := &ast.File{
-		Name: &ast.Ident{Name: pkgdst},
-		Decls: []ast.Decl{
-			&ast.GenDecl{
-				Tok: token.IMPORT,
-				Specs: []ast.Spec{
-					&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
-					&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"logbook/cmd/objectives/endpoints"`}}, // FIXME: take as arg
-					&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
-				},
-			},
-			&ast.GenDecl{
-				Tok: token.TYPE,
-				Specs: []ast.Spec{
-					&ast.TypeSpec{
-						Name: &ast.Ident{Name: "Pool"},
-						Type: &ast.InterfaceType{Methods: &ast.FieldList{List: []*ast.Field{{
-							Names: []*ast.Ident{{Name: "Host"}},
-							Type: &ast.FuncType{
-								Params:  &ast.FieldList{},
-								Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.Ident{Name: "string"}}, {Type: &ast.Ident{Name: "error"}}}},
-							},
-						}}}},
-					},
-				},
-			},
-			&ast.GenDecl{
-				Tok: token.TYPE,
-				Specs: []ast.Spec{
-					&ast.TypeSpec{
-						Name: &ast.Ident{Name: "Client"},
-						Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
-							{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
-						}}},
-					},
-				},
-			},
-			&ast.FuncDecl{
-				Name: &ast.Ident{Name: "NewClient"},
-				Type: &ast.FuncType{
-					Params: &ast.FieldList{List: []*ast.Field{
-						{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
-					}},
-					Results: &ast.FieldList{List: []*ast.Field{
-						{Type: &ast.StarExpr{X: &ast.Ident{Name: "Client"}}},
-					}},
-				},
-				Body: &ast.BlockStmt{List: []ast.Stmt{
-					&ast.ReturnStmt{Results: []ast.Expr{
-						&ast.UnaryExpr{
-							Op: token.AND,
-							X: &ast.CompositeLit{
-								Type: &ast.Ident{Name: "Client"},
-								Elts: []ast.Expr{
-									&ast.KeyValueExpr{Key: &ast.Ident{Name: "p"}, Value: &ast.Ident{Name: "p"}},
-								},
-							},
+		Name:  &ast.Ident{Name: pkgdst},
+		Decls: []ast.Decl{},
+	}
+
+	imports := []ast.Spec{
+		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
+		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
+	}
+	if importpkg != "" {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", importpkg)}},
+		)
+	}
+	slices.SortFunc(imports, func(a, b ast.Spec) int {
+		va := a.(*ast.ImportSpec).Path.Value
+		vb := b.(*ast.ImportSpec).Path.Value
+		if va < vb {
+			return -1
+		} else if va == vb {
+			return 0
+		} else {
+			return 1
+		}
+	})
+
+	f.Decls = append(f.Decls,
+		&ast.GenDecl{
+			Tok:   token.IMPORT,
+			Specs: imports,
+		},
+		&ast.GenDecl{
+			Tok: token.TYPE,
+			Specs: []ast.Spec{
+				&ast.TypeSpec{
+					Name: &ast.Ident{Name: "Pool"},
+					Type: &ast.InterfaceType{Methods: &ast.FieldList{List: []*ast.Field{{
+						Names: []*ast.Ident{{Name: "Host"}},
+						Type: &ast.FuncType{
+							Params:  &ast.FieldList{},
+							Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.Ident{Name: "string"}}, {Type: &ast.Ident{Name: "error"}}}},
 						},
-					}},
-				}},
+					}}}},
+				},
 			},
 		},
-	}
+		&ast.GenDecl{
+			Tok: token.TYPE,
+			Specs: []ast.Spec{
+				&ast.TypeSpec{
+					Name: &ast.Ident{Name: "Client"},
+					Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
+						{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
+					}}},
+				},
+			},
+		},
+		&ast.FuncDecl{
+			Name: &ast.Ident{Name: "NewClient"},
+			Type: &ast.FuncType{
+				Params: &ast.FieldList{List: []*ast.Field{
+					{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
+				}},
+				Results: &ast.FieldList{List: []*ast.Field{
+					{Type: &ast.StarExpr{X: &ast.Ident{Name: "Client"}}},
+				}},
+			},
+			Body: &ast.BlockStmt{List: []ast.Stmt{
+				&ast.ReturnStmt{Results: []ast.Expr{
+					&ast.UnaryExpr{
+						Op: token.AND,
+						X: &ast.CompositeLit{
+							Type: &ast.Ident{Name: "Client"},
+							Elts: []ast.Expr{
+								&ast.KeyValueExpr{Key: &ast.Ident{Name: "p"}, Value: &ast.Ident{Name: "p"}},
+							},
+						},
+					},
+				}},
+			}},
+		},
+	)
 
 	fds := []ast.Decl{}
 	for _, infos := range infoss {
@@ -270,7 +298,7 @@ func file(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst string, 
 			if hi.RequestType == nil {
 				continue
 			}
-			fds = append(fds, funcdecl(hn, hi, pkgsrc))
+			fds = append(fds, funcdecl(hn, hi, pkgsrc, importpkg != ""))
 		}
 	}
 	slices.SortFunc(fds, func(a, b ast.Decl) int {
