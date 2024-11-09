@@ -286,7 +286,7 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
 			bs, ok := findTypeSpec(f, bstn)
 			if ok {
-				i.ResponseType = rti(bqtn, bs)
+				i.ResponseType = rti(bstn, bs)
 			}
 
 			fmt.Printf("adding %s %s for %s\n", i.Method, i.Path, h.Name.Name)

@@ -110,6 +110,13 @@ func Main() error {
 				f.Decls = append(f.Decls, bqParse(i))
 			}
 		}
+		if i.ResponseType != nil {
+			notempty := i.ResponseType.ContainsBody || len(i.ResponseType.RouteParams) > 0 || len(i.ResponseType.QueryParams) > 0
+			if notempty {
+				f.Decls = append(f.Decls, bsWrite(i))
+				f.Decls = append(f.Decls, bsParse(i))
+			}
+		}
 	}
 
 	if args.Out == "" {
