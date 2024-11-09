@@ -60,15 +60,15 @@ func findHandler(f *ast.File) (*ast.FuncDecl, bool) {
 	return nil, false
 }
 
-type RequestTypeInfo struct {
+type BindingTypeInfo struct {
 	Typename     string
 	RouteParams  map[string]string // route-param -> field-name
 	QueryParams  map[string]string // query-param -> field-name
 	ContainsBody bool
 }
 
-func rti(rqtn string, ts *ast.TypeSpec) *RequestTypeInfo {
-	rti := &RequestTypeInfo{
+func rti(rqtn string, ts *ast.TypeSpec) *BindingTypeInfo {
+	rti := &BindingTypeInfo{
 		Typename:     rqtn,
 		RouteParams:  map[string]string{},
 		QueryParams:  map[string]string{},
@@ -159,7 +159,7 @@ func findMethodInDocs(fd *ast.FuncDecl) (string, bool) {
 	return "", false
 }
 
-func decideMethodFromRequest(rti *RequestTypeInfo) string {
+func decideMethodFromRequest(rti *BindingTypeInfo) string {
 	if rti.ContainsBody {
 		return http.MethodPost
 	}
@@ -172,7 +172,7 @@ var bodied = []string{
 	http.MethodPut,
 }
 
-func handlerMethod(h *ast.FuncDecl, rti *RequestTypeInfo) string {
+func handlerMethod(h *ast.FuncDecl, rti *BindingTypeInfo) string {
 	mDoc, okDoc := findMethodInDocs(h)
 
 	var mBq string
@@ -222,7 +222,7 @@ func kebab(input string) string {
 	return result.String()
 }
 
-func handlerPath(h *ast.FuncDecl, rti *RequestTypeInfo) string {
+func handlerPath(h *ast.FuncDecl, rti *BindingTypeInfo) string {
 	ps := []string{}
 	if rti != nil {
 		for i := range rti.RouteParams {
@@ -243,10 +243,11 @@ type Receiver struct {
 }
 
 type Info struct {
-	Method      string
-	Path        string
-	Ref         ast.Expr
-	RequestType *RequestTypeInfo
+	Method       string
+	Path         string
+	Ref          ast.Expr
+	RequestType  *BindingTypeInfo
+	ResponseType *BindingTypeInfo
 }
 
 func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
@@ -281,6 +282,12 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 
 			i.Method = handlerMethod(h, i.RequestType)
 			i.Path = handlerPath(h, i.RequestType)
+
+			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
+			bs, ok := findTypeSpec(f, bstn)
+			if ok {
+				i.ResponseType = rti(bqtn, bs)
+			}
 
 			fmt.Printf("adding %s %s for %s\n", i.Method, i.Path, h.Name.Name)
 			r := Receiver{recvn(recvt), recvt}
