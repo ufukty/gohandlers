@@ -275,7 +275,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 					&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
 					&ast.CallExpr{
 						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "mime"}, Sel: &ast.Ident{Name: "TypeByExtension"}},
-						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"json"`}},
+						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `".json"`}},
 					},
 				},
 			}},
