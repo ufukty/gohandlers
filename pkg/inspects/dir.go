@@ -84,9 +84,13 @@ type RequestTypeInfo struct {
 	ContainsBody bool
 }
 
-func (rti *RequestTypeInfo) inspectparams(ts *ast.TypeSpec) {
-	rti.RouteParams = map[string]string{}
-	rti.QueryParams = map[string]string{}
+func rti(rqtn string, ts *ast.TypeSpec) *RequestTypeInfo {
+	rti := &RequestTypeInfo{
+		Typename:     rqtn,
+		RouteParams:  map[string]string{},
+		QueryParams:  map[string]string{},
+		ContainsBody: false,
+	}
 
 	if st, ok := ts.Type.(*ast.StructType); ok {
 		for _, f := range st.Fields.List {
@@ -98,23 +102,14 @@ func (rti *RequestTypeInfo) inspectparams(ts *ast.TypeSpec) {
 				if v, ok := st.Lookup("query"); ok {
 					rti.QueryParams[v] = f.Names[0].Name
 				}
-			}
-		}
-	}
-}
-
-func containsbody(ts *ast.TypeSpec) bool {
-	if st, ok := ts.Type.(*ast.StructType); ok {
-		for _, f := range st.Fields.List {
-			if f.Tag != nil {
-				st := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
 				if _, ok := st.Lookup("json"); ok {
-					return true
+					rti.ContainsBody = true
 				}
 			}
 		}
 	}
-	return false
+
+	return rti
 }
 
 var methods = []string{
@@ -129,7 +124,7 @@ var methods = []string{
 	http.MethodTrace,
 }
 
-func findMethod(fd *ast.FuncDecl) (string, bool) {
+func findMethodInDocs(fd *ast.FuncDecl) (string, bool) {
 	if fd.Doc != nil {
 		for _, d := range fd.Doc.List {
 			ts := strings.Split(d.Text, " ")
@@ -169,6 +164,81 @@ type Receiver struct {
 	Name, Type string
 }
 
+func receiverType(h *ast.FuncDecl) (string, error) {
+	if h.Recv == nil {
+		return "", nil
+	}
+	switch t := h.Recv.List[0].Type.(type) {
+	case *ast.StarExpr:
+		return t.X.(*ast.Ident).Name, nil
+	case *ast.Ident:
+		return t.Name, nil
+	default:
+		return "", fmt.Errorf("unknown type (%T) found in receiver type detection for handler %q", t, h.Name.Name)
+	}
+}
+
+func handlerPath(h *ast.FuncDecl, rti *RequestTypeInfo) string {
+	ps := []string{}
+	if rti != nil {
+		for i := range rti.RouteParams {
+			ps = append(ps, fmt.Sprintf("{%s}", i))
+		}
+	}
+
+	path := fmt.Sprintf("/%s", kebab(h.Name.Name))
+	if len(ps) > 0 {
+		path = fmt.Sprintf("%s/%s", path, strings.Join(ps, "/"))
+	}
+	return path
+
+}
+
+func ref(h *ast.FuncDecl, recvt string) ast.Expr {
+	if h.Recv != nil {
+		return &ast.SelectorExpr{X: &ast.Ident{Name: recvn(recvt)}, Sel: h.Name}
+	}
+	return h.Name
+}
+
+func decideMethodFromRequest(rti *RequestTypeInfo) string {
+	if rti.ContainsBody {
+		return http.MethodPost
+	}
+	return http.MethodGet
+}
+
+func handlerMethod(h *ast.FuncDecl, rti *RequestTypeInfo) string {
+	mDoc, okDoc := findMethodInDocs(h)
+
+	var mBq string
+	var okBq bool
+	if rti != nil {
+		mBq = decideMethodFromRequest(rti)
+	}
+
+	switch {
+	case okDoc && okBq:
+		if mDoc == http.MethodGet && mBq != http.MethodGet {
+			fmt.Fprintf(os.Stderr, "warning: handler %q explicitly assigned %q but the request contains a body\n", h.Name.Name, http.MethodGet)
+		}
+		return mDoc
+
+	case okDoc && !okBq:
+		return mDoc
+
+	case !okDoc && okBq:
+		fmt.Fprintf(os.Stderr, "notice: handler %q implicitly assigned %q because of the request contains body\n", h.Name.Name, mBq)
+		return mBq
+
+	case !okDoc && !okBq:
+		fmt.Fprintf(os.Stderr, "warning: handler %q is assigned %q even though there is not enough information to decide\n", h.Name.Name, http.MethodGet)
+		return http.MethodGet
+	}
+
+	return "" // can't reach here
+}
+
 func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 	d, err := parser.ParseDir(token.NewFileSet(), dir, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
@@ -185,67 +255,25 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 	infoss := map[Receiver]map[string]Info{}
 	for _, f := range p.Files {
 		if h, ok := findHandler(f); ok {
-			rbtn := fmt.Sprintf("%sRequest", h.Name.Name)
-			bq, ok := findTypeSpec(f, rbtn)
-			if !ok {
-				continue
+			recvt, err := receiverType(h)
+			if err != nil {
+				return nil, "", fmt.Errorf("inspecting receiver type of handler: %w", err)
 			}
-
-			rti := &RequestTypeInfo{
-				Typename:     rbtn,
-				RouteParams:  map[string]string{},
-				ContainsBody: containsbody(bq),
-			}
-
-			m, ok := findMethod(h)
-			if !ok {
-				if rti.ContainsBody {
-					m = http.MethodPost
-				} else {
-					m = http.MethodGet
-				}
-				fmt.Fprintf(os.Stderr, "notice: method %q implicitly assigned to %q\n", m, h.Name.Name)
-			}
-			fmt.Printf("adding %s %s...\n", m, h.Name.Name)
-
-			rti.inspectparams(bq)
-
-			ps := []string{}
-			for i := range rti.RouteParams {
-				ps = append(ps, fmt.Sprintf("{%s}", i))
-			}
-
-			path := fmt.Sprintf("/%s", kebab(h.Name.Name))
-			if len(ps) > 0 {
-				path = fmt.Sprintf("%s/%s", path, strings.Join(ps, "/"))
-			}
-
-			var recvt string
-			if h.Recv != nil {
-				switch t := h.Recv.List[0].Type.(type) {
-				case *ast.StarExpr:
-					recvt = t.X.(*ast.Ident).Name
-				case *ast.Ident:
-					recvt = t.Name
-				default:
-					return nil, "", fmt.Errorf("unknown type (%T) found in receiver type detection for handler %q", t, h.Name.Name)
-				}
-			}
-
-			var n ast.Expr
-			if h.Recv != nil {
-				n = &ast.SelectorExpr{X: &ast.Ident{Name: recvn(recvt)}, Sel: h.Name}
-			} else {
-				n = h.Name
-			}
-
-			r := Receiver{recvn(recvt), recvt}
 			i := Info{
-				Method:      m,
-				Path:        path,
-				Ref:         n,
-				RequestType: rti,
+				Ref: ref(h, recvt),
 			}
+
+			bqtn := fmt.Sprintf("%sRequest", h.Name.Name)
+			bq, ok := findTypeSpec(f, bqtn)
+			if ok {
+				i.RequestType = rti(bqtn, bq)
+			}
+
+			i.Method = handlerMethod(h, i.RequestType)
+			i.Path = handlerPath(h, i.RequestType)
+
+			fmt.Printf("adding %s %s for %s\n", i.Method, i.Path, h.Name.Name)
+			r := Receiver{recvn(recvt), recvt}
 			if _, ok := infoss[r]; !ok {
 				infoss[r] = map[string]Info{}
 			}
