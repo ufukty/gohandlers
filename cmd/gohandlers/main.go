@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gohandlers/cmd/gohandlers/commands/bindings"
+	"gohandlers/cmd/gohandlers/commands/clients"
 	"gohandlers/cmd/gohandlers/commands/list"
 	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/cmd/gohandlers/commands/yaml"
@@ -15,6 +16,7 @@ import (
 func Main() error {
 	commands := map[string]func() error{
 		"bindings": bindings.Main,
+		"clients":  clients.Main,
 		"list":     list.Main,
 		"version":  version.Main,
 		"yaml":     yaml.Main,
