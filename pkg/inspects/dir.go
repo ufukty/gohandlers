@@ -208,6 +208,12 @@ func decideMethodFromRequest(rti *RequestTypeInfo) string {
 	return http.MethodGet
 }
 
+var bodied = []string{
+	http.MethodPatch,
+	http.MethodPost,
+	http.MethodPut,
+}
+
 func handlerMethod(h *ast.FuncDecl, rti *RequestTypeInfo) string {
 	mDoc, okDoc := findMethodInDocs(h)
 
@@ -222,6 +228,9 @@ func handlerMethod(h *ast.FuncDecl, rti *RequestTypeInfo) string {
 	case okDoc && okBq:
 		if mDoc == http.MethodGet && mBq != http.MethodGet {
 			fmt.Fprintf(os.Stderr, "warning: handler %q explicitly assigned %q but the request contains a body\n", h.Name.Name, http.MethodGet)
+		}
+		if slices.Contains(bodied, mDoc) && mBq == http.MethodGet {
+			fmt.Fprintf(os.Stderr, "warning: handler %q explicitly assigned %q but the request doesn't contains a body\n", h.Name.Name, mDoc)
 		}
 		return mDoc
 
