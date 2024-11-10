@@ -232,6 +232,7 @@ func handlerPath(h *ast.FuncDecl, rti *BindingTypeInfo) string {
 
 	path := fmt.Sprintf("/%s", kebab(h.Name.Name))
 	if len(ps) > 0 {
+		slices.Sort(ps)
 		path = fmt.Sprintf("%s/%s", path, strings.Join(ps, "/"))
 	}
 	return path
