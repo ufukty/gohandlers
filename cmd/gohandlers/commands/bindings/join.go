@@ -49,7 +49,7 @@ func join() *ast.FuncDecl {
 										Op: token.NOT,
 										X: &ast.CallExpr{
 											Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "strings"}, Sel: &ast.Ident{Name: "HasPrefix"}},
-											Args: []ast.Expr{&ast.Ident{Name: "segment"}, &ast.BasicLit{Kind: token.STRING, Value: quotes("")}},
+											Args: []ast.Expr{&ast.Ident{Name: "segment"}, &ast.BasicLit{Kind: token.STRING, Value: quotes("/")}},
 										},
 									},
 								},
@@ -57,7 +57,7 @@ func join() *ast.FuncDecl {
 									&ast.AssignStmt{
 										Lhs: []ast.Expr{&ast.Ident{Name: "url"}},
 										Tok: token.ADD_ASSIGN,
-										Rhs: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes("")}},
+										Rhs: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes("/")}},
 									},
 								}},
 							},
