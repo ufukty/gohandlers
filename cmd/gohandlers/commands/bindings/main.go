@@ -104,18 +104,12 @@ func Main() error {
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]
 		if i.RequestType != nil {
-			notempty := i.RequestType.ContainsBody || len(i.RequestType.RouteParams) > 0 || len(i.RequestType.QueryParams) > 0
-			if notempty {
-				f.Decls = append(f.Decls, bqBuild(i))
-				f.Decls = append(f.Decls, bqParse(i))
-			}
+			f.Decls = append(f.Decls, bqBuild(i))
+			f.Decls = append(f.Decls, bqParse(i))
 		}
 		if i.ResponseType != nil {
-			notempty := i.ResponseType.ContainsBody || len(i.ResponseType.RouteParams) > 0 || len(i.ResponseType.QueryParams) > 0
-			if notempty {
-				f.Decls = append(f.Decls, bsWrite(i))
-				f.Decls = append(f.Decls, bsParse(i))
-			}
+			f.Decls = append(f.Decls, bsWrite(i))
+			f.Decls = append(f.Decls, bsParse(i))
 		}
 	}
 

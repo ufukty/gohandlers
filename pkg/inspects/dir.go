@@ -277,7 +277,11 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 			bqtn := fmt.Sprintf("%sRequest", h.Name.Name)
 			bq, ok := findTypeSpec(f, bqtn)
 			if ok {
-				i.RequestType = rti(bqtn, bq)
+				r := rti(bqtn, bq)
+				notempty := r.ContainsBody || len(r.RouteParams) > 0 || len(r.QueryParams) > 0
+				if notempty {
+					i.RequestType = r
+				}
 			}
 
 			i.Method = handlerMethod(h, i.RequestType)
@@ -286,7 +290,11 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
 			bs, ok := findTypeSpec(f, bstn)
 			if ok {
-				i.ResponseType = rti(bstn, bs)
+				r := rti(bstn, bs)
+				notempty := r.ContainsBody || len(r.RouteParams) > 0 || len(r.QueryParams) > 0
+				if notempty {
+					i.ResponseType = r
+				}
 			}
 
 			fmt.Printf("adding %s %s for %s\n", i.Method, i.Path, h.Name.Name)
