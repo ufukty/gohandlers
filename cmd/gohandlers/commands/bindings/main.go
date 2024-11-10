@@ -45,9 +45,10 @@ func keysSortedByValues(src map[string]string) []string {
 }
 
 type Args struct {
-	Dir  string
-	Out  string
-	Recv string
+	Dir     string
+	Out     string
+	Recv    string
+	Verbose bool
 }
 
 func post(src string) string {
@@ -71,6 +72,7 @@ func Main() error {
 	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files")
 	flag.StringVar(&args.Out, "out", "", "the output file")
 	flag.StringVar(&args.Recv, "recv", "", "only use request types that is prefixed with handlers defined on this type")
+	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
 	flag.Parse()
 
 	if args.Dir == "" {
@@ -78,7 +80,7 @@ func Main() error {
 		return fmt.Errorf("bad arguments")
 	}
 
-	infoss, pkg, err := inspects.Dir(args.Dir)
+	infoss, pkg, err := inspects.Dir(args.Dir, args.Verbose)
 	if err != nil {
 		return fmt.Errorf("inspecting the directory: %w", err)
 	}

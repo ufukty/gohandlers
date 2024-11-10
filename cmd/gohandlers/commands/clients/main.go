@@ -13,10 +13,11 @@ import (
 )
 
 type Args struct {
-	Dir    string
-	Out    string
-	Pkg    string
-	Import string
+	Dir     string
+	Out     string
+	Pkg     string
+	Import  string
+	Verbose bool
 }
 
 func post(src string) string {
@@ -31,6 +32,7 @@ func Main() error {
 	flag.StringVar(&args.Out, "out", "", "output directory")
 	flag.StringVar(&args.Pkg, "pkg", "", "package name for the generated file")
 	flag.StringVar(&args.Import, "import", "", "the import path of package declares binding types")
+	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
 	flag.Parse()
 
 	if args.Dir == "" || args.Out == "" || args.Pkg == "" {
@@ -38,7 +40,7 @@ func Main() error {
 		return fmt.Errorf("invalid arguments")
 	}
 
-	infoss, pkgsrc, err := inspects.Dir(args.Dir)
+	infoss, pkgsrc, err := inspects.Dir(args.Dir, args.Verbose)
 	if err != nil {
 		return fmt.Errorf("inspecting files: %w", err)
 	}

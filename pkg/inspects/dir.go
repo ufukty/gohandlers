@@ -250,7 +250,7 @@ type Info struct {
 	ResponseType *BindingTypeInfo
 }
 
-func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
+func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error) {
 	d, err := parser.ParseDir(token.NewFileSet(), dir, nil, parser.AllErrors|parser.ParseComments)
 	if err != nil {
 		return nil, "", fmt.Errorf("parsing files in directory: %w", err)
@@ -297,7 +297,9 @@ func Dir(dir string) (map[Receiver]map[string]Info, string, error) {
 				}
 			}
 
-			fmt.Printf("adding %s %s for %s\n", i.Method, i.Path, h.Name.Name)
+			if verbose {
+				fmt.Printf("adding %s %s for %s\n", i.Method, i.Path, h.Name.Name)
+			}
 			r := Receiver{recvn(recvt), recvt}
 			if _, ok := infoss[r]; !ok {
 				infoss[r] = map[string]Info{}
