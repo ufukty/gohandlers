@@ -76,6 +76,9 @@ func iface(infoss map[inspects.Receiver]map[string]inspects.Info, pkgsrc string,
 
 	for _, infos := range infoss {
 		for hn, hi := range infos {
+			if hi.RequestType == nil {
+				continue // TODO:
+			}
 			list = append(list,
 				&ast.Field{
 					Names: []*ast.Ident{{Name: hn}},
@@ -126,6 +129,9 @@ func mockmethods(infoss map[inspects.Receiver]map[string]inspects.Info, pkgsrc s
 	ds := []ast.Decl{}
 	for _, infos := range infoss {
 		for hn, hi := range infos {
+			if hi.RequestType == nil {
+				continue // TODO:
+			}
 			ds = append(ds, &ast.FuncDecl{
 				Recv: &ast.FieldList{List: []*ast.Field{
 					{Names: []*ast.Ident{{Name: "m"}}, Type: &ast.StarExpr{X: &ast.Ident{Name: "Mock"}}},
