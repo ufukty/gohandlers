@@ -5,6 +5,7 @@ import (
 	"gohandlers/cmd/gohandlers/commands/bindings"
 	"gohandlers/cmd/gohandlers/commands/clients"
 	"gohandlers/cmd/gohandlers/commands/list"
+	"gohandlers/cmd/gohandlers/commands/mock"
 	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/cmd/gohandlers/commands/yaml"
 	"os"
@@ -18,6 +19,7 @@ func Main() error {
 		"bindings": bindings.Main,
 		"clients":  clients.Main,
 		"list":     list.Main,
+		"mock":     mock.Main,
 		"version":  version.Main,
 		"yaml":     yaml.Main,
 	}
