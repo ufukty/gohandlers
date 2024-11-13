@@ -18,6 +18,17 @@ func needsStrings(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
+func containsRequestWithBody(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, infos := range infoss {
+		for _, info := range infos {
+			if info.RequestType != nil && info.RequestType.ContainsBody {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func bodyimports(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
@@ -39,9 +50,13 @@ func imports(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	}
 	if bodyimports(infoss) {
 		imports = append(imports,
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"bytes"`}},
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"encoding/json"`}},
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"mime"`}},
+		)
+	}
+	if containsRequestWithBody(infoss) {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"bytes"`}},
 		)
 	}
 	if needsStrings(infoss) {
