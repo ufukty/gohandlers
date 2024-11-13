@@ -15,9 +15,23 @@ func ternary[T any](cond bool, t, f T) T {
 	return f
 }
 
-func imports(importpkg string) *ast.GenDecl {
-	imports := []ast.Spec{
-		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
+func importNetHttp(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, infos := range infoss {
+		for _, hi := range infos {
+			if hi.ResponseType == nil {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func imports(infoss map[inspects.Receiver]map[string]inspects.Info, importpkg string) *ast.GenDecl {
+	imports := []ast.Spec{}
+	if importNetHttp(infoss) {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
+		)
 	}
 	if importpkg != "" {
 		imports = append(imports,
@@ -164,7 +178,7 @@ func file(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc,
 	f := &ast.File{
 		Name: &ast.Ident{Name: pkgdst},
 		Decls: []ast.Decl{
-			imports(importpkg),
+			imports(infoss, importpkg),
 			iface(infoss, pkgsrc, importpkg != ""),
 			mockstruct(),
 		},
