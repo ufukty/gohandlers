@@ -65,6 +65,7 @@ type BindingTypeInfo struct {
 	RouteParams  map[string]string // route-param -> field-name
 	QueryParams  map[string]string // query-param -> field-name
 	ContainsBody bool
+	Empty        bool
 }
 
 func rti(rqtn string, ts *ast.TypeSpec) *BindingTypeInfo {
@@ -91,6 +92,8 @@ func rti(rqtn string, ts *ast.TypeSpec) *BindingTypeInfo {
 			}
 		}
 	}
+
+	rti.Empty = !rti.ContainsBody && len(rti.RouteParams) == 0 && len(rti.QueryParams) == 0
 
 	return rti
 }
@@ -278,11 +281,7 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 			bqtn := fmt.Sprintf("%sRequest", h.Name.Name)
 			bq, ok := findTypeSpec(f, bqtn)
 			if ok {
-				r := rti(bqtn, bq)
-				notempty := r.ContainsBody || len(r.RouteParams) > 0 || len(r.QueryParams) > 0
-				if notempty {
-					i.RequestType = r
-				}
+				i.RequestType = rti(bqtn, bq)
 			}
 
 			i.Method = handlerMethod(h, i.RequestType)
@@ -291,11 +290,7 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
 			bs, ok := findTypeSpec(f, bstn)
 			if ok {
-				r := rti(bstn, bs)
-				notempty := r.ContainsBody || len(r.RouteParams) > 0 || len(r.QueryParams) > 0
-				if notempty {
-					i.ResponseType = r
-				}
+				i.ResponseType = rti(bstn, bs)
 			}
 
 			if verbose {
