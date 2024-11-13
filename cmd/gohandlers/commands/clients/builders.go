@@ -208,12 +208,7 @@ func funcdecl(hn string, hi inspects.Info, pkgsrc string, imported bool) *ast.Fu
 	return fd
 }
 
-func file(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc, importpkg string) *ast.File {
-	f := &ast.File{
-		Name:  &ast.Ident{Name: pkgdst},
-		Decls: []ast.Decl{},
-	}
-
+func imports(importpkg string) []ast.Spec {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
@@ -234,11 +229,19 @@ func file(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc,
 			return 1
 		}
 	})
+	return imports
+}
+
+func file(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc, importpkg string) *ast.File {
+	f := &ast.File{
+		Name:  &ast.Ident{Name: pkgdst},
+		Decls: []ast.Decl{},
+	}
 
 	f.Decls = append(f.Decls,
 		&ast.GenDecl{
 			Tok:   token.IMPORT,
-			Specs: imports,
+			Specs: imports(importpkg),
 		},
 		&ast.GenDecl{
 			Tok: token.TYPE,
