@@ -51,13 +51,14 @@ func isHandler(fd *ast.FuncDecl) bool {
 	return slices.Compare(linearize(fd.Type.Params), handler) == 0
 }
 
-func findHandler(f *ast.File) (*ast.FuncDecl, bool) {
+func findHandlers(f *ast.File) []*ast.FuncDecl {
+	hs := []*ast.FuncDecl{}
 	for _, d := range f.Decls {
 		if fd, ok := d.(*ast.FuncDecl); ok && isHandler(fd) {
-			return fd, true
+			hs = append(hs, fd)
 		}
 	}
-	return nil, false
+	return hs
 }
 
 type BindingTypeInfo struct {
@@ -269,7 +270,7 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 
 	infoss := map[Receiver]map[string]Info{}
 	for _, f := range p.Files {
-		if h, ok := findHandler(f); ok {
+		for _, h := range findHandlers(f) {
 			recvt, err := receiverType(h)
 			if err != nil {
 				return nil, "", fmt.Errorf("inspecting receiver type of handler: %w", err)
