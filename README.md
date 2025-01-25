@@ -97,7 +97,7 @@ func X(w http.ResponseWriter, r *http.Request)
 
 **Binding types**
 
-gohandlers support binding type declarations with field tags `route`, `query`, `json` and `cookie`, for both the request and response binding types. Binding types are used to:
+gohandlers support binding type declarations with field tags `route`, `query` and `json`, for both the request and response binding types. Binding types are used to:
 
 - access field values inside the `Build` method,
 - set field values inside the `Parse` method,
@@ -108,7 +108,6 @@ type XRequest struct {
   Field1 string `route:"field-1"`
   Field2 string `query:"field-2"`
   Field3 string `json:"field-3"`
-  Field4 string `cookie:"field-4"`
 }
 ```
 
