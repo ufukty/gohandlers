@@ -18,10 +18,13 @@ func needsStrings(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
-func containsRequestWithBody(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func containsHandlerWithJsonBody(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
-			if info.RequestType != nil && info.RequestType.ContainsBody {
+			if info.RequestType != nil && len(info.RequestType.Params.Json) > 0 {
+				return true
+			}
+			if info.ResponseType != nil && len(info.ResponseType.Params.Json) > 0 {
 				return true
 			}
 		}
@@ -29,7 +32,21 @@ func containsRequestWithBody(infoss map[inspects.Receiver]map[string]inspects.In
 	return false
 }
 
-func bodyimports(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func containsHandlerWithMultipartBody(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, infos := range infoss {
+		for _, info := range infos {
+			if info.RequestType != nil && (len(info.RequestType.Params.Part) > 0 || len(info.RequestType.Params.File) > 0) {
+				return true
+			}
+			if info.ResponseType != nil && (len(info.ResponseType.Params.Part) > 0 || len(info.ResponseType.Params.File) > 0) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func containsHandlerNeedsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
 			if info.RequestType != nil && info.RequestType.ContainsBody {
@@ -48,15 +65,19 @@ func imports(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
 	}
-	if bodyimports(infoss) {
-		imports = append(imports,
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"encoding/json"`}},
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"mime"`}},
-		)
-	}
-	if containsRequestWithBody(infoss) {
+	if containsHandlerNeedsBytes(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"bytes"`}},
+		)
+	}
+	if containsHandlerWithJsonBody(infoss) {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"encoding/json"`}},
+		)
+	}
+	if containsHandlerWithMultipartBody(infoss) {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"mime/multipart"`}},
 		)
 	}
 	if needsStrings(infoss) {

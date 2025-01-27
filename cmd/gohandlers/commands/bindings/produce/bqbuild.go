@@ -175,7 +175,7 @@ func (p *bqBuild) query(info inspects.Info) []ast.Stmt {
 	return stmts
 }
 
-func (p *bqBuild) jsonPreRequest(info inspects.Info) []ast.Stmt {
+func (p *bqBuild) json(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	if len(info.RequestType.Params.Json) > 0 {
 		stmts = append(stmts,
@@ -220,46 +220,6 @@ func (p *bqBuild) jsonPreRequest(info inspects.Info) []ast.Stmt {
 	return stmts
 }
 
-func (p *bqBuild) jsonPostRequest(info inspects.Info) []ast.Stmt {
-	stmts := []ast.Stmt{}
-	if len(info.RequestType.Params.Json) > 0 {
-		stmts = append(stmts,
-			&ast.ExprStmt{X: &ast.CallExpr{
-				Fun: &ast.SelectorExpr{
-					X:   &ast.SelectorExpr{X: &ast.Ident{Name: "r"}, Sel: &ast.Ident{Name: "Header"}},
-					Sel: &ast.Ident{Name: "Set"},
-				},
-				Args: []ast.Expr{
-					&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
-					&ast.CallExpr{
-						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "mime"}, Sel: &ast.Ident{Name: "TypeByExtension"}},
-						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `".json"`}},
-					},
-				},
-			}},
-			&ast.ExprStmt{X: &ast.CallExpr{
-				Fun: &ast.SelectorExpr{
-					X:   &ast.SelectorExpr{X: &ast.Ident{Name: "r"}, Sel: &ast.Ident{Name: "Header"}},
-					Sel: &ast.Ident{Name: "Set"},
-				},
-				Args: []ast.Expr{
-					&ast.BasicLit{Kind: token.STRING, Value: `"Content-Length"`},
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Sprintf"}},
-						Args: []ast.Expr{
-							&ast.BasicLit{Kind: token.STRING, Value: `"%d"`},
-							&ast.CallExpr{
-								Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "body"}, Sel: &ast.Ident{Name: "Len"}},
-							},
-						},
-					},
-				},
-			}},
-		)
-	}
-	return stmts
-}
-
 func (p *bqBuild) request(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	stmts = append(stmts,
@@ -294,6 +254,43 @@ func (p *bqBuild) request(info inspects.Info) []ast.Stmt {
 	return stmts
 }
 
+func (p *bqBuild) postRequest(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
+	if info.RequestType.ContainsBody {
+		stmts = append(stmts,
+			&ast.ExprStmt{X: &ast.CallExpr{
+				Fun: &ast.SelectorExpr{
+					X:   &ast.SelectorExpr{X: &ast.Ident{Name: "r"}, Sel: &ast.Ident{Name: "Header"}},
+					Sel: &ast.Ident{Name: "Set"},
+				},
+				Args: []ast.Expr{
+					&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
+					&ast.BasicLit{Kind: token.STRING, Value: quotes(info.RequestType.ContentType)},
+				},
+			}},
+			&ast.ExprStmt{X: &ast.CallExpr{
+				Fun: &ast.SelectorExpr{
+					X:   &ast.SelectorExpr{X: &ast.Ident{Name: "r"}, Sel: &ast.Ident{Name: "Header"}},
+					Sel: &ast.Ident{Name: "Set"},
+				},
+				Args: []ast.Expr{
+					&ast.BasicLit{Kind: token.STRING, Value: `"Content-Length"`},
+					&ast.CallExpr{
+						Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Sprintf"}},
+						Args: []ast.Expr{
+							&ast.BasicLit{Kind: token.STRING, Value: `"%d"`},
+							&ast.CallExpr{
+								Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "body"}, Sel: &ast.Ident{Name: "Len"}},
+							},
+						},
+					},
+				},
+			}},
+		)
+	}
+	return stmts
+}
+
 // produces the bqtn.Build method
 func (p *bqBuild) Produce(info inspects.Info) *ast.FuncDecl {
 	fd := &ast.FuncDecl{
@@ -323,9 +320,9 @@ func (p *bqBuild) Produce(info inspects.Info) *ast.FuncDecl {
 
 	fd.Body.List = append(fd.Body.List, p.route(info)...)
 	fd.Body.List = append(fd.Body.List, p.query(info)...)
-	fd.Body.List = append(fd.Body.List, p.jsonPreRequest(info)...)
+	fd.Body.List = append(fd.Body.List, p.json(info)...)
 	fd.Body.List = append(fd.Body.List, p.request(info)...)
-	fd.Body.List = append(fd.Body.List, p.jsonPostRequest(info)...)
+	fd.Body.List = append(fd.Body.List, p.postRequest(info)...)
 
 	fd.Body.List = append(fd.Body.List,
 		&ast.ReturnStmt{Results: []ast.Expr{&ast.Ident{Name: "r"}, &ast.Ident{Name: "nil"}}},

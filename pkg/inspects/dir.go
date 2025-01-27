@@ -109,7 +109,7 @@ func bti(rqtn string, ts *ast.TypeSpec) (*BindingTypeInfo, error) {
 		}
 	}
 
-	bti.ContainsBody = len(bti.Params.Json) > 0 && len(bti.Params.Part) > 0 && len(bti.Params.File) > 0
+	bti.ContainsBody = len(bti.Params.Json) > 0 || len(bti.Params.Part) > 0 || len(bti.Params.File) > 0
 	bti.Empty = !bti.ContainsBody && len(bti.Params.Route) == 0 && len(bti.Params.Query) == 0
 
 	isMultipart := len(bti.Params.Part) > 0 || len(bti.Params.File) > 0

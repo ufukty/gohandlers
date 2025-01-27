@@ -8,9 +8,9 @@ import (
 
 type bsWrite struct{}
 
-func (p *bsWrite) jsonPreRequest(info inspects.Info) []ast.Stmt {
+func (p *bsWrite) headers(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
-	if len(info.RequestType.Params.Json) > 0 {
+	if info.ResponseType.ContentType != "" {
 		stmts = append(stmts,
 			&ast.ExprStmt{
 				X: &ast.CallExpr{
@@ -20,19 +20,24 @@ func (p *bsWrite) jsonPreRequest(info inspects.Info) []ast.Stmt {
 					},
 					Args: []ast.Expr{
 						&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
-						&ast.CallExpr{
-							Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "mime"}, Sel: &ast.Ident{Name: "TypeByExtension"}},
-							Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `".json"`}},
-						},
+						&ast.BasicLit{Kind: token.STRING, Value: quotes(info.ResponseType.ContentType)},
 					},
 				},
 			},
 		)
 	}
+	stmts = append(stmts,
+		&ast.ExprStmt{
+			X: &ast.CallExpr{
+				Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "w"}, Sel: &ast.Ident{Name: "WriteHeader"}},
+				Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "StatusOK"}}},
+			},
+		},
+	)
 	return stmts
 }
 
-func (p *bsWrite) jsonPostRequest(info inspects.Info) []ast.Stmt {
+func (p *bsWrite) json(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	if len(info.RequestType.Params.Json) > 0 {
 		stmts = append(stmts,
@@ -71,19 +76,6 @@ func (p *bsWrite) jsonPostRequest(info inspects.Info) []ast.Stmt {
 	return stmts
 }
 
-func (p *bsWrite) request() []ast.Stmt {
-	stmts := []ast.Stmt{}
-	stmts = append(stmts,
-		&ast.ExprStmt{
-			X: &ast.CallExpr{
-				Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "w"}, Sel: &ast.Ident{Name: "WriteHeader"}},
-				Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "StatusOK"}}},
-			},
-		},
-	)
-	return stmts
-}
-
 func (p *bsWrite) Produce(info inspects.Info) *ast.FuncDecl {
 	fd := &ast.FuncDecl{
 		Recv: &ast.FieldList{List: []*ast.Field{
@@ -101,9 +93,8 @@ func (p *bsWrite) Produce(info inspects.Info) *ast.FuncDecl {
 		Body: &ast.BlockStmt{List: []ast.Stmt{}},
 	}
 
-	fd.Body.List = append(fd.Body.List, p.jsonPreRequest(info)...)
-	fd.Body.List = append(fd.Body.List, p.request()...)
-	fd.Body.List = append(fd.Body.List, p.jsonPostRequest(info)...)
+	fd.Body.List = append(fd.Body.List, p.headers(info)...)
+	fd.Body.List = append(fd.Body.List, p.json(info)...)
 
 	return fd
 }
