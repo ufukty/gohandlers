@@ -1,4 +1,4 @@
-package bindings
+package produce
 
 import (
 	"fmt"
@@ -8,45 +8,23 @@ import (
 	"gohandlers/pkg/inspects"
 )
 
-// produces the bqtn.Build method
-func bqBuild(info inspects.Info) *ast.FuncDecl {
-	fd := &ast.FuncDecl{
-		Recv: &ast.FieldList{List: []*ast.Field{
-			{Names: []*ast.Ident{{Name: "bq"}}, Type: &ast.Ident{Name: info.RequestType.Typename}},
-		}},
-		Name: &ast.Ident{Name: "Build"},
-		Type: &ast.FuncType{
-			Params: &ast.FieldList{List: []*ast.Field{
-				{Names: []*ast.Ident{{Name: "host"}}, Type: &ast.Ident{Name: "string"}},
-			}},
-			Results: &ast.FieldList{List: []*ast.Field{
-				{Type: &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "Request"}}}},
-				{Type: &ast.Ident{Name: "error"}},
-			}},
-		},
-		Body: &ast.BlockStmt{List: []ast.Stmt{}},
-	}
+type bqBuildSymbolTable struct {
+	err     bool
+	encoded bool
+	ok      bool
+}
 
-	type symboltable struct {
-		err     bool
-		encoded bool
-		ok      bool
-	}
-	symbols := symboltable{}
+type bqBuild struct {
+	table bqBuildSymbolTable
+}
 
-	fd.Body.List = append(fd.Body.List,
-		&ast.AssignStmt{
-			Lhs: []ast.Expr{&ast.Ident{Name: "uri"}},
-			Tok: token.DEFINE,
-			Rhs: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(info.Path)}},
-		},
-	)
-
+func (p *bqBuild) route(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
 	for rp, fn := range sorted.ByValues(info.RequestType.Params.Route) {
-		fd.Body.List = append(fd.Body.List,
+		stmts = append(stmts,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "encoded"}, &ast.Ident{Name: "err"}},
-				Tok: ternary(symbols.encoded && symbols.err, token.ASSIGN, token.DEFINE),
+				Tok: ternary(p.table.encoded && p.table.err, token.ASSIGN, token.DEFINE),
 				Rhs: []ast.Expr{&ast.CallExpr{Fun: &ast.SelectorExpr{
 					X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}},
 					Sel: &ast.Ident{Name: "ToRoute"},
@@ -83,12 +61,16 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 				},
 			},
 		)
-		symbols.encoded = true
-		symbols.err = true
+		p.table.encoded = true
+		p.table.err = true
 	}
+	return stmts
+}
 
+func (p *bqBuild) query(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
 	if len(info.RequestType.Params.Query) > 0 {
-		fd.Body.List = append(fd.Body.List,
+		stmts = append(stmts,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "q"}},
 				Tok: token.DEFINE,
@@ -97,10 +79,10 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 		)
 
 		for qp, fn := range sorted.ByValues(info.RequestType.Params.Query) {
-			fd.Body.List = append(fd.Body.List,
+			stmts = append(stmts,
 				&ast.AssignStmt{
 					Lhs: []ast.Expr{&ast.Ident{Name: "encoded"}, &ast.Ident{Name: "ok"}, &ast.Ident{Name: "err"}},
-					Tok: ternary(symbols.encoded && symbols.ok && symbols.err, token.ASSIGN, token.DEFINE),
+					Tok: ternary(p.table.encoded && p.table.ok && p.table.err, token.ASSIGN, token.DEFINE),
 					Rhs: []ast.Expr{
 						&ast.CallExpr{
 							Fun: &ast.SelectorExpr{
@@ -152,12 +134,12 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 					}},
 				},
 			)
-			symbols.ok = true
-			symbols.encoded = true
-			symbols.err = true
+			p.table.ok = true
+			p.table.encoded = true
+			p.table.err = true
 		}
 
-		fd.Body.List = append(fd.Body.List,
+		stmts = append(stmts,
 			&ast.IfStmt{
 				Cond: &ast.BinaryExpr{
 					X:  &ast.CallExpr{Fun: &ast.Ident{Name: "len"}, Args: []ast.Expr{&ast.Ident{Name: "q"}}},
@@ -190,8 +172,13 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 		)
 	}
 
-	if info.RequestType.ContainsBody {
-		fd.Body.List = append(fd.Body.List,
+	return stmts
+}
+
+func (p *bqBuild) jsonPreRequest(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
+	if len(info.RequestType.Params.Json) > 0 {
+		stmts = append(stmts,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "body"}},
 				Tok: token.DEFINE,
@@ -202,7 +189,7 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 			},
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: ternary(symbols.err, token.ASSIGN, token.DEFINE),
+				Tok: ternary(p.table.err, token.ASSIGN, token.DEFINE),
 				Rhs: []ast.Expr{&ast.CallExpr{
 					Fun: &ast.SelectorExpr{
 						X: &ast.CallExpr{
@@ -228,41 +215,15 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 				}}}},
 			},
 		)
-		symbols.err = true
+		p.table.err = true
 	}
+	return stmts
+}
 
-	fd.Body.List = append(fd.Body.List,
-		&ast.AssignStmt{
-			Lhs: []ast.Expr{&ast.Ident{Name: "r"}, &ast.Ident{Name: "err"}},
-			Tok: token.DEFINE,
-			Rhs: []ast.Expr{&ast.CallExpr{
-				Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "NewRequest"}},
-				Args: []ast.Expr{
-					&ast.BasicLit{Kind: token.STRING, Value: quotes(info.Method)},
-					&ast.CallExpr{
-						Fun:  &ast.Ident{Name: "join"},
-						Args: []ast.Expr{&ast.Ident{Name: "host"}, &ast.Ident{Name: "uri"}},
-					},
-					&ast.Ident{Name: ternary(info.RequestType.ContainsBody, "body", "nil")},
-				},
-			}},
-		},
-		&ast.IfStmt{
-			Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-			Body: &ast.BlockStmt{List: []ast.Stmt{
-				&ast.ReturnStmt{Results: []ast.Expr{
-					&ast.Ident{Name: "nil"},
-					&ast.CallExpr{
-						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"http.NewRequest: %w"`}, &ast.Ident{Name: "err"}},
-					},
-				}},
-			}},
-		},
-	)
-
-	if info.RequestType.ContainsBody {
-		fd.Body.List = append(fd.Body.List,
+func (p *bqBuild) jsonPostRequest(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
+	if len(info.RequestType.Params.Json) > 0 {
+		stmts = append(stmts,
 			&ast.ExprStmt{X: &ast.CallExpr{
 				Fun: &ast.SelectorExpr{
 					X:   &ast.SelectorExpr{X: &ast.Ident{Name: "r"}, Sel: &ast.Ident{Name: "Header"}},
@@ -296,10 +257,84 @@ func bqBuild(info inspects.Info) *ast.FuncDecl {
 			}},
 		)
 	}
+	return stmts
+}
+
+func (p *bqBuild) request(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
+	stmts = append(stmts,
+		&ast.AssignStmt{
+			Lhs: []ast.Expr{&ast.Ident{Name: "r"}, &ast.Ident{Name: "err"}},
+			Tok: token.DEFINE,
+			Rhs: []ast.Expr{&ast.CallExpr{
+				Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "NewRequest"}},
+				Args: []ast.Expr{
+					&ast.BasicLit{Kind: token.STRING, Value: quotes(info.Method)},
+					&ast.CallExpr{
+						Fun:  &ast.Ident{Name: "join"},
+						Args: []ast.Expr{&ast.Ident{Name: "host"}, &ast.Ident{Name: "uri"}},
+					},
+					&ast.Ident{Name: ternary(info.RequestType.ContainsBody, "body", "nil")},
+				},
+			}},
+		},
+		&ast.IfStmt{
+			Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
+			Body: &ast.BlockStmt{List: []ast.Stmt{
+				&ast.ReturnStmt{Results: []ast.Expr{
+					&ast.Ident{Name: "nil"},
+					&ast.CallExpr{
+						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"http.NewRequest: %w"`}, &ast.Ident{Name: "err"}},
+					},
+				}},
+			}},
+		},
+	)
+	return stmts
+}
+
+// produces the bqtn.Build method
+func (p *bqBuild) Produce(info inspects.Info) *ast.FuncDecl {
+	fd := &ast.FuncDecl{
+		Recv: &ast.FieldList{List: []*ast.Field{
+			{Names: []*ast.Ident{{Name: "bq"}}, Type: &ast.Ident{Name: info.RequestType.Typename}},
+		}},
+		Name: &ast.Ident{Name: "Build"},
+		Type: &ast.FuncType{
+			Params: &ast.FieldList{List: []*ast.Field{
+				{Names: []*ast.Ident{{Name: "host"}}, Type: &ast.Ident{Name: "string"}},
+			}},
+			Results: &ast.FieldList{List: []*ast.Field{
+				{Type: &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "Request"}}}},
+				{Type: &ast.Ident{Name: "error"}},
+			}},
+		},
+		Body: &ast.BlockStmt{List: []ast.Stmt{}},
+	}
+
+	fd.Body.List = append(fd.Body.List,
+		&ast.AssignStmt{
+			Lhs: []ast.Expr{&ast.Ident{Name: "uri"}},
+			Tok: token.DEFINE,
+			Rhs: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(info.Path)}},
+		},
+	)
+
+	fd.Body.List = append(fd.Body.List, p.route(info)...)
+	fd.Body.List = append(fd.Body.List, p.query(info)...)
+	fd.Body.List = append(fd.Body.List, p.jsonPreRequest(info)...)
+	fd.Body.List = append(fd.Body.List, p.request(info)...)
+	fd.Body.List = append(fd.Body.List, p.jsonPostRequest(info)...)
 
 	fd.Body.List = append(fd.Body.List,
 		&ast.ReturnStmt{Results: []ast.Expr{&ast.Ident{Name: "r"}, &ast.Ident{Name: "nil"}}},
 	)
 
 	return fd
+}
+
+func BqBuild(i inspects.Info) *ast.FuncDecl {
+	p := &bqBuild{}
+	return p.Produce(i)
 }

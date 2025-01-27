@@ -1,10 +1,15 @@
 package bindings
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"gohandlers/pkg/inspects"
 )
+
+func quotes(s string) string {
+	return fmt.Sprintf("%q", s)
+}
 
 func needsjoin(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, handlers := range infoss {

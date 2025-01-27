@@ -7,23 +7,13 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"gohandlers/cmd/gohandlers/commands/bindings/produce"
 	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/pkg/inspects"
 	"os"
 	"path/filepath"
 	"strings"
 )
-
-func ternary[T any](cond bool, t, f T) T {
-	if cond {
-		return t
-	}
-	return f
-}
-
-func quotes(s string) string {
-	return fmt.Sprintf("%q", s)
-}
 
 type Args struct {
 	Dir     string
@@ -87,12 +77,12 @@ func Main() error {
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]
 		if i.RequestType != nil {
-			f.Decls = append(f.Decls, bqBuild(i))
-			f.Decls = append(f.Decls, bqParse(i))
+			f.Decls = append(f.Decls, produce.BqBuild(i))
+			f.Decls = append(f.Decls, produce.BqParse(i))
 		}
 		if i.ResponseType != nil {
-			f.Decls = append(f.Decls, bsWrite(i))
-			f.Decls = append(f.Decls, bsParse(i))
+			f.Decls = append(f.Decls, produce.BsWrite(i))
+			f.Decls = append(f.Decls, produce.BsParse(i))
 		}
 	}
 

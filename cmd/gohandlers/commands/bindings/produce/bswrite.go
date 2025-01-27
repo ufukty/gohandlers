@@ -1,4 +1,4 @@
-package bindings
+package produce
 
 import (
 	"go/ast"
@@ -6,25 +6,12 @@ import (
 	"gohandlers/pkg/inspects"
 )
 
-func bsWrite(info inspects.Info) *ast.FuncDecl {
-	fd := &ast.FuncDecl{
-		Recv: &ast.FieldList{List: []*ast.Field{
-			{Names: []*ast.Ident{{Name: "bs"}}, Type: &ast.Ident{Name: info.ResponseType.Typename}},
-		}},
-		Name: &ast.Ident{Name: "Write"},
-		Type: &ast.FuncType{
-			Params: &ast.FieldList{List: []*ast.Field{{
-				Names: []*ast.Ident{{Name: "w"}}, Type: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "ResponseWriter"}},
-			}}},
-			Results: &ast.FieldList{List: []*ast.Field{
-				{Type: &ast.Ident{Name: "error"}},
-			}},
-		},
-		Body: &ast.BlockStmt{List: []ast.Stmt{}},
-	}
+type bsWrite struct{}
 
-	if info.ResponseType.ContainsBody {
-		fd.Body.List = append(fd.Body.List,
+func (p *bsWrite) jsonPreRequest(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
+	if len(info.RequestType.Params.Json) > 0 {
+		stmts = append(stmts,
 			&ast.ExprStmt{
 				X: &ast.CallExpr{
 					Fun: &ast.SelectorExpr{
@@ -42,18 +29,13 @@ func bsWrite(info inspects.Info) *ast.FuncDecl {
 			},
 		)
 	}
+	return stmts
+}
 
-	fd.Body.List = append(fd.Body.List,
-		&ast.ExprStmt{
-			X: &ast.CallExpr{
-				Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "w"}, Sel: &ast.Ident{Name: "WriteHeader"}},
-				Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "StatusOK"}}},
-			},
-		},
-	)
-
-	if info.ResponseType.ContainsBody {
-		fd.Body.List = append(fd.Body.List,
+func (p *bsWrite) jsonPostRequest(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
+	if len(info.RequestType.Params.Json) > 0 {
+		stmts = append(stmts,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
 				Tok: token.DEFINE,
@@ -86,6 +68,47 @@ func bsWrite(info inspects.Info) *ast.FuncDecl {
 			},
 		)
 	}
+	return stmts
+}
+
+func (p *bsWrite) request() []ast.Stmt {
+	stmts := []ast.Stmt{}
+	stmts = append(stmts,
+		&ast.ExprStmt{
+			X: &ast.CallExpr{
+				Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "w"}, Sel: &ast.Ident{Name: "WriteHeader"}},
+				Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "StatusOK"}}},
+			},
+		},
+	)
+	return stmts
+}
+
+func (p *bsWrite) Produce(info inspects.Info) *ast.FuncDecl {
+	fd := &ast.FuncDecl{
+		Recv: &ast.FieldList{List: []*ast.Field{
+			{Names: []*ast.Ident{{Name: "bs"}}, Type: &ast.Ident{Name: info.ResponseType.Typename}},
+		}},
+		Name: &ast.Ident{Name: "Write"},
+		Type: &ast.FuncType{
+			Params: &ast.FieldList{List: []*ast.Field{{
+				Names: []*ast.Ident{{Name: "w"}}, Type: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "ResponseWriter"}},
+			}}},
+			Results: &ast.FieldList{List: []*ast.Field{
+				{Type: &ast.Ident{Name: "error"}},
+			}},
+		},
+		Body: &ast.BlockStmt{List: []ast.Stmt{}},
+	}
+
+	fd.Body.List = append(fd.Body.List, p.jsonPreRequest(info)...)
+	fd.Body.List = append(fd.Body.List, p.request()...)
+	fd.Body.List = append(fd.Body.List, p.jsonPostRequest(info)...)
 
 	return fd
+}
+
+func BsWrite(i inspects.Info) *ast.FuncDecl {
+	p := &bsWrite{}
+	return p.Produce(i)
 }

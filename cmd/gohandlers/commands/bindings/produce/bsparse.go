@@ -1,4 +1,4 @@
-package bindings
+package produce
 
 import (
 	"go/ast"
@@ -6,24 +6,12 @@ import (
 	"gohandlers/pkg/inspects"
 )
 
-func bsParse(info inspects.Info) *ast.FuncDecl {
-	fd := &ast.FuncDecl{
-		Recv: &ast.FieldList{List: []*ast.Field{
-			{Names: []*ast.Ident{{Name: "bs"}}, Type: &ast.StarExpr{X: &ast.Ident{Name: info.ResponseType.Typename}}},
-		}},
-		Name: &ast.Ident{Name: "Parse"},
-		Type: &ast.FuncType{
-			Params: &ast.FieldList{List: []*ast.Field{{
-				Names: []*ast.Ident{{Name: "rs"}},
-				Type:  &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "Response"}}},
-			}}},
-			Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.Ident{Name: "error"}}}},
-		},
-		Body: &ast.BlockStmt{List: []ast.Stmt{}},
-	}
+type bsParse struct{}
 
-	if info.ResponseType.ContainsBody {
-		fd.Body.List = append(fd.Body.List,
+func (p *bsParse) json(info inspects.Info) []ast.Stmt {
+	stmts := []ast.Stmt{}
+	if len(info.RequestType.Params.Json) > 0 {
+		stmts = append(stmts,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "ct"}},
 				Tok: token.DEFINE,
@@ -88,10 +76,35 @@ func bsParse(info inspects.Info) *ast.FuncDecl {
 			},
 		)
 	}
+	return stmts
+}
+
+func (p *bsParse) Produce(info inspects.Info) *ast.FuncDecl {
+	fd := &ast.FuncDecl{
+		Recv: &ast.FieldList{List: []*ast.Field{
+			{Names: []*ast.Ident{{Name: "bs"}}, Type: &ast.StarExpr{X: &ast.Ident{Name: info.ResponseType.Typename}}},
+		}},
+		Name: &ast.Ident{Name: "Parse"},
+		Type: &ast.FuncType{
+			Params: &ast.FieldList{List: []*ast.Field{{
+				Names: []*ast.Ident{{Name: "rs"}},
+				Type:  &ast.StarExpr{X: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "Response"}}},
+			}}},
+			Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.Ident{Name: "error"}}}},
+		},
+		Body: &ast.BlockStmt{List: []ast.Stmt{}},
+	}
+
+	fd.Body.List = append(fd.Body.List, p.json(info)...)
 
 	fd.Body.List = append(fd.Body.List,
 		&ast.ReturnStmt{Results: []ast.Expr{&ast.Ident{Name: "nil"}}},
 	)
 
 	return fd
+}
+
+func BsParse(i inspects.Info) *ast.FuncDecl {
+	p := &bsParse{}
+	return p.Produce(i)
 }
