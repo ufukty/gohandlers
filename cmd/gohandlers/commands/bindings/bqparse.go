@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
+	"gohandlers/internal/sorted"
 	"gohandlers/pkg/inspects"
 )
 
@@ -30,9 +31,7 @@ func bqParse(info inspects.Info) *ast.FuncDecl {
 	}
 	symbols := symboltable{}
 
-	for _, rp := range keysSortedByValues(info.RequestType.RouteParams) {
-		fn := info.RequestType.RouteParams[rp]
-
+	for rp, fn := range sorted.ByValues(info.RequestType.RouteParams) {
 		fd.Body.List = append(fd.Body.List,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
@@ -77,9 +76,7 @@ func bqParse(info inspects.Info) *ast.FuncDecl {
 			},
 		)
 
-		for _, qp := range keysSortedByValues(info.RequestType.QueryParams) {
-			fn := info.RequestType.QueryParams[qp]
-
+		for qp, fn := range sorted.ByValues(info.RequestType.QueryParams) {
 			fd.Body.List = append(fd.Body.List,
 				&ast.IfStmt{
 					Cond: &ast.CallExpr{
