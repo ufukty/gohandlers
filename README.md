@@ -226,10 +226,10 @@ type _ interface {
 
 Additional methods are required for `multipart/form-data` response/requests on types that are meant to hold data for parts. Dependening on the per-part `Content-Type` value; types need to implement:
 
-| Content-Type                     | Request.Build | Request.Parse  | Response.Write | Response.Parse |
-| -------------------------------- | ------------- | -------------- | -------------- | -------------- |
-| `application/json`               | `ToJsonPart`  | `FromJsonPart` | `ToJsonPart`   | `FromJsonPart` |
-| `application/x-www-form-encoded` | `ToFromPart`  | `FromFormPart` | `ToFormPart`   | `FromFormPart` |
+| Content-Type                        | Request.Build | Request.Parse  | Response.Write | Response.Parse |
+| ----------------------------------- | ------------- | -------------- | -------------- | -------------- |
+| `application/json`                  | `ToJsonPart`  | `FromJsonPart` | `ToJsonPart`   | `FromJsonPart` |
+| `application/x-www-form-urlencoded` | `ToFromPart`  | `FromFormPart` | `ToFormPart`   | `FromFormPart` |
 
 Content type is detected by gohandlers based on field tags contain `json` or `form` in type declaration of the type used for a request/response part. Method signature are below:
 
