@@ -185,14 +185,14 @@ Since query parameters are optional, the `Querier` interface method `ToQuery` re
 
 **Methods required on types used for fields**
 
-| Tag key for field with type | Request.Build        | Request.Parse | Response.Write       | Response.Parse |
-| --------------------------- | -------------------- | ------------- | -------------------- | -------------- |
-| `route`                     | `ToRoute`            | `FromRoute`   |                      |                |
-| `query`                     | `ToQuery`            | `FromQuery`   |                      |                |
-| `json`                      |                      |               |                      |                |
-| `form`                      | `ToForm`             | `FromForm`    | `ToForm`             | `FromForm`     |
-| `part`                      | `ToPart`             | `FromPart`    | `ToPart`             | `FromPart`     |
-| `file`                      | `ToFile`, `Filename` | `FromFile`    | `ToFile`, `Filename` | `FromFile`     |
+| Tag key for field with type | Request.Build | Request.Parse | Response.Write | Response.Parse |
+| --------------------------- | ------------- | ------------- | -------------- | -------------- |
+| `route`                     | `ToRoute`     | `FromRoute`   |                |                |
+| `query`                     | `ToQuery`     | `FromQuery`   |                |                |
+| `json`                      |               |               |                |                |
+| `form`                      | `ToForm`      | `FromForm`    | `ToForm`       | `FromForm`     |
+| `part`                      | `ToPart`      | `FromPart`    | `ToPart`       | `FromPart`     |
+| `file`                      | `ToFile`      | `FromFile`    | `ToFile`       | `FromFile`     |
 
 Method signatures are below:
 
@@ -218,9 +218,8 @@ type _ interface {
 }
 
 type _ interface {
-  ToFile(dst io.Writer) error
-  Filename()
-  FromFile(src io.Reader) error
+  ToFile(dst io.Writer, filename string) error
+  FromFile(src io.Reader, filename string) error
 }
 ```
 
