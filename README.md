@@ -12,6 +12,7 @@ gohandlers [command] <command args>
 commands:
     bindings : Produces a file contains Build and Parse methods for binding types
     client   : Produces a file contains Client and its methods
+    mock     : Produces a file contains Client mock and an interface
     list     : Produces a file contains ListHandlers function/methods
     yaml     : Produces a yaml file contains handler paths and methods for non-Go clients
 
@@ -111,6 +112,8 @@ type XRequest struct {
 }
 ```
 
+In case of the request binding contain a field with a tag for `part` or `file`, gohandlers expects the request content type to be `multipart/form-data`. In this case, all fields need to be tagged with those 2 tags.
+
 **Path assignment**
 
 gohandlers create a path for every handler. Paths start with the handler's name. If there is request binding type for the handler, it gets checked for fields sourced from route (aka. path) variables. For example, the handler below will get `/get-profile/{uid}` as path:
@@ -179,6 +182,68 @@ func X(w http.ResponseWriter, r *http.Request) {}
 ```
 
 Since query parameters are optional, the `Querier` interface method `ToQuery` returns a boolean in the middle of output argument list which represents the availability of a value. Different than returning an error, when this value returned `false`, the `Build` method continues to execution without returning or including a section for that query parameter in the URI.
+
+**Methods required on types used for fields**
+
+| Tag key for field with type | Request.Build        | Request.Parse | Response.Write       | Response.Parse |
+| --------------------------- | -------------------- | ------------- | -------------------- | -------------- |
+| `route`                     | `ToRoute`            | `FromRoute`   |                      |                |
+| `query`                     | `ToQuery`            | `FromQuery`   |                      |                |
+| `json`                      |                      |               |                      |                |
+| `form`                      | `ToForm`             | `FromForm`    | `ToForm`             | `FromForm`     |
+| `part`                      | `ToPart`             | `FromPart`    | `ToPart`             | `FromPart`     |
+| `file`                      | `ToFile`, `Filename` | `FromFile`    | `ToFile`, `Filename` | `FromFile`     |
+
+Method signatures are below:
+
+```go
+type _ interface {
+  ToRoute() (string, error)
+  FromRoute(string) error
+}
+
+type _ interface {
+  ToQuery() (string, error)
+  FromQuery(string) error
+}
+
+type _ interface {
+  ToForm() (string, error)
+  FromForm(string) error
+}
+
+type _ interface {
+  ToPart() (string, error)
+  FromPart(string) error
+}
+
+type _ interface {
+  ToFile(dst io.Writer) error
+  Filename()
+  FromFile(src io.Reader) error
+}
+```
+
+Additional methods are required for `multipart/form-data` response/requests on types that are meant to hold data for parts. Dependening on the per-part `Content-Type` value; types need to implement:
+
+| Content-Type                     | Request.Build | Request.Parse  | Response.Write | Response.Parse |
+| -------------------------------- | ------------- | -------------- | -------------- | -------------- |
+| `application/json`               | `ToJsonPart`  | `FromJsonPart` | `ToJsonPart`   | `FromJsonPart` |
+| `application/x-www-form-encoded` | `ToFromPart`  | `FromFormPart` | `ToFormPart`   | `FromFormPart` |
+
+Content type is detected by gohandlers based on field tags contain `json` or `form` in type declaration of the type used for a request/response part. Method signature are below:
+
+```go
+type _ interface {
+  ToJsonPart(dst io.Writer) error
+  FromJsonPart(src io.Reader) error
+}
+
+type _ interface {
+  ToFormPart(dst io.Writer) error
+  FromFormPart(src io.Reader) error
+}
+```
 
 **Centralized declaration for `HandlerInfo`**
 
