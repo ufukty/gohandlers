@@ -200,7 +200,7 @@ func (p *bqParse) multipartFormData(info inspects.Info) []ast.Stmt {
 					&ast.CallExpr{
 						Fun: &ast.SelectorExpr{
 							X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: ast.NewIdent(fn)},
-							Sel: &ast.Ident{Name: "FromForm"},
+							Sel: &ast.Ident{Name: "FromPart"},
 						},
 						Args: []ast.Expr{
 							&ast.CallExpr{
@@ -219,7 +219,7 @@ func (p *bqParse) multipartFormData(info inspects.Info) []ast.Stmt {
 							Results: []ast.Expr{
 								&ast.CallExpr{
 									Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-									Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf(`"%s.FromForm: %%w"`, fn)}, &ast.Ident{Name: "err"}},
+									Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf(`"%s.FromPart: %%w"`, fn)}, &ast.Ident{Name: "err"}},
 								},
 							},
 						},
