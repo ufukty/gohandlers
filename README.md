@@ -185,14 +185,14 @@ Since query parameters are optional, the `Querier` interface method `ToQuery` re
 
 **Methods required on types used for fields**
 
-| Tag key for field with type | Request.Build | Request.Parse | Response.Write | Response.Parse |
-| --------------------------- | ------------- | ------------- | -------------- | -------------- |
-| `route`                     | `ToRoute`     | `FromRoute`   |                |                |
-| `query`                     | `ToQuery`     | `FromQuery`   |                |                |
-| `json`                      |               |               |                |                |
-| `form`                      | `ToForm`      | `FromForm`    | `ToForm`       | `FromForm`     |
-| `part`                      | `ToPart`      | `FromPart`    | `ToPart`       | `FromPart`     |
-| `file`                      | `ToFile`      | `FromFile`    | `ToFile`       | `FromFile`     |
+| Tag for field type | Request.Build | Request.Parse | Response.Write | Response.Parse |
+| ------------------ | ------------- | ------------- | -------------- | -------------- |
+| `route`            | `ToRoute`     | `FromRoute`   |                |                |
+| `query`            | `ToQuery`     | `FromQuery`   |                |                |
+| `json`             |               |               |                |                |
+| `form`             | `ToForm`      | `FromForm`    | `ToForm`       | `FromForm`     |
+| `part`             | `ToPart`      | `FromPart`    | `ToPart`       | `FromPart`     |
+| `file`             | `ToFile`      | `FromFile`    | `ToFile`       | `FromFile`     |
 
 Method signatures are below:
 
