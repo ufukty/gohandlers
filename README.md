@@ -20,25 +20,7 @@ Run to get help on specific command, where available:
     gohandlers [command] --help
 ```
 
-## Commands
-
-gohandlers provides multiple commands each produce a file.
-
-### Listing handlers to register into a router with `list` command
-
-gohandlers can generate a function which returns a `map` of handlers. This allows developer to register handlers to `http.ServeMux` (or a router of dev's choice) by simply iterating over it and call the router's method.
-
-Collecting method and path information of all handlers from the handlers improves consistency over development time, enforcing the single source of truth principle.
-
-The produced file gets named as `list.gh.go` by default. The file will contain `ListHandlers` function for handlers defined on the global scope. It will also contain as many `ListHandler` methods as the types which contains at least one method in the `http.HandlerFunc` signature.
-
-```go
-func ListHandlers() map[string]reception.HandlerInfo
-func (p *Public) ListHandlers() map[string]reception.HandlerInfo
-func (p *Private) ListHandlers() map[string]reception.HandlerInfo
-```
-
-### Implementing parser and builder methods on bindings with `bindings` command
+**bindings**
 
 gohandlers can produce a file which contains a series of `Build` and `Parse` methods implemented on available binding types.
 
@@ -60,7 +42,7 @@ Build method on requests needs host information as `http.NewRequest` asks for it
 
 The produced file named as `bindings.gh.go` by default.
 
-### Implementing a client
+**client**
 
 gohandlers can produce a file contains the Client struct type and its methods. Each method is named as an handler; accepts a request binding type and returns `*http.Response`, or if it is available the response binding type. Client methods use `http.DefaultClient`s `Do` method to send requests and asks the member `Pool` to provide the address of host per request. This enables load balancing to set up at initialization and simplifies the structure of caller.
 
@@ -82,6 +64,20 @@ func (c *Client) CreateUser(bq *CreateUserDetails) (*http.Response, error)
 
 // full bindings
 func (c *Client) GetProfile(bq *GetProfileRequest) (*GetProfileResponse, error)
+```
+
+**list**
+
+gohandlers can generate a function which returns a `map` of handlers. This allows developer to register handlers to `http.ServeMux` (or a router of dev's choice) by simply iterating over it and call the router's method.
+
+Collecting method and path information of all handlers from the handlers improves consistency over development time, enforcing the single source of truth principle.
+
+The produced file gets named as `list.gh.go` by default. The file will contain `ListHandlers` function for handlers defined on the global scope. It will also contain as many `ListHandler` methods as the types which contains at least one method in the `http.HandlerFunc` signature.
+
+```go
+func ListHandlers() map[string]reception.HandlerInfo
+func (p *Public) ListHandlers() map[string]reception.HandlerInfo
+func (p *Private) ListHandlers() map[string]reception.HandlerInfo
 ```
 
 ## Features
