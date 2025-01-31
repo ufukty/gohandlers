@@ -64,7 +64,7 @@ func (bs XResponse) Parse(rs *http.Response) error
 `Build` methods returns an instance of `*http.Request` or `*http.Response` reflects the information contained in the binding type. Caller can use `*http.Request` value to call `http.DefaultClient.Do` or dev's other choice.
 
 ```go
-func (bq XRequest) Build(host ) (*http.Request, error)
+func (bq XRequest) Build(host string) (*http.Request, error)
 func (bs XResponse) Write(w http.ResponseWriter) error
 ```
 
