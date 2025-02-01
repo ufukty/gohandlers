@@ -68,9 +68,6 @@ func (p *bsWrite) json(info inspects.Info) []ast.Stmt {
 					}},
 				}},
 			},
-			&ast.ReturnStmt{
-				Results: []ast.Expr{&ast.Ident{Name: "nil"}},
-			},
 		)
 	}
 	return stmts
@@ -95,6 +92,10 @@ func (p *bsWrite) Produce(info inspects.Info) *ast.FuncDecl {
 
 	fd.Body.List = append(fd.Body.List, p.headers(info)...)
 	fd.Body.List = append(fd.Body.List, p.json(info)...)
+
+	fd.Body.List = append(fd.Body.List, &ast.ReturnStmt{
+		Results: []ast.Expr{&ast.Ident{Name: "nil"}},
+	})
 
 	return fd
 }
