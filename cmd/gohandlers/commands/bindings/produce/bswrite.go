@@ -39,7 +39,7 @@ func (p *bsWrite) headers(info inspects.Info) []ast.Stmt {
 
 func (p *bsWrite) json(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
-	if len(info.RequestType.Params.Json) > 0 {
+	if len(info.ResponseType.Params.Json) > 0 {
 		stmts = append(stmts,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
