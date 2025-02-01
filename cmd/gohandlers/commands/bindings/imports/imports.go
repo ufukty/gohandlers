@@ -1,4 +1,4 @@
-package bindings
+package imports
 
 import (
 	"go/ast"
@@ -7,10 +7,12 @@ import (
 	"slices"
 )
 
+// bq.Build needs for join in url building
+// bq.Build needs for route parameter replacement
 func needsStrings(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
-			if info.RequestType != nil {
+			if info.RequestType != nil || info.ResponseType != nil {
 				return true
 			}
 		}
@@ -18,7 +20,7 @@ func needsStrings(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
-func containsHandlerWithJsonBody(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func needsJson(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
 			if info.RequestType != nil && len(info.RequestType.Params.Json) > 0 {
@@ -32,7 +34,7 @@ func containsHandlerWithJsonBody(infoss map[inspects.Receiver]map[string]inspect
 	return false
 }
 
-func containsHandlerWithMultipartBody(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func needsMultipart(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
 			if info.RequestType != nil && (len(info.RequestType.Params.Part) > 0 || len(info.RequestType.Params.File) > 0) {
@@ -46,7 +48,7 @@ func containsHandlerWithMultipartBody(infoss map[inspects.Receiver]map[string]in
 	return false
 }
 
-func containsHandlerNeedsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func needsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
 			if info.RequestType != nil && info.RequestType.ContainsBody {
@@ -60,22 +62,22 @@ func containsHandlerNeedsBytes(infoss map[inspects.Receiver]map[string]inspects.
 	return false
 }
 
-func imports(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
+func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
 	}
-	if containsHandlerNeedsBytes(infoss) {
+	if needsBytes(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"bytes"`}},
 		)
 	}
-	if containsHandlerWithJsonBody(infoss) {
+	if needsJson(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"encoding/json"`}},
 		)
 	}
-	if containsHandlerWithMultipartBody(infoss) {
+	if needsMultipart(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"mime/multipart"`}},
 		)

@@ -7,6 +7,7 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"gohandlers/cmd/gohandlers/commands/bindings/imports"
 	"gohandlers/cmd/gohandlers/commands/bindings/produce"
 	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/pkg/inspects"
@@ -66,7 +67,7 @@ func Main() error {
 	f := &ast.File{
 		Name: ast.NewIdent(pkg),
 		Decls: []ast.Decl{
-			&ast.GenDecl{Tok: token.IMPORT, Specs: imports(infoss)},
+			&ast.GenDecl{Tok: token.IMPORT, Specs: imports.List(infoss)},
 		},
 	}
 
