@@ -187,40 +187,40 @@ gohandlers expects fields of binding structs to only be in the types which expli
 
 ##### Methods expected by developer on field types
 
-| Tag for field type | Request.Build | Request.Parse     | Response.Write | Response.Parse    |
-| ------------------ | ------------- | ----------------- | -------------- | ----------------- |
-| `route`            | `ToRoute`     | `FromRoute`       |                |                   |
-| `query`            | `ToQuery`     | `FromQuery`       |                |                   |
-| `json`             |               |                   |                |                   |
-| `form`             | `ToForm`      | `FromForm`        | `ToForm`       | `FromForm`        |
-| `part`             | `ToPart`      | `FromPart`        | `ToPart`       | `FromPart`        |
-| `file`             | `ToFile`      | `FromFileHandler` | `ToFile`       | `FromFileHandler` |
+| Tag for field type | Request.Build | Request.Parse    | Response.Write | Response.Parse   |
+| ------------------ | ------------- | ---------------- | -------------- | ---------------- |
+| `route`            | `ToRoute`     | `FromRoute`      |                |                  |
+| `query`            | `ToQuery`     | `FromQuery`      |                |                  |
+| `json`             |               |                  |                |                  |
+| `form`             | `ToForm`      | `FromForm`       | `ToForm`       | `FromForm`       |
+| `part`             | `ToPart`      | `FromPart`       | `ToPart`       | `FromPart`       |
+| `file`             | `ToFile`      | `FromFileHeader` | `ToFile`       | `FromFileHeader` |
 
 Method signatures are below:
 
 ```go
+func (t *Type) FromRoute(string, bool) error
 func (t Type) ToRoute() (string, error)
-func (t *Type) FromRoute(string) error
 ```
 
 ```go
+func (t *Type) FromQuery(string, bool) error
 func (t Type) ToQuery() (string, error)
-func (t *Type) FromQuery(string) error
 ```
 
 ```go
+func (t *Type) FromForm(string, bool) error
 func (t Type) ToForm() (string, error)
-func (t *Type) FromForm(string) error
 ```
 
 ```go
+func (t *Type) FromPart(string, bool) error
 func (t Type) ToPart() (string, error)
-func (t *Type) FromPart(string) error
 ```
 
 ```go
+func (t *Type) FromFileHeader(*multipart.FileHeader, bool) error
 func (t Type) ToFile() (src io.Reader, filename string, contentType string, err error)
-func (t *Type) FromFile(src multipart.FileHandler) error
 ```
 
 ### Handler meta data
@@ -350,3 +350,4 @@ Use the related parameters in `list` subcommand to direct gohandlers to use cust
 ## Considerations
 
 - Streaming is not supported. Adding support is not planned.
+- Duplicate keys in `application/x-www-form-urlencoded` and `multipart/form-data` bodies are not supported. Support is not planned. Such functionality might be needed in HTML forms that uses same "value" attribute for multiple input elements.
