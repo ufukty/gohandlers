@@ -7,6 +7,7 @@ import (
 	"slices"
 )
 
+// bq.Parse and bs.Parse needs for content type check
 // bq.Build needs for join in url building
 // bq.Build needs for route parameter replacement
 func needsStrings(infoss map[inspects.Receiver]map[string]inspects.Info) bool {

@@ -11,15 +11,26 @@ type bsParse struct{}
 func (p *bsParse) contentTypeCheck(info inspects.Info) []ast.Stmt {
 	return []ast.Stmt{
 		&ast.IfStmt{
-			Cond: &ast.BinaryExpr{
+			Cond: &ast.UnaryExpr{
+				Op: token.NOT,
 				X: &ast.CallExpr{
-					Fun: &ast.SelectorExpr{
-						X: &ast.SelectorExpr{X: &ast.Ident{Name: "rs"}, Sel: &ast.Ident{Name: "Header"}}, Sel: &ast.Ident{Name: "Get"},
+					Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "strings"}, Sel: &ast.Ident{Name: "HasPrefix"}},
+					Args: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X: &ast.SelectorExpr{
+									X:   &ast.Ident{Name: "rs"},
+									Sel: &ast.Ident{Name: "Header"},
+								},
+								Sel: &ast.Ident{Name: "Get"},
+							},
+							Args: []ast.Expr{
+								&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
+							},
+						},
+						&ast.BasicLit{Kind: token.STRING, Value: quotes(info.ResponseType.ContentType)},
 					},
-					Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`}},
 				},
-				Op: token.NEQ,
-				Y:  &ast.BasicLit{Kind: token.STRING, Value: quotes(info.ResponseType.ContentType)},
 			},
 			Body: &ast.BlockStmt{
 				List: []ast.Stmt{
@@ -31,7 +42,7 @@ func (p *bsParse) contentTypeCheck(info inspects.Info) []ast.Stmt {
 									Sel: &ast.Ident{Name: "Errorf"},
 								},
 								Args: []ast.Expr{
-									&ast.BasicLit{Kind: token.STRING, Value: `"invalid content type for response: %s"`},
+									&ast.BasicLit{Kind: token.STRING, Value: `"invalid content type for request: %s"`},
 									&ast.CallExpr{
 										Fun: &ast.SelectorExpr{
 											X: &ast.SelectorExpr{

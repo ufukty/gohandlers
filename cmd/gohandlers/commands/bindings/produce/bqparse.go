@@ -20,15 +20,29 @@ type bqParse struct {
 func (p *bqParse) contentTypeCheck(info inspects.Info) []ast.Stmt {
 	return []ast.Stmt{
 		&ast.IfStmt{
-			Cond: &ast.BinaryExpr{
+			Cond: &ast.UnaryExpr{
+				Op: token.NOT,
 				X: &ast.CallExpr{
 					Fun: &ast.SelectorExpr{
-						X: &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "Header"}}, Sel: &ast.Ident{Name: "Get"},
+						X:   &ast.Ident{Name: "strings"},
+						Sel: &ast.Ident{Name: "HasPrefix"},
 					},
-					Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`}},
+					Args: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X: &ast.SelectorExpr{
+									X:   &ast.Ident{Name: "rq"},
+									Sel: &ast.Ident{Name: "Header"},
+								},
+								Sel: &ast.Ident{Name: "Get"},
+							},
+							Args: []ast.Expr{
+								&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
+							},
+						},
+						&ast.BasicLit{Kind: token.STRING, Value: quotes(info.RequestType.ContentType)},
+					},
 				},
-				Op: token.NEQ,
-				Y:  &ast.BasicLit{Kind: token.STRING, Value: quotes(info.RequestType.ContentType)},
 			},
 			Body: &ast.BlockStmt{
 				List: []ast.Stmt{
