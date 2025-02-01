@@ -177,7 +177,7 @@ var firstOrZero = &ast.FuncDecl{
 	},
 }
 
-func needsCallFromPart(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func needsFromPart(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, handlers := range infoss {
 		for _, info := range handlers {
 			if info.RequestType != nil && len(info.RequestType.Params.Part) > 0 {
@@ -230,8 +230,8 @@ var partReceiver = &ast.GenDecl{
 	},
 }
 
-var callFromPart = &ast.FuncDecl{
-	Name: &ast.Ident{Name: "callFromPart"},
+var fromPart = &ast.FuncDecl{
+	Name: &ast.Ident{Name: "fromPart"},
 	Type: &ast.FuncType{
 		Params: &ast.FieldList{
 			List: []*ast.Field{
@@ -286,30 +286,30 @@ var callFromPart = &ast.FuncDecl{
 					},
 				},
 			},
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{
-					&ast.Ident{Name: "err"},
-				},
-				Tok: token.DEFINE,
-				Rhs: []ast.Expr{
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{
-							X:   &ast.Ident{Name: "dst"},
-							Sel: &ast.Ident{Name: "FromPart"},
-						},
-						Args: []ast.Expr{
-							&ast.CallExpr{
-								Fun: &ast.Ident{Name: "firstOrZero"},
-								Args: []ast.Expr{
-									&ast.Ident{Name: "vs"},
-								},
+			&ast.IfStmt{
+				Init: &ast.AssignStmt{
+					Lhs: []ast.Expr{
+						&ast.Ident{Name: "err"},
+					},
+					Tok: token.DEFINE,
+					Rhs: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X:   &ast.Ident{Name: "dst"},
+								Sel: &ast.Ident{Name: "FromPart"},
 							},
-							&ast.Ident{Name: "ok"},
+							Args: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.Ident{Name: "firstOrZero"},
+									Args: []ast.Expr{
+										&ast.Ident{Name: "vs"},
+									},
+								},
+								&ast.Ident{Name: "ok"},
+							},
 						},
 					},
 				},
-			},
-			&ast.IfStmt{
 				Cond: &ast.BinaryExpr{
 					X:  &ast.Ident{Name: "err"},
 					Op: token.NEQ,
@@ -343,7 +343,7 @@ var callFromPart = &ast.FuncDecl{
 	},
 }
 
-func needsCallFromFileHeader(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func needsFromFileHeader(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, handlers := range infoss {
 		for _, info := range handlers {
 			if info.RequestType != nil && len(info.RequestType.Params.File) > 0 {
@@ -401,8 +401,8 @@ var fileReceiver = &ast.GenDecl{
 	},
 }
 
-var callFromFileHeader = &ast.FuncDecl{
-	Name: &ast.Ident{Name: "callFromFileHeader"},
+var fromFileHeader = &ast.FuncDecl{
+	Name: &ast.Ident{Name: "fromFileHeader"},
 	Type: &ast.FuncType{
 		Params: &ast.FieldList{
 			List: []*ast.Field{
@@ -460,30 +460,30 @@ var callFromFileHeader = &ast.FuncDecl{
 					},
 				},
 			},
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{
-					&ast.Ident{Name: "err"},
-				},
-				Tok: token.DEFINE,
-				Rhs: []ast.Expr{
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{
-							X:   &ast.Ident{Name: "dst"},
-							Sel: &ast.Ident{Name: "FromFileHeader"},
-						},
-						Args: []ast.Expr{
-							&ast.CallExpr{
-								Fun: &ast.Ident{Name: "firstOrZero"},
-								Args: []ast.Expr{
-									&ast.Ident{Name: "vs"},
-								},
+			&ast.IfStmt{
+				Init: &ast.AssignStmt{
+					Lhs: []ast.Expr{
+						&ast.Ident{Name: "err"},
+					},
+					Tok: token.DEFINE,
+					Rhs: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X:   &ast.Ident{Name: "dst"},
+								Sel: &ast.Ident{Name: "FromFileHeader"},
 							},
-							&ast.Ident{Name: "ok"},
+							Args: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.Ident{Name: "firstOrZero"},
+									Args: []ast.Expr{
+										&ast.Ident{Name: "vs"},
+									},
+								},
+								&ast.Ident{Name: "ok"},
+							},
 						},
 					},
 				},
-			},
-			&ast.IfStmt{
 				Cond: &ast.BinaryExpr{
 					X:  &ast.Ident{Name: "err"},
 					Op: token.NEQ,
@@ -525,11 +525,11 @@ func Produce(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
 	if needsFirstOrZero(infoss) {
 		decls = append(decls, firstOrZero)
 	}
-	if needsCallFromPart(infoss) {
-		decls = append(decls, partReceiver, callFromPart)
+	if needsFromPart(infoss) {
+		decls = append(decls, partReceiver, fromPart)
 	}
-	if needsCallFromFileHeader(infoss) {
-		decls = append(decls, fileReceiver, callFromFileHeader)
+	if needsFromFileHeader(infoss) {
+		decls = append(decls, fileReceiver, fromFileHeader)
 	}
 	return decls
 }

@@ -8,14 +8,7 @@ import (
 	"gohandlers/pkg/inspects"
 )
 
-type bqParseSymbolTable struct {
-	err bool
-	fh  bool
-}
-
-type bqParse struct {
-	table bqParseSymbolTable
-}
+type bqParse struct{}
 
 func (p *bqParse) contentTypeCheck(info inspects.Info) []ast.Stmt {
 	return []ast.Stmt{
@@ -23,17 +16,11 @@ func (p *bqParse) contentTypeCheck(info inspects.Info) []ast.Stmt {
 			Cond: &ast.UnaryExpr{
 				Op: token.NOT,
 				X: &ast.CallExpr{
-					Fun: &ast.SelectorExpr{
-						X:   &ast.Ident{Name: "strings"},
-						Sel: &ast.Ident{Name: "HasPrefix"},
-					},
+					Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "strings"}, Sel: &ast.Ident{Name: "HasPrefix"}},
 					Args: []ast.Expr{
 						&ast.CallExpr{
 							Fun: &ast.SelectorExpr{
-								X: &ast.SelectorExpr{
-									X:   &ast.Ident{Name: "rq"},
-									Sel: &ast.Ident{Name: "Header"},
-								},
+								X:   &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "Header"}},
 								Sel: &ast.Ident{Name: "Get"},
 							},
 							Args: []ast.Expr{
@@ -44,35 +31,21 @@ func (p *bqParse) contentTypeCheck(info inspects.Info) []ast.Stmt {
 					},
 				},
 			},
-			Body: &ast.BlockStmt{
-				List: []ast.Stmt{
-					&ast.ReturnStmt{
-						Results: []ast.Expr{
-							&ast.CallExpr{
-								Fun: &ast.SelectorExpr{
-									X:   &ast.Ident{Name: "fmt"},
-									Sel: &ast.Ident{Name: "Errorf"},
-								},
-								Args: []ast.Expr{
-									&ast.BasicLit{Kind: token.STRING, Value: `"invalid content type for request: %s"`},
-									&ast.CallExpr{
-										Fun: &ast.SelectorExpr{
-											X: &ast.SelectorExpr{
-												X:   &ast.Ident{Name: "rq"},
-												Sel: &ast.Ident{Name: "Header"},
-											},
-											Sel: &ast.Ident{Name: "Get"},
-										},
-										Args: []ast.Expr{
-											&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
-										},
-									},
-								},
-							},
+			Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
+				Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+				Args: []ast.Expr{
+					&ast.BasicLit{Kind: token.STRING, Value: `"invalid content type for request: %s"`},
+					&ast.CallExpr{
+						Fun: &ast.SelectorExpr{
+							X:   &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "Header"}},
+							Sel: &ast.Ident{Name: "Get"},
+						},
+						Args: []ast.Expr{
+							&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
 						},
 					},
 				},
-			},
+			}}}}},
 		},
 	}
 }
@@ -116,17 +89,13 @@ func (p *bqParse) query(info inspects.Info) []ast.Stmt {
 						},
 						&ast.IfStmt{
 							Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-							Body: &ast.BlockStmt{List: []ast.Stmt{
-								&ast.ReturnStmt{Results: []ast.Expr{
-									&ast.CallExpr{
-										Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-										Args: []ast.Expr{
-											&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s.%s.FromQuery: %%w", info.RequestType.Typename, fn))},
-											&ast.Ident{Name: "err"},
-										},
-									},
-								}},
-							}},
+							Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
+								Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+								Args: []ast.Expr{
+									&ast.BasicLit{Kind: token.STRING, Value: quotes(fmt.Sprintf("%s.%s.FromQuery: %%w", info.RequestType.Typename, fn))},
+									&ast.Ident{Name: "err"},
+								},
+							}}}}},
 						},
 					}},
 				},
@@ -142,7 +111,7 @@ func (p *bqParse) route(info inspects.Info) []ast.Stmt {
 		stmts = append(stmts,
 			&ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: ternary(p.table.err, token.ASSIGN, token.DEFINE),
+				Tok: token.DEFINE,
 				Rhs: []ast.Expr{
 					&ast.CallExpr{
 						Fun: &ast.SelectorExpr{
@@ -168,7 +137,6 @@ func (p *bqParse) route(info inspects.Info) []ast.Stmt {
 				}},
 			},
 		)
-		declare(&p.table.err)
 	}
 	return stmts
 }
@@ -179,138 +147,27 @@ func (p *bqParse) multipartFormData(info inspects.Info) []ast.Stmt {
 		return stmts
 	}
 	stmts = append(stmts,
-		&ast.AssignStmt{
-			Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-			Tok: ternary(p.table.err, token.ASSIGN, token.DEFINE),
-			Rhs: []ast.Expr{&ast.CallExpr{
-				Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "ParseMultipartForm"}},
-				Args: []ast.Expr{&ast.BinaryExpr{
-					X: &ast.BinaryExpr{
-						X:  &ast.BasicLit{Kind: token.INT, Value: "10"},
-						Op: token.MUL,
-						Y:  &ast.BasicLit{Kind: token.INT, Value: "1024"},
-					},
-					Op: token.MUL,
-					Y:  &ast.BasicLit{Kind: token.INT, Value: "1024"},
-				}},
-			}},
-		},
 		&ast.IfStmt{
-			Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-			Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{
-				&ast.CallExpr{
-					Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-					Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"ParseMultipartForm: %w"`}, &ast.Ident{Name: "err"}},
-				},
-			}}}},
-		},
-	)
-	declare(&p.table.err)
-	for pn, fn := range sorted.ByValues(info.RequestType.Params.Part) {
-		stmts = append(stmts,
-			&ast.AssignStmt{
+			Init: &ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: token.ASSIGN,
+				Tok: token.DEFINE,
 				Rhs: []ast.Expr{
 					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{
-							X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: ast.NewIdent(fn)},
-							Sel: &ast.Ident{Name: "FromPart"},
-						},
-						Args: []ast.Expr{
-							&ast.CallExpr{
-								Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "PostFormValue"}},
-								Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(pn)}},
-							},
-						},
+						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: "unmarshalMultipartFormData"}},
+						Args: []ast.Expr{&ast.Ident{Name: "rq"}},
 					},
 				},
 			},
-			&ast.IfStmt{
-				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-				Body: &ast.BlockStmt{
-					List: []ast.Stmt{
-						&ast.ReturnStmt{
-							Results: []ast.Expr{
-								&ast.CallExpr{
-									Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-									Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf(`"%s.FromPart: %%w"`, fn)}, &ast.Ident{Name: "err"}},
-								},
-							},
-						},
-					},
+			Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
+			Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
+				Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+				Args: []ast.Expr{
+					&ast.BasicLit{Kind: token.STRING, Value: `"unmarshal multipart/form-data body: %w"`},
+					&ast.Ident{Name: "err"},
 				},
-			},
-		)
-	}
-	if len(info.RequestType.Params.File) > 0 {
-		for pn, fn := range sorted.ByValues(info.RequestType.Params.File) {
-			stmts = append(stmts,
-				&ast.AssignStmt{
-					Lhs: []ast.Expr{&ast.Ident{Name: "f"}, &ast.Ident{Name: "fh"}, &ast.Ident{Name: "err"}},
-					Tok: ternary(p.table.fh, token.ASSIGN, token.DEFINE),
-					Rhs: []ast.Expr{
-						&ast.CallExpr{
-							Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "FormFile"}},
-							Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(pn)}},
-						},
-					},
-				},
-				&ast.IfStmt{
-					Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-					Body: &ast.BlockStmt{
-						List: []ast.Stmt{
-							&ast.ReturnStmt{
-								Results: []ast.Expr{
-									&ast.CallExpr{
-										Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-										Args: []ast.Expr{
-											&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf(`"field %s: FormFile: %%w"`, fn)},
-											&ast.Ident{Name: "err"},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-				&ast.AssignStmt{
-					Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-					Tok: token.ASSIGN,
-					Rhs: []ast.Expr{
-						&ast.CallExpr{
-							Fun: &ast.SelectorExpr{
-								X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}},
-								Sel: &ast.Ident{Name: "FromFile"},
-							},
-							Args: []ast.Expr{
-								&ast.Ident{Name: "f"},
-								&ast.SelectorExpr{X: &ast.Ident{Name: "fh"}, Sel: &ast.Ident{Name: "Filename"}},
-							},
-						},
-					},
-				},
-				&ast.IfStmt{
-					Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-					Body: &ast.BlockStmt{
-						List: []ast.Stmt{
-							&ast.ReturnStmt{
-								Results: []ast.Expr{
-									&ast.CallExpr{
-										Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-										Args: []ast.Expr{
-											&ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf(`"%s.FromFile: %%w"`, fn)},
-											&ast.Ident{Name: "err"},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			)
-		}
-	}
+			}}}}},
+		},
+	)
 	return stmts
 }
 
@@ -318,23 +175,23 @@ func (p *bqParse) json(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	if len(info.RequestType.Params.Json) > 0 {
 		stmts = append(stmts,
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: ternary(p.table.err, token.ASSIGN, token.DEFINE),
-				Rhs: []ast.Expr{
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{
-							X: &ast.CallExpr{
-								Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "json"}, Sel: &ast.Ident{Name: "NewDecoder"}},
-								Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "Body"}}},
+			&ast.IfStmt{
+				Init: &ast.AssignStmt{
+					Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
+					Tok: token.DEFINE,
+					Rhs: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X: &ast.CallExpr{
+									Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "json"}, Sel: &ast.Ident{Name: "NewDecoder"}},
+									Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "Body"}}},
+								},
+								Sel: &ast.Ident{Name: "Decode"},
 							},
-							Sel: &ast.Ident{Name: "Decode"},
+							Args: []ast.Expr{&ast.Ident{Name: "bq"}},
 						},
-						Args: []ast.Expr{&ast.Ident{Name: "bq"}},
 					},
 				},
-			},
-			&ast.IfStmt{
 				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
 				Body: &ast.BlockStmt{List: []ast.Stmt{
 					&ast.ReturnStmt{Results: []ast.Expr{
@@ -349,7 +206,6 @@ func (p *bqParse) json(info inspects.Info) []ast.Stmt {
 				}},
 			},
 		)
-		declare(&p.table.err)
 	}
 	return stmts
 }

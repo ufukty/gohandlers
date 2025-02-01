@@ -187,21 +187,21 @@ func (p *bqBuild) json(info inspects.Info) []ast.Stmt {
 					Args: []ast.Expr{&ast.CompositeLit{Type: &ast.ArrayType{Elt: &ast.Ident{Name: "byte"}}}},
 				}},
 			},
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: ternary(p.table.err, token.ASSIGN, token.DEFINE),
-				Rhs: []ast.Expr{&ast.CallExpr{
-					Fun: &ast.SelectorExpr{
-						X: &ast.CallExpr{
-							Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "json"}, Sel: &ast.Ident{Name: "NewEncoder"}},
-							Args: []ast.Expr{&ast.Ident{Name: "body"}},
-						},
-						Sel: &ast.Ident{Name: "Encode"},
-					},
-					Args: []ast.Expr{&ast.Ident{Name: "bq"}},
-				}},
-			},
 			&ast.IfStmt{
+				Init: &ast.AssignStmt{
+					Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
+					Tok: ternary(p.table.err, token.ASSIGN, token.DEFINE),
+					Rhs: []ast.Expr{&ast.CallExpr{
+						Fun: &ast.SelectorExpr{
+							X: &ast.CallExpr{
+								Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "json"}, Sel: &ast.Ident{Name: "NewEncoder"}},
+								Args: []ast.Expr{&ast.Ident{Name: "body"}},
+							},
+							Sel: &ast.Ident{Name: "Encode"},
+						},
+						Args: []ast.Expr{&ast.Ident{Name: "bq"}},
+					}},
+				},
 				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
 				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{
 					&ast.Ident{Name: "nil"},

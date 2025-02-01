@@ -41,23 +41,23 @@ func (p *bsWrite) json(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	if len(info.ResponseType.Params.Json) > 0 {
 		stmts = append(stmts,
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: token.DEFINE,
-				Rhs: []ast.Expr{
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{
-							X: &ast.CallExpr{
-								Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "json"}, Sel: &ast.Ident{Name: "NewEncoder"}},
-								Args: []ast.Expr{&ast.Ident{Name: "w"}},
+			&ast.IfStmt{
+				Init: &ast.AssignStmt{
+					Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
+					Tok: token.DEFINE,
+					Rhs: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X: &ast.CallExpr{
+									Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "json"}, Sel: &ast.Ident{Name: "NewEncoder"}},
+									Args: []ast.Expr{&ast.Ident{Name: "w"}},
+								},
+								Sel: &ast.Ident{Name: "Encode"},
 							},
-							Sel: &ast.Ident{Name: "Encode"},
+							Args: []ast.Expr{&ast.Ident{Name: "bs"}},
 						},
-						Args: []ast.Expr{&ast.Ident{Name: "bs"}},
 					},
 				},
-			},
-			&ast.IfStmt{
 				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
 				Body: &ast.BlockStmt{List: []ast.Stmt{
 					&ast.ReturnStmt{Results: []ast.Expr{

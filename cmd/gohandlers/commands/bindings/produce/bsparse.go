@@ -69,23 +69,23 @@ func (p *bsParse) json(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	if len(info.ResponseType.Params.Json) > 0 {
 		stmts = append(stmts,
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: token.DEFINE,
-				Rhs: []ast.Expr{
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{
-							X: &ast.CallExpr{
-								Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "json"}, Sel: &ast.Ident{Name: "NewDecoder"}},
-								Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "rs"}, Sel: &ast.Ident{Name: "Body"}}},
+			&ast.IfStmt{
+				Init: &ast.AssignStmt{
+					Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
+					Tok: token.DEFINE,
+					Rhs: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X: &ast.CallExpr{
+									Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "json"}, Sel: &ast.Ident{Name: "NewDecoder"}},
+									Args: []ast.Expr{&ast.SelectorExpr{X: &ast.Ident{Name: "rs"}, Sel: &ast.Ident{Name: "Body"}}},
+								},
+								Sel: &ast.Ident{Name: "Decode"},
 							},
-							Sel: &ast.Ident{Name: "Decode"},
+							Args: []ast.Expr{&ast.Ident{Name: "bs"}},
 						},
-						Args: []ast.Expr{&ast.Ident{Name: "bs"}},
 					},
 				},
-			},
-			&ast.IfStmt{
 				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
 				Body: &ast.BlockStmt{List: []ast.Stmt{
 					&ast.ReturnStmt{Results: []ast.Expr{
