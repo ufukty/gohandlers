@@ -9,6 +9,7 @@ import (
 	"go/token"
 	"gohandlers/cmd/gohandlers/commands/bindings/imports"
 	"gohandlers/cmd/gohandlers/commands/bindings/produce"
+	"gohandlers/cmd/gohandlers/commands/bindings/utilities"
 	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/pkg/inspects"
 	"os"
@@ -71,9 +72,7 @@ func Main() error {
 		},
 	}
 
-	if needsjoin(infoss) {
-		f.Decls = append(f.Decls, join())
-	}
+	f.Decls = append(f.Decls, utilities.Produce(infoss)...)
 
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]
