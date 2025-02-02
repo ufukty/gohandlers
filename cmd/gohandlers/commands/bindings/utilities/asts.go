@@ -788,38 +788,38 @@ var fileSupplier = &ast.GenDecl{
 			Type: &ast.InterfaceType{
 				Methods: &ast.FieldList{
 					List: []*ast.Field{
-						&ast.Field{
+						{
 							Names: []*ast.Ident{
-								&ast.Ident{Name: "ToFile"},
+								{Name: "ToFile"},
 							},
 							Type: &ast.FuncType{
 								Params: &ast.FieldList{},
 								Results: &ast.FieldList{
 									List: []*ast.Field{
-										&ast.Field{
+										{
 											Names: []*ast.Ident{
-												&ast.Ident{Name: "src"},
+												{Name: "src"},
 											},
 											Type: &ast.SelectorExpr{
 												X:   &ast.Ident{Name: "io"},
 												Sel: &ast.Ident{Name: "Reader"},
 											},
 										},
-										&ast.Field{
+										{
 											Names: []*ast.Ident{
-												&ast.Ident{Name: "filename"},
+												{Name: "filename"},
 											},
 											Type: &ast.Ident{Name: "string"},
 										},
-										&ast.Field{
+										{
 											Names: []*ast.Ident{
-												&ast.Ident{Name: "contentType"},
+												{Name: "contentType"},
 											},
 											Type: &ast.Ident{Name: "string"},
 										},
-										&ast.Field{
+										{
 											Names: []*ast.Ident{
-												&ast.Ident{Name: "err"},
+												{Name: "err"},
 											},
 											Type: &ast.Ident{Name: "error"},
 										},
