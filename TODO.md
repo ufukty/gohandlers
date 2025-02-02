@@ -3,3 +3,4 @@
   - Use `part` and `file` tags to support
 - [ ] Add support for `Content-Type: application/x-www-form-urlencoded`
   - Use `form` tag
+- [ ] Add support for `application/json` and `application/x-www-form-urlencoded` type of parts in `multipart/form-data` bodies

@@ -1,6 +1,7 @@
 package imports
 
 import (
+	"cmp"
 	"go/ast"
 	"go/token"
 	"gohandlers/pkg/inspects"
@@ -63,6 +64,34 @@ func needsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
+func needsTextProto(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, infos := range infoss {
+		for _, info := range infos {
+			if info.RequestType != nil && len(info.RequestType.Params.File) > 0 {
+				return true
+			}
+			if info.ResponseType != nil && len(info.ResponseType.Params.File) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func needsIo(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, infos := range infoss {
+		for _, info := range infos {
+			if info.RequestType != nil && len(info.RequestType.Params.File) > 0 {
+				return true
+			}
+			if info.ResponseType != nil && len(info.ResponseType.Params.File) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
@@ -83,21 +112,23 @@ func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"mime/multipart"`}},
 		)
 	}
+	if needsTextProto(infoss) {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/textproto"`}},
+		)
+	}
+	if needsIo(infoss) {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"io"`}},
+		)
+	}
 	if needsStrings(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"strings"`}},
 		)
 	}
 	slices.SortFunc(imports, func(a, b ast.Spec) int {
-		av := a.(*ast.ImportSpec).Path.Value
-		bv := b.(*ast.ImportSpec).Path.Value
-		if av < bv {
-			return -1
-		} else if av == bv {
-			return 0
-		} else {
-			return 1
-		}
+		return cmp.Compare(a.(*ast.ImportSpec).Path.Value, b.(*ast.ImportSpec).Path.Value)
 	})
 	return imports
 }

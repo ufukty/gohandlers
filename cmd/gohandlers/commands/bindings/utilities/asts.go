@@ -343,6 +343,230 @@ var fromPart = &ast.FuncDecl{
 	},
 }
 
+func needsToPart(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, handlers := range infoss {
+		for _, info := range handlers {
+			if info.RequestType != nil && len(info.RequestType.Params.Part) > 0 {
+				return true
+			}
+			if info.ResponseType != nil && len(info.ResponseType.Params.Part) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+var partSupplier = &ast.GenDecl{
+	Tok: token.TYPE,
+	Specs: []ast.Spec{
+		&ast.TypeSpec{
+			Name: &ast.Ident{Name: "partSupplier"},
+			Type: &ast.InterfaceType{
+				Methods: &ast.FieldList{
+					List: []*ast.Field{
+						{
+							Names: []*ast.Ident{
+								{Name: "ToPart"},
+							},
+							Type: &ast.FuncType{
+								Params: &ast.FieldList{},
+								Results: &ast.FieldList{
+									List: []*ast.Field{
+										{
+											Type: &ast.Ident{Name: "string"},
+										},
+										{
+											Type: &ast.Ident{Name: "error"},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Incomplete: false,
+			},
+		},
+	},
+}
+
+var toPart = &ast.FuncDecl{
+	Name: &ast.Ident{Name: "toPart"},
+	Type: &ast.FuncType{
+		Params: &ast.FieldList{
+			List: []*ast.Field{
+				{
+					Names: []*ast.Ident{
+						{Name: "mp"},
+					},
+					Type: &ast.StarExpr{
+						X: &ast.SelectorExpr{
+							X:   &ast.Ident{Name: "multipart"},
+							Sel: &ast.Ident{Name: "Writer"},
+						},
+					},
+				},
+				{
+					Names: []*ast.Ident{
+						{Name: "ps"},
+					},
+					Type: &ast.Ident{Name: "partSupplier"},
+				},
+				{
+					Names: []*ast.Ident{
+						{Name: "fieldname"},
+					},
+					Type: &ast.Ident{Name: "string"},
+				},
+			},
+		},
+		Results: &ast.FieldList{
+			List: []*ast.Field{
+				{
+					Type: &ast.Ident{Name: "error"},
+				},
+			},
+		},
+	},
+	Body: &ast.BlockStmt{
+		List: []ast.Stmt{
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: "v"},
+					&ast.Ident{Name: "err"},
+				},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.CallExpr{
+						Fun: &ast.SelectorExpr{
+							X:   &ast.Ident{Name: "ps"},
+							Sel: &ast.Ident{Name: "ToPart"},
+						},
+					},
+				},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X:  &ast.Ident{Name: "err"},
+					Op: token.NEQ,
+					Y:  &ast.Ident{Name: "nil"},
+				},
+				Body: &ast.BlockStmt{
+					List: []ast.Stmt{
+						&ast.ReturnStmt{
+							Results: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X:   &ast.Ident{Name: "fmt"},
+										Sel: &ast.Ident{Name: "Errorf"},
+									},
+									Args: []ast.Expr{
+										&ast.BasicLit{Kind: token.STRING, Value: "\"ToPart: %w\""},
+										&ast.Ident{Name: "err"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: "w"},
+					&ast.Ident{Name: "err"},
+				},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.CallExpr{
+						Fun: &ast.SelectorExpr{
+							X:   &ast.Ident{Name: "mp"},
+							Sel: &ast.Ident{Name: "CreateFormField"},
+						},
+						Args: []ast.Expr{
+							&ast.Ident{Name: "fieldname"},
+						},
+					},
+				},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X:  &ast.Ident{Name: "err"},
+					Op: token.NEQ,
+					Y:  &ast.Ident{Name: "nil"},
+				},
+				Body: &ast.BlockStmt{
+					List: []ast.Stmt{
+						&ast.ReturnStmt{
+							Results: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X:   &ast.Ident{Name: "fmt"},
+										Sel: &ast.Ident{Name: "Errorf"},
+									},
+									Args: []ast.Expr{
+										&ast.BasicLit{Kind: token.STRING, Value: "\"CreateFormField: %w\""},
+										&ast.Ident{Name: "err"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: "_"},
+					&ast.Ident{Name: "err"},
+				},
+				Tok: token.ASSIGN,
+				Rhs: []ast.Expr{
+					&ast.CallExpr{
+						Fun: &ast.SelectorExpr{
+							X:   &ast.Ident{Name: "fmt"},
+							Sel: &ast.Ident{Name: "Fprint"},
+						},
+						Args: []ast.Expr{
+							&ast.Ident{Name: "w"},
+							&ast.Ident{Name: "v"},
+						},
+					},
+				},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X:  &ast.Ident{Name: "err"},
+					Op: token.NEQ,
+					Y:  &ast.Ident{Name: "nil"},
+				},
+				Body: &ast.BlockStmt{
+					List: []ast.Stmt{
+						&ast.ReturnStmt{
+							Results: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X:   &ast.Ident{Name: "fmt"},
+										Sel: &ast.Ident{Name: "Errorf"},
+									},
+									Args: []ast.Expr{
+										&ast.BasicLit{Kind: token.STRING, Value: "\"Fprint: %w\""},
+										&ast.Ident{Name: "err"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			&ast.ReturnStmt{
+				Results: []ast.Expr{
+					&ast.Ident{Name: "nil"},
+				},
+			},
+		},
+	},
+}
+
 func needsFromFileHeader(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, handlers := range infoss {
 		for _, info := range handlers {
@@ -517,6 +741,345 @@ var fromFileHeader = &ast.FuncDecl{
 	},
 }
 
+func needsToFile(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, handlers := range infoss {
+		for _, info := range handlers {
+			if info.RequestType != nil && len(info.RequestType.Params.File) > 0 {
+				return true
+			}
+			if info.ResponseType != nil && len(info.ResponseType.Params.File) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+var quoteEscaper = &ast.GenDecl{
+	Tok: token.VAR,
+	Specs: []ast.Spec{
+		&ast.ValueSpec{
+			Names: []*ast.Ident{
+				{Name: "quoteEscaper"},
+			},
+			Values: []ast.Expr{
+				&ast.CallExpr{
+					Fun: &ast.SelectorExpr{
+						X:   &ast.Ident{Name: "strings"},
+						Sel: &ast.Ident{Name: "NewReplacer"},
+					},
+					Args: []ast.Expr{
+						&ast.BasicLit{Kind: token.STRING, Value: "\"\\\\\""},
+						&ast.BasicLit{Kind: token.STRING, Value: "\"\\\\\\\\\""},
+						&ast.BasicLit{Kind: token.STRING, Value: "`\"`"},
+						&ast.BasicLit{Kind: token.STRING, Value: "\"\\\\\\\"\""},
+					},
+				},
+			},
+		},
+	},
+}
+
+var fileSupplier = &ast.GenDecl{
+	Tok: token.TYPE,
+	Specs: []ast.Spec{
+		&ast.TypeSpec{
+			Name: &ast.Ident{Name: "fileSupplier"},
+			Type: &ast.InterfaceType{
+				Methods: &ast.FieldList{
+					List: []*ast.Field{
+						&ast.Field{
+							Names: []*ast.Ident{
+								&ast.Ident{Name: "ToFile"},
+							},
+							Type: &ast.FuncType{
+								Params: &ast.FieldList{},
+								Results: &ast.FieldList{
+									List: []*ast.Field{
+										&ast.Field{
+											Names: []*ast.Ident{
+												&ast.Ident{Name: "src"},
+											},
+											Type: &ast.SelectorExpr{
+												X:   &ast.Ident{Name: "io"},
+												Sel: &ast.Ident{Name: "Reader"},
+											},
+										},
+										&ast.Field{
+											Names: []*ast.Ident{
+												&ast.Ident{Name: "filename"},
+											},
+											Type: &ast.Ident{Name: "string"},
+										},
+										&ast.Field{
+											Names: []*ast.Ident{
+												&ast.Ident{Name: "contentType"},
+											},
+											Type: &ast.Ident{Name: "string"},
+										},
+										&ast.Field{
+											Names: []*ast.Ident{
+												&ast.Ident{Name: "err"},
+											},
+											Type: &ast.Ident{Name: "error"},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				Incomplete: false,
+			},
+		},
+	},
+}
+
+var toFile = &ast.FuncDecl{
+	Name: &ast.Ident{Name: "toFile"},
+	Type: &ast.FuncType{
+		Params: &ast.FieldList{
+			List: []*ast.Field{
+				{
+					Names: []*ast.Ident{
+						{Name: "mp"},
+					},
+					Type: &ast.StarExpr{
+						X: &ast.SelectorExpr{
+							X:   &ast.Ident{Name: "multipart"},
+							Sel: &ast.Ident{Name: "Writer"},
+						},
+					},
+				},
+				{
+					Names: []*ast.Ident{
+						{Name: "fs"},
+					},
+					Type: &ast.Ident{Name: "fileSupplier"},
+				},
+				{
+					Names: []*ast.Ident{
+						{Name: "fieldname"},
+					},
+					Type: &ast.Ident{Name: "string"},
+				},
+			},
+		},
+		Results: &ast.FieldList{
+			List: []*ast.Field{
+				{
+					Type: &ast.Ident{Name: "error"},
+				},
+			},
+		},
+	},
+	Body: &ast.BlockStmt{
+		List: []ast.Stmt{
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: "src"},
+					&ast.Ident{Name: "filename"},
+					&ast.Ident{Name: "ct"},
+					&ast.Ident{Name: "err"},
+				},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.CallExpr{
+						Fun: &ast.SelectorExpr{
+							X:   &ast.Ident{Name: "fs"},
+							Sel: &ast.Ident{Name: "ToFile"},
+						},
+					},
+				},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X:  &ast.Ident{Name: "err"},
+					Op: token.NEQ,
+					Y:  &ast.Ident{Name: "nil"},
+				},
+				Body: &ast.BlockStmt{
+					List: []ast.Stmt{
+						&ast.ReturnStmt{
+							Results: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X:   &ast.Ident{Name: "fmt"},
+										Sel: &ast.Ident{Name: "Errorf"},
+									},
+									Args: []ast.Expr{
+										&ast.BasicLit{Kind: token.STRING, Value: "\"ToFile: %w\""},
+										&ast.Ident{Name: "err"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: "h"},
+				},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.CallExpr{
+						Fun: &ast.Ident{Name: "make"},
+						Args: []ast.Expr{
+							&ast.SelectorExpr{
+								X:   &ast.Ident{Name: "textproto"},
+								Sel: &ast.Ident{Name: "MIMEHeader"},
+							},
+						},
+					},
+				},
+			},
+			&ast.ExprStmt{
+				X: &ast.CallExpr{
+					Fun: &ast.SelectorExpr{
+						X:   &ast.Ident{Name: "h"},
+						Sel: &ast.Ident{Name: "Set"},
+					},
+					Args: []ast.Expr{
+						&ast.BasicLit{Kind: token.STRING, Value: "\"Content-Disposition\""},
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X:   &ast.Ident{Name: "fmt"},
+								Sel: &ast.Ident{Name: "Sprintf"},
+							},
+							Args: []ast.Expr{
+								&ast.BasicLit{Kind: token.STRING, Value: "`form-data; name=\"%s\"; filename=\"%s\"`"},
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X:   &ast.Ident{Name: "quoteEscaper"},
+										Sel: &ast.Ident{Name: "Replace"},
+									},
+									Args: []ast.Expr{
+										&ast.Ident{Name: "fieldname"},
+									},
+								},
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X:   &ast.Ident{Name: "quoteEscaper"},
+										Sel: &ast.Ident{Name: "Replace"},
+									},
+									Args: []ast.Expr{
+										&ast.Ident{Name: "filename"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			&ast.ExprStmt{
+				X: &ast.CallExpr{
+					Fun: &ast.SelectorExpr{
+						X:   &ast.Ident{Name: "h"},
+						Sel: &ast.Ident{Name: "Set"},
+					},
+					Args: []ast.Expr{
+						&ast.BasicLit{Kind: token.STRING, Value: "\"Content-Type\""},
+						&ast.Ident{Name: "ct"},
+					},
+				},
+			},
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: "dst"},
+					&ast.Ident{Name: "err"},
+				},
+				Tok: token.DEFINE,
+				Rhs: []ast.Expr{
+					&ast.CallExpr{
+						Fun: &ast.SelectorExpr{
+							X:   &ast.Ident{Name: "mp"},
+							Sel: &ast.Ident{Name: "CreatePart"},
+						},
+						Args: []ast.Expr{
+							&ast.Ident{Name: "h"},
+						},
+					},
+				},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X:  &ast.Ident{Name: "err"},
+					Op: token.NEQ,
+					Y:  &ast.Ident{Name: "nil"},
+				},
+				Body: &ast.BlockStmt{
+					List: []ast.Stmt{
+						&ast.ReturnStmt{
+							Results: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X:   &ast.Ident{Name: "fmt"},
+										Sel: &ast.Ident{Name: "Errorf"},
+									},
+									Args: []ast.Expr{
+										&ast.BasicLit{Kind: token.STRING, Value: "\"CreatePart: %w\""},
+										&ast.Ident{Name: "err"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			&ast.AssignStmt{
+				Lhs: []ast.Expr{
+					&ast.Ident{Name: "_"},
+					&ast.Ident{Name: "err"},
+				},
+				Tok: token.ASSIGN,
+				Rhs: []ast.Expr{
+					&ast.CallExpr{
+						Fun: &ast.SelectorExpr{
+							X:   &ast.Ident{Name: "io"},
+							Sel: &ast.Ident{Name: "Copy"},
+						},
+						Args: []ast.Expr{
+							&ast.Ident{Name: "dst"},
+							&ast.Ident{Name: "src"},
+						},
+					},
+				},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X:  &ast.Ident{Name: "err"},
+					Op: token.NEQ,
+					Y:  &ast.Ident{Name: "nil"},
+				},
+				Body: &ast.BlockStmt{
+					List: []ast.Stmt{
+						&ast.ReturnStmt{
+							Results: []ast.Expr{
+								&ast.CallExpr{
+									Fun: &ast.SelectorExpr{
+										X:   &ast.Ident{Name: "fmt"},
+										Sel: &ast.Ident{Name: "Errorf"},
+									},
+									Args: []ast.Expr{
+										&ast.BasicLit{Kind: token.STRING, Value: "\"Copy: %w\""},
+										&ast.Ident{Name: "err"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			&ast.ReturnStmt{
+				Results: []ast.Expr{
+					&ast.Ident{Name: "nil"},
+				},
+			},
+		},
+	},
+}
+
 func Produce(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
 	decls := []ast.Decl{}
 	if needsJoin(infoss) {
@@ -528,8 +1091,14 @@ func Produce(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
 	if needsFromPart(infoss) {
 		decls = append(decls, partReceiver, fromPart)
 	}
+	if needsToPart(infoss) {
+		decls = append(decls, partSupplier, toPart)
+	}
 	if needsFromFileHeader(infoss) {
 		decls = append(decls, fileReceiver, fromFileHeader)
+	}
+	if needsToFile(infoss) {
+		decls = append(decls, quoteEscaper, fileSupplier, toFile)
 	}
 	return decls
 }
