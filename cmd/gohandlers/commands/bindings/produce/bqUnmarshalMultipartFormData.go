@@ -12,7 +12,7 @@ func ResponseUnmarshalMultipartFormData(i inspects.Info) *ast.FuncDecl {
 	fd := &ast.FuncDecl{
 		Recv: &ast.FieldList{List: []*ast.Field{{
 			Names: []*ast.Ident{{Name: "bq"}},
-			Type:  &ast.StarExpr{X: &ast.Ident{Name: "CreateEventRequest"}},
+			Type:  &ast.StarExpr{X: &ast.Ident{Name: i.RequestType.Typename}},
 		}}},
 		Name: &ast.Ident{Name: "unmarshalMultipartFormData"},
 		Type: &ast.FuncType{
