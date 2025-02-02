@@ -62,8 +62,8 @@ func findHandlers(f *ast.File) []*ast.FuncDecl {
 }
 
 type BindingTypeParameterSources struct {
-	Route, Query     map[string]string // Header
-	Json, Part, File map[string]string // Body
+	Route, Query map[string]string // Header
+	Json         map[string]string // Body
 }
 
 type BindingTypeInfo struct {
@@ -81,8 +81,6 @@ func bti(rqtn string, ts *ast.TypeSpec) (*BindingTypeInfo, error) {
 			Route: map[string]string{},
 			Query: map[string]string{},
 			Json:  map[string]string{},
-			Part:  map[string]string{},
-			File:  map[string]string{},
 		},
 	}
 
@@ -99,26 +97,15 @@ func bti(rqtn string, ts *ast.TypeSpec) (*BindingTypeInfo, error) {
 				if v, ok := st.Lookup("json"); ok {
 					bti.Params.Json[v] = f.Names[0].Name
 				}
-				if v, ok := st.Lookup("part"); ok { // TODO: process the part for Content-Type: application/json
-					bti.Params.Part[v] = f.Names[0].Name
-				}
-				if v, ok := st.Lookup("file"); ok {
-					bti.Params.File[v] = f.Names[0].Name
-				}
 			}
 		}
 	}
 
-	bti.ContainsBody = len(bti.Params.Json) > 0 || len(bti.Params.Part) > 0 || len(bti.Params.File) > 0
+	bti.ContainsBody = len(bti.Params.Json) > 0
 	bti.Empty = !bti.ContainsBody && len(bti.Params.Route) == 0 && len(bti.Params.Query) == 0
 
-	isMultipart := len(bti.Params.Part) > 0 || len(bti.Params.File) > 0
 	isJson := len(bti.Params.Json) > 0
 	switch {
-	case isMultipart && isJson:
-		return nil, fmt.Errorf("binding type mixes multipart and non-multipart fields")
-	case isMultipart:
-		bti.ContentType = "multipart/form-data"
 	case isJson:
 		bti.ContentType = "application/json"
 	}

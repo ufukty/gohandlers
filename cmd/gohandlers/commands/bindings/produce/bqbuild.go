@@ -227,37 +227,6 @@ func (p *bqBuild) json(info inspects.Info) []ast.Stmt {
 	return stmts
 }
 
-func (p *bqBuild) multipartFormData(info inspects.Info) []ast.Stmt {
-	stmts := []ast.Stmt{}
-	if info.RequestType.ContentType == "multipart/form-data" {
-		stmts = append(stmts,
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{&ast.Ident{Name: "ct"}, &ast.Ident{Name: "err"}},
-				Tok: token.DEFINE,
-				Rhs: []ast.Expr{&ast.CallExpr{
-					Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: "marshalMultipartFormData"}},
-					Args: []ast.Expr{&ast.Ident{Name: "body"}},
-				}},
-			},
-			&ast.IfStmt{
-				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
-				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{
-					&ast.Ident{Name: "nil"},
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-						Args: []ast.Expr{
-							&ast.BasicLit{Kind: token.STRING, Value: `"marshal multipart/form-data body: %w"`},
-							&ast.Ident{Name: "err"},
-						},
-					},
-				}}}},
-			},
-		)
-	}
-	return stmts
-
-}
-
 func (p *bqBuild) request(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	stmts = append(stmts,
@@ -303,11 +272,7 @@ func (p *bqBuild) postRequest(info inspects.Info) []ast.Stmt {
 				},
 				Args: []ast.Expr{
 					&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
-					ternary[ast.Expr](
-						info.RequestType.ContentType == "multipart/form-data",
-						&ast.Ident{Name: "ct"},
-						&ast.BasicLit{Kind: token.STRING, Value: quotes(info.RequestType.ContentType)},
-					),
+					&ast.BasicLit{Kind: token.STRING, Value: quotes(info.RequestType.ContentType)},
 				},
 			}},
 			&ast.ExprStmt{X: &ast.CallExpr{
@@ -364,7 +329,6 @@ func (p *bqBuild) Produce(info inspects.Info) *ast.FuncDecl {
 	fd.Body.List = append(fd.Body.List, p.query(info)...)
 	fd.Body.List = append(fd.Body.List, p.body(info)...)
 	fd.Body.List = append(fd.Body.List, p.json(info)...)
-	fd.Body.List = append(fd.Body.List, p.multipartFormData(info)...)
 	fd.Body.List = append(fd.Body.List, p.request(info)...)
 	fd.Body.List = append(fd.Body.List, p.postRequest(info)...)
 

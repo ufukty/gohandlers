@@ -30,7 +30,6 @@ With gohandlers, developers can declare a type to list all the parameters for in
     - [Content type](#content-type)
 - [Miscellaneous](#miscellaneous)
 - [Internals](#internals)
-  - [Additional methods on multipart form data](#additional-methods-on-multipart-form-data)
   - [Centralized declaration for `HandlerInfo`](#centralized-declaration-for-handlerinfo)
 - [Considerations](#considerations)
 
@@ -149,26 +148,20 @@ Binding types are optional for handlers. Developer can implement one, both or no
 
 To implement a request or response binding type, create a struct type declaration. The typename should start with the handler name and continue with `Request` or `Response`. All fields need to be tagged properly. Field tags are used to guide gohandlers to generate `Build`, `Write` and `Parse` methods correctly. The field tags contain one key and its value that represents the point of the request/response. Gohandlers supports variety of source for parametes:
 
-| Field tag       | Targets |
-| --------------- | ------- |
-| `route`         | Header  |
-| `query`         | Header  |
-| `json`          | Body    |
-| `form`          | Body    |
-| `part` / `file` | Body    |
+| Field tag | Targets |
+| --------- | ------- |
+| `route`   | Header  |
+| `query`   | Header  |
+| `json`    | Body    |
+| `form`    | Body    |
 
-This example shows how the bindings for multipart requests are defined. The body content type will be decided as `multipart/form-data` since the request binding type only contain field tags: `part` and `file`. And the content type for `profile` field will be decided as `json` as the type definition for field only contains field tags with it.
+This example shows how the bindings for `application/json` requests are defined.
 
 ```go
 type CreateMemberRequest struct {
-  Supervisor     columns.UserId                    `route:"supervisor"`
-  Role           columns.Role                      `query:"role"`
-  Email          columns.Email                     `part:"email"`
-  ProfileDetails CreateMemberRequestProfileDetails `part:"profile"`
-  ProfilePhoto   *multipart.FileHeader             `file:"photo"`
-}
-
-type CreateMemberRequestProfileDetails struct {
+  Supervisor columns.UserId  `route:"supervisor"`
+  Role       columns.Role    `query:"role"`
+  Email      columns.Email   `json:"email"`
   Name     columns.HumanName `json:"name"`
   Lastname columns.HumanName `json:"lastname"`
   Birthday columns.Date      `json:"birthday"`
@@ -187,14 +180,12 @@ gohandlers expects fields of binding structs to only be in the types which expli
 
 ##### Methods expected by developer on field types
 
-| Tag for field type | Request.Build | Request.Parse    | Response.Write | Response.Parse   |
-| ------------------ | ------------- | ---------------- | -------------- | ---------------- |
-| `route`            | `ToRoute`     | `FromRoute`      |                |                  |
-| `query`            | `ToQuery`     | `FromQuery`      |                |                  |
-| `json`             |               |                  |                |                  |
-| `form`             | `ToForm`      | `FromForm`       | `ToForm`       | `FromForm`       |
-| `part`             | `ToPart`      | `FromPart`       | `ToPart`       | `FromPart`       |
-| `file`             | `ToFile`      | `FromFileHeader` | `ToFile`       | `FromFileHeader` |
+| Tag for field type | Request.Build | Request.Parse | Response.Write | Response.Parse |
+| ------------------ | ------------- | ------------- | -------------- | -------------- |
+| `route`            | `ToRoute`     | `FromRoute`   |                |                |
+| `query`            | `ToQuery`     | `FromQuery`   |                |                |
+| `json`             |               |               |                |                |
+| `form`             | `ToForm`      | `FromForm`    | `ToForm`       | `FromForm`     |
 
 Method signatures are below:
 
@@ -211,16 +202,6 @@ func (t Type) ToQuery() (string, error)
 ```go
 func (t *Type) FromForm(string, bool) error
 func (t Type) ToForm() (string, error)
-```
-
-```go
-func (t *Type) FromPart(string, bool) error
-func (t Type) ToPart() (string, error)
-```
-
-```go
-func (t *Type) FromFileHeader(*multipart.FileHeader, bool) error
-func (t Type) ToFile() (src io.Reader, filename string, contentType string, err error)
 ```
 
 ### Handler meta data
@@ -291,11 +272,10 @@ If there is none of the action prefixes present in the handler name; then gohand
 
 #### Content type
 
-| Field tag(s)   | Inferred content type               |
-| -------------- | ----------------------------------- |
-| `json`         | `application/json`                  |
-| `form`         | `application/x-www-form-urlencoded` |
-| `part`, `file` | `multipart/form-data`               |
+| Field tag(s) | Inferred content type               |
+| ------------ | ----------------------------------- |
+| `json`       | `application/json`                  |
+| `form`       | `application/x-www-form-urlencoded` |
 
 ## Miscellaneous
 
@@ -306,29 +286,6 @@ Outline of the geneated methods' usage:
 │  Request.Build  ─────┼───┼─► Request.Parse      │
 │    Response.Parse ◄──┼───┼──── Response.Write   │
 └──────────────────────┘   └──────────────────────┘
-```
-
-## Internals
-
-### Additional methods on multipart form data
-
-Additional methods are declared for `multipart/form-data` response/requests on types that are meant to hold data for parts. Dependening on the per-part `Content-Type` value; types implement:
-
-| Content-Type                        | Request.Build | Request.Parse  | Response.Write | Response.Parse |
-| ----------------------------------- | ------------- | -------------- | -------------- | -------------- |
-| `application/json`                  | `ToJsonPart`  | `FromJsonPart` | `ToJsonPart`   | `FromJsonPart` |
-| `application/x-www-form-urlencoded` | `ToFromPart`  | `FromFormPart` | `ToFormPart`   | `FromFormPart` |
-
-Content type is detected by gohandlers based on field tags contain `json` or `form` in type declaration of the type used for a request/response part. Method signature are below:
-
-```go
-func (t Type) ToJsonPart(dst io.Writer) error
-func (t *Type) FromJsonPart(src io.Reader) error
-```
-
-```go
-func (t Type) ToFormPart(dst io.Writer) error
-func (t *Type) FromFormPart(src io.Reader) error
 ```
 
 ### Centralized declaration for `HandlerInfo`
@@ -350,4 +307,3 @@ Use the related parameters in `list` subcommand to direct gohandlers to use cust
 ## Considerations
 
 - Streaming is not supported. Adding support is not planned.
-- Duplicate keys in `application/x-www-form-urlencoded` and `multipart/form-data` bodies are not supported. Support is not planned. Such functionality might be needed in HTML forms that uses same "value" attribute for multiple input elements.

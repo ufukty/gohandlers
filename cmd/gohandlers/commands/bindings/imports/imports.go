@@ -36,20 +36,6 @@ func needsJson(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
-func needsMultipart(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
-	for _, infos := range infoss {
-		for _, info := range infos {
-			if info.RequestType != nil && (len(info.RequestType.Params.Part) > 0 || len(info.RequestType.Params.File) > 0) {
-				return true
-			}
-			if info.ResponseType != nil && (len(info.ResponseType.Params.Part) > 0 || len(info.ResponseType.Params.File) > 0) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func needsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
@@ -57,34 +43,6 @@ func needsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 				return true
 			}
 			if info.ResponseType != nil && info.ResponseType.ContainsBody {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func needsTextProto(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
-	for _, infos := range infoss {
-		for _, info := range infos {
-			if info.RequestType != nil && len(info.RequestType.Params.File) > 0 {
-				return true
-			}
-			if info.ResponseType != nil && len(info.ResponseType.Params.File) > 0 {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func needsIo(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
-	for _, infos := range infoss {
-		for _, info := range infos {
-			if info.RequestType != nil && len(info.RequestType.Params.File) > 0 {
-				return true
-			}
-			if info.ResponseType != nil && len(info.ResponseType.Params.File) > 0 {
 				return true
 			}
 		}
@@ -105,21 +63,6 @@ func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	if needsJson(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"encoding/json"`}},
-		)
-	}
-	if needsMultipart(infoss) {
-		imports = append(imports,
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"mime/multipart"`}},
-		)
-	}
-	if needsTextProto(infoss) {
-		imports = append(imports,
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/textproto"`}},
-		)
-	}
-	if needsIo(infoss) {
-		imports = append(imports,
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"io"`}},
 		)
 	}
 	if needsStrings(infoss) {
