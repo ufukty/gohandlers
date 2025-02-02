@@ -1,2 +1,3 @@
-- [ ] Add support to specify prefix for handler URL
-- [ ] Add support for `Content-Type: multipart/form-data`
+- Add support to specify prefix for handler URL
+- Add support for `Content-Type: application/x-www-form-urlencoded`
+  - `form` tag

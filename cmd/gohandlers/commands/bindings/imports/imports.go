@@ -1,16 +1,20 @@
-package bindings
+package imports
 
 import (
+	"cmp"
 	"go/ast"
 	"go/token"
 	"gohandlers/pkg/inspects"
 	"slices"
 )
 
+// bq.Parse and bs.Parse needs for content type check
+// bq.Build needs for join in url building
+// bq.Build needs for route parameter replacement
 func needsStrings(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
-			if info.RequestType != nil {
+			if info.RequestType != nil || info.ResponseType != nil {
 				return true
 			}
 		}
@@ -18,10 +22,13 @@ func needsStrings(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
-func containsRequestWithBody(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func needsJson(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
-			if info.RequestType != nil && info.RequestType.ContainsBody {
+			if info.RequestType != nil && len(info.RequestType.Params.Json) > 0 {
+				return true
+			}
+			if info.ResponseType != nil && len(info.ResponseType.Params.Json) > 0 {
 				return true
 			}
 		}
@@ -29,7 +36,7 @@ func containsRequestWithBody(infoss map[inspects.Receiver]map[string]inspects.In
 	return false
 }
 
-func bodyimports(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+func needsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
 			if info.RequestType != nil && info.RequestType.ContainsBody {
@@ -43,20 +50,19 @@ func bodyimports(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
-func imports(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
+func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
 	}
-	if bodyimports(infoss) {
-		imports = append(imports,
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"encoding/json"`}},
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"mime"`}},
-		)
-	}
-	if containsRequestWithBody(infoss) {
+	if needsBytes(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"bytes"`}},
+		)
+	}
+	if needsJson(infoss) {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"encoding/json"`}},
 		)
 	}
 	if needsStrings(infoss) {
@@ -65,15 +71,7 @@ func imports(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 		)
 	}
 	slices.SortFunc(imports, func(a, b ast.Spec) int {
-		av := a.(*ast.ImportSpec).Path.Value
-		bv := b.(*ast.ImportSpec).Path.Value
-		if av < bv {
-			return -1
-		} else if av == bv {
-			return 0
-		} else {
-			return 1
-		}
+		return cmp.Compare(a.(*ast.ImportSpec).Path.Value, b.(*ast.ImportSpec).Path.Value)
 	})
 	return imports
 }

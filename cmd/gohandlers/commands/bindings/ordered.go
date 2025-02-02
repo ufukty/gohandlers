@@ -1,6 +1,7 @@
 package bindings
 
 import (
+	"cmp"
 	"gohandlers/pkg/inspects"
 	"slices"
 )
@@ -19,21 +20,7 @@ func ordered(infoss map[inspects.Receiver]map[string]inspects.Info) []funcrecv {
 		}
 	}
 	slices.SortFunc(o, func(a, b funcrecv) int {
-		if a.receiver.Type < b.receiver.Type {
-			return -1
-		}
-		if a.receiver.Type > b.receiver.Type {
-			return 1
-		}
-
-		if a.handler < b.handler {
-			return -1
-		}
-		if a.handler > b.handler {
-			return 1
-		}
-
-		return 0
+		return cmp.Or(cmp.Compare(a.receiver.Type, b.receiver.Type), cmp.Compare(a.handler, b.handler))
 	})
 	return o
 }

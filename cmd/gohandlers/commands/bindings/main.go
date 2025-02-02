@@ -7,42 +7,15 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"gohandlers/cmd/gohandlers/commands/bindings/imports"
+	"gohandlers/cmd/gohandlers/commands/bindings/produce"
+	"gohandlers/cmd/gohandlers/commands/bindings/utilities"
 	"gohandlers/cmd/gohandlers/commands/version"
 	"gohandlers/pkg/inspects"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
-
-	"golang.org/x/exp/maps"
 )
-
-func ternary[T any](cond bool, t, f T) T {
-	if cond {
-		return t
-	}
-	return f
-}
-
-func quotes(s string) string {
-	return fmt.Sprintf("%q", s)
-}
-
-func keysSortedByValues(src map[string]string) []string {
-	o := maps.Keys(src)
-	slices.SortFunc(o, func(a, b string) int {
-		va := src[a]
-		vb := src[b]
-		if va < vb {
-			return -1
-		} else if va > vb {
-			return 1
-		} else {
-			return 0
-		}
-	})
-	return o
-}
 
 type Args struct {
 	Dir     string
@@ -95,23 +68,21 @@ func Main() error {
 	f := &ast.File{
 		Name: ast.NewIdent(pkg),
 		Decls: []ast.Decl{
-			&ast.GenDecl{Tok: token.IMPORT, Specs: imports(infoss)},
+			&ast.GenDecl{Tok: token.IMPORT, Specs: imports.List(infoss)},
 		},
 	}
 
-	if needsjoin(infoss) {
-		f.Decls = append(f.Decls, join())
-	}
+	f.Decls = append(f.Decls, utilities.Produce(infoss)...)
 
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]
 		if i.RequestType != nil {
-			f.Decls = append(f.Decls, bqBuild(i))
-			f.Decls = append(f.Decls, bqParse(i))
+			f.Decls = append(f.Decls, produce.BqBuild(i))
+			f.Decls = append(f.Decls, produce.BqParse(i))
 		}
 		if i.ResponseType != nil {
-			f.Decls = append(f.Decls, bsWrite(i))
-			f.Decls = append(f.Decls, bsParse(i))
+			f.Decls = append(f.Decls, produce.BsWrite(i))
+			f.Decls = append(f.Decls, produce.BsParse(i))
 		}
 	}
 

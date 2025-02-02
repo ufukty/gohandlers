@@ -61,20 +61,27 @@ func findHandlers(f *ast.File) []*ast.FuncDecl {
 	return hs
 }
 
-type BindingTypeInfo struct {
-	Typename     string
-	RouteParams  map[string]string // route-param -> field-name
-	QueryParams  map[string]string // query-param -> field-name
-	ContainsBody bool
-	Empty        bool
+type BindingTypeParameterSources struct {
+	Route, Query map[string]string // Header
+	Json         map[string]string // Body
 }
 
-func rti(rqtn string, ts *ast.TypeSpec) *BindingTypeInfo {
-	rti := &BindingTypeInfo{
-		Typename:     rqtn,
-		RouteParams:  map[string]string{},
-		QueryParams:  map[string]string{},
-		ContainsBody: false,
+type BindingTypeInfo struct {
+	Typename     string
+	ContainsBody bool
+	Empty        bool
+	ContentType  string
+	Params       BindingTypeParameterSources // param -> fieldname
+}
+
+func bti(rqtn string, ts *ast.TypeSpec) (*BindingTypeInfo, error) {
+	bti := &BindingTypeInfo{
+		Typename: rqtn,
+		Params: BindingTypeParameterSources{
+			Route: map[string]string{},
+			Query: map[string]string{},
+			Json:  map[string]string{},
+		},
 	}
 
 	if st, ok := ts.Type.(*ast.StructType); ok {
@@ -82,21 +89,28 @@ func rti(rqtn string, ts *ast.TypeSpec) *BindingTypeInfo {
 			if f.Tag != nil {
 				st := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
 				if v, ok := st.Lookup("route"); ok {
-					rti.RouteParams[v] = f.Names[0].Name
+					bti.Params.Route[v] = f.Names[0].Name
 				}
 				if v, ok := st.Lookup("query"); ok {
-					rti.QueryParams[v] = f.Names[0].Name
+					bti.Params.Query[v] = f.Names[0].Name
 				}
-				if _, ok := st.Lookup("json"); ok {
-					rti.ContainsBody = true
+				if v, ok := st.Lookup("json"); ok {
+					bti.Params.Json[v] = f.Names[0].Name
 				}
 			}
 		}
 	}
 
-	rti.Empty = !rti.ContainsBody && len(rti.RouteParams) == 0 && len(rti.QueryParams) == 0
+	bti.ContainsBody = len(bti.Params.Json) > 0
+	bti.Empty = !bti.ContainsBody && len(bti.Params.Route) == 0 && len(bti.Params.Query) == 0
 
-	return rti
+	isJson := len(bti.Params.Json) > 0
+	switch {
+	case isJson:
+		bti.ContentType = "application/json"
+	}
+
+	return bti, nil
 }
 
 func receiverType(h *ast.FuncDecl) (string, error) {
@@ -229,7 +243,7 @@ func kebab(input string) string {
 func handlerPath(h *ast.FuncDecl, rti *BindingTypeInfo) string {
 	ps := []string{}
 	if rti != nil {
-		for i := range rti.RouteParams {
+		for i := range rti.Params.Route {
 			ps = append(ps, fmt.Sprintf("{%s}", i))
 		}
 	}
@@ -282,7 +296,10 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 			bqtn := fmt.Sprintf("%sRequest", h.Name.Name)
 			bq, ok := findTypeSpec(f, bqtn)
 			if ok {
-				i.RequestType = rti(bqtn, bq)
+				i.RequestType, err = bti(bqtn, bq)
+				if err != nil {
+					return nil, "", fmt.Errorf("inspecting request binding type: %w", err)
+				}
 			}
 
 			i.Method = handlerMethod(h, i.RequestType)
@@ -291,7 +308,10 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
 			bs, ok := findTypeSpec(f, bstn)
 			if ok {
-				i.ResponseType = rti(bstn, bs)
+				i.ResponseType, err = bti(bstn, bs)
+				if err != nil {
+					return nil, "", fmt.Errorf("inspecting response binding type: %w", err)
+				}
 			}
 
 			if verbose {
