@@ -1,3 +1,3 @@
 - Add support to specify prefix for handler URL
-- Add support for `Content-Type: application/x-www-form-urlencoded`
-  - `form` tag
+- Add support for `Content-Type: application/x-www-form-urlencoded` via `form` tags
+- Add support for developers to mark binding types to ignore in doc comments: `// gh:ignore`
