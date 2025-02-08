@@ -36,6 +36,20 @@ func needsJson(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
+func needsNetUrl(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, infos := range infoss {
+		for _, info := range infos {
+			if info.RequestType != nil && len(info.RequestType.Params.Form) > 0 {
+				return true
+			}
+			if info.ResponseType != nil && len(info.ResponseType.Params.Form) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func needsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, info := range infos {
@@ -63,6 +77,11 @@ func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	if needsJson(infoss) {
 		imports = append(imports,
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"encoding/json"`}},
+		)
+	}
+	if needsNetUrl(infoss) {
+		imports = append(imports,
+			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/url"`}},
 		)
 	}
 	if needsStrings(infoss) {
