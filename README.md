@@ -190,17 +190,17 @@ gohandlers expects fields of binding structs to only be in the types which expli
 Method signatures are below:
 
 ```go
-func (t *Type) FromRoute(string, bool) error
+func (t *Type) FromRoute(string) error
 func (t Type) ToRoute() (string, error)
 ```
 
 ```go
-func (t *Type) FromQuery(string, bool) error
+func (t *Type) FromQuery(string) error
 func (t Type) ToQuery() (string, error)
 ```
 
 ```go
-func (t *Type) FromForm(string, bool) error
+func (t *Type) FromForm(string) error
 func (t Type) ToForm() (string, error)
 ```
 
