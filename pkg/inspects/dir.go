@@ -63,7 +63,7 @@ func findHandlers(f *ast.File) []*ast.FuncDecl {
 
 type BindingTypeParameterSources struct {
 	Route, Query map[string]string // Header
-	Json         map[string]string // Body
+	Json, Form   map[string]string // Body
 }
 
 type BindingTypeInfo struct {
@@ -81,6 +81,7 @@ func bti(rqtn string, ts *ast.TypeSpec) (*BindingTypeInfo, error) {
 			Route: map[string]string{},
 			Query: map[string]string{},
 			Json:  map[string]string{},
+			Form:  map[string]string{},
 		},
 	}
 
@@ -97,17 +98,28 @@ func bti(rqtn string, ts *ast.TypeSpec) (*BindingTypeInfo, error) {
 				if v, ok := st.Lookup("json"); ok {
 					bti.Params.Json[v] = f.Names[0].Name
 				}
+				if v, ok := st.Lookup("form"); ok {
+					bti.Params.Form[v] = f.Names[0].Name
+				}
 			}
 		}
 	}
 
-	bti.ContainsBody = len(bti.Params.Json) > 0
-	bti.Empty = !bti.ContainsBody && len(bti.Params.Route) == 0 && len(bti.Params.Query) == 0
+	containsHeaderParams := len(bti.Params.Route) > 0 || len(bti.Params.Query) > 0
+	bti.ContainsBody = len(bti.Params.Json) > 0 || len(bti.Params.Form) > 0
+	bti.Empty = !bti.ContainsBody && !containsHeaderParams
 
-	isJson := len(bti.Params.Json) > 0
+	if len(bti.Params.Json) > 0 && len(bti.Params.Form) > 0 {
+		return nil, fmt.Errorf("determining Content Type for body: both json {%s} and form {%s} tagged fields found",
+			strings.Join(maps.Values(bti.Params.Json), ", "), strings.Join(maps.Values(bti.Params.Form), ", "),
+		)
+	}
+
 	switch {
-	case isJson:
+	case len(bti.Params.Json) > 0:
 		bti.ContentType = "application/json"
+	case len(bti.Params.Form) > 0:
+		bti.ContentType = "application/x-www-form-urlencoded"
 	}
 
 	return bti, nil

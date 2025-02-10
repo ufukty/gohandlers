@@ -78,6 +78,9 @@ func Main() error {
 		i := infoss[o.receiver][o.handler]
 		if i.RequestType != nil {
 			f.Decls = append(f.Decls, produce.BqBuild(i))
+			if len(i.RequestType.Params.Form) > 0 {
+				f.Decls = append(f.Decls, produce.BqUnmarshalFormData(i))
+			}
 			f.Decls = append(f.Decls, produce.BqParse(i))
 		}
 		if i.ResponseType != nil {

@@ -78,10 +78,69 @@ var join = &ast.FuncDecl{
 	},
 }
 
+var firstOrZero = &ast.FuncDecl{
+	Name: &ast.Ident{Name: "firstOrZero"},
+	Type: &ast.FuncType{
+		TypeParams: &ast.FieldList{
+			List: []*ast.Field{{Names: []*ast.Ident{{Name: "E"}}, Type: &ast.Ident{Name: "any"}}},
+		},
+		Params: &ast.FieldList{
+			List: []*ast.Field{{Names: []*ast.Ident{{Name: "s"}}, Type: &ast.ArrayType{Elt: &ast.Ident{Name: "E"}}}},
+		},
+		Results: &ast.FieldList{
+			List: []*ast.Field{{Type: &ast.Ident{Name: "E"}}},
+		},
+	},
+	Body: &ast.BlockStmt{
+		List: []ast.Stmt{
+			&ast.DeclStmt{
+				Decl: &ast.GenDecl{
+					Tok:   token.VAR,
+					Specs: []ast.Spec{&ast.ValueSpec{Names: []*ast.Ident{{Name: "e"}}, Type: &ast.Ident{Name: "E"}}},
+				},
+			},
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					X:  &ast.CallExpr{Fun: &ast.Ident{Name: "len"}, Args: []ast.Expr{&ast.Ident{Name: "s"}}},
+					Op: token.GTR,
+					Y:  &ast.BasicLit{Kind: token.INT, Value: "0"},
+				},
+				Body: &ast.BlockStmt{
+					List: []ast.Stmt{
+						&ast.AssignStmt{
+							Lhs: []ast.Expr{&ast.Ident{Name: "e"}},
+							Tok: token.ASSIGN,
+							Rhs: []ast.Expr{&ast.IndexExpr{X: &ast.Ident{Name: "s"}, Index: &ast.BasicLit{Kind: token.INT, Value: "0"}}},
+						},
+					},
+				},
+			},
+			&ast.ReturnStmt{Results: []ast.Expr{&ast.Ident{Name: "e"}}},
+		},
+	},
+}
+
+func needsFirstOrZero(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
+	for _, infos := range infoss {
+		for _, info := range infos {
+			if info.RequestType != nil && len(info.RequestType.Params.Form) > 0 {
+				return true
+			}
+			if info.ResponseType != nil && len(info.ResponseType.Params.Form) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func Produce(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
 	decls := []ast.Decl{}
 	if needsJoin(infoss) {
 		decls = append(decls, join)
+	}
+	if needsFirstOrZero(infoss) {
+		decls = append(decls, firstOrZero)
 	}
 	return decls
 }
