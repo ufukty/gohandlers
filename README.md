@@ -155,6 +155,8 @@ To implement a request or response binding type, create a struct type declaratio
 | `json`    | Body    |
 | `form`    | Body    |
 
+gohandlers won't match binding type with handler if the body doesn't mention its name.
+
 This example shows how the bindings for `application/json` requests are defined.
 
 ```go

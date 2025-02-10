@@ -163,6 +163,17 @@ func findTypeSpec(f *ast.File, n string) (*ast.TypeSpec, bool) {
 	return nil, false
 }
 
+func checkBodyForIdent(h *ast.FuncDecl, i *ast.Ident) bool {
+	found := false
+	ast.Inspect(h.Body, func(n ast.Node) bool {
+		if i2, ok := n.(*ast.Ident); ok && i.Name == i2.Name {
+			found = true
+		}
+		return !found
+	})
+	return found
+}
+
 var methods = []string{
 	http.MethodGet,
 	http.MethodHead,
@@ -307,7 +318,7 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 
 			bqtn := fmt.Sprintf("%sRequest", h.Name.Name)
 			bq, ok := findTypeSpec(f, bqtn)
-			if ok {
+			if ok && checkBodyForIdent(h, bq.Name) {
 				i.RequestType, err = bti(bqtn, bq)
 				if err != nil {
 					return nil, "", fmt.Errorf("inspecting request binding type: %w", err)
@@ -319,7 +330,7 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 
 			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
 			bs, ok := findTypeSpec(f, bstn)
-			if ok {
+			if ok && checkBodyForIdent(h, bs.Name) {
 				i.ResponseType, err = bti(bstn, bs)
 				if err != nil {
 					return nil, "", fmt.Errorf("inspecting response binding type: %w", err)
