@@ -17,6 +17,12 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+var (
+	NOTICE  = "\033[34m" + "notice" + "\033[0m"
+	WARNING = "\033[33m" + "warning" + "\033[0m"
+	ERROR   = "\033[31m" + "error" + "\033[0m"
+)
+
 func linearize(n ast.Node) []string {
 	literals := []string{}
 	ast.Inspect(n, func(n ast.Node) bool {
@@ -234,6 +240,7 @@ var methodMap = map[string]string{
 	"Head": "HEAD",
 
 	"Post":   "POST",
+	"Upload": "POST", //
 	"Create": "POST", //
 
 	"Put":     "PUT",
@@ -276,49 +283,42 @@ func electMethod(docComment, handlerName, requestBinding string) string {
 	return cmp.Or(docComment, handlerName, requestBinding, string(http.MethodGet))
 }
 
-func neither(s string, values ...string) bool {
-	for _, v := range values {
-		if s == v {
-			return false
-		}
-	}
-	return true
-}
-
-func red(s string) string {
-	return fmt.Sprintf("\033[31m%s\033[0m", s)
-}
-
-func orange(s string) string {
-	return fmt.Sprintf("\033[32m%s\033[0m", s)
-}
-
-func handlerMethod(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo) (string, string) {
-	bindingType := ""
+func handlerMethod(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo, filename string) (string, []string) {
+	fromBindingType := ""
 	if rti != nil {
-		bindingType = decideMethodFromRequest(rti)
+		fromBindingType = decideMethodFromRequest(rti)
 	}
-	handlerName := decideMethodFromHandlerName(h)
-	method := electMethod(doc.Method, handlerName, bindingType)
+	fromHandlerName := decideMethodFromHandlerName(h)
+	method := electMethod(doc.Method, fromHandlerName, fromBindingType)
+
+	okDoc := doc.Method != ""
+	okName := fromHandlerName != ""
+	okBq := fromBindingType != ""
 
 	complaints := []string{}
-	if cmp.Or(doc.Method, handlerName, bindingType) == "" {
-		complaints = append(complaints, fmt.Sprintf("%s: handler %q implicitly assigned %q without any information\n", orange("notice"), h.Name.Name, method))
-	}
-	if cmp.Or(doc.Method, handlerName) == "" && bindingType != "" {
-		complaints = append(complaints, fmt.Sprintf("%s: handler %q implicitly assigned %q based on if the request contains a body\n", orange("notice"), h.Name.Name, method))
-	}
-	if neither(handlerName, "", method) {
-		complaints = append(complaints, fmt.Sprintf("%s: handler %qs name implies different HTTP method in the prefix than the doc comment specifies\n", red("error"), h.Name.Name))
-	}
-	if !slices.Contains(bodied, method) && slices.Contains(bodied, bindingType) {
-		complaints = append(complaints, fmt.Sprintf("%s: handler %q assigned %q by doc comment; but the request binding type contains a body\n", red("error"), h.Name.Name, method))
-	}
-	if slices.Contains(bodied, method) && !slices.Contains(bodied, bindingType) {
-		complaints = append(complaints, fmt.Sprintf("%s: handler %q assigned %q by doc comment; but the request binding type doesn't contain a body\n", red("error"), h.Name.Name, method))
+
+	// implicit assignment notices
+	// TODO: decide if assigning method by handler name prefix implicit?
+	if !okDoc && !okName {
+		if okBq {
+			complaints = append(complaints, fmt.Sprintf("%s: %s:%s: implicitly assigned %q based on if the request contains a body", NOTICE, filename, h.Name.Name, method))
+		} else {
+			complaints = append(complaints, fmt.Sprintf("%s: %s:%s: implicitly assigned %q without any information", NOTICE, filename, h.Name.Name, method))
+		}
+	} else if okDoc && okName {
+		if doc.Method != fromHandlerName {
+			complaints = append(complaints, fmt.Sprintf("%s: %s:%s: handler name implies %q but doc comment specifies %q", WARNING, filename, h.Name.Name, fromHandlerName, doc.Method))
+		}
 	}
 
-	return method, strings.Join(complaints, "\n")
+	if !slices.Contains(bodied, method) && slices.Contains(bodied, fromBindingType) {
+		complaints = append(complaints, fmt.Sprintf("%s: %s:%s: assigned %q but the request binding type contains a body", ERROR, filename, h.Name.Name, method))
+	}
+	if slices.Contains(bodied, method) && !slices.Contains(bodied, fromBindingType) {
+		complaints = append(complaints, fmt.Sprintf("%s: %s:%s: assigned %q but the request binding type doesn't contain a body", ERROR, filename, h.Name.Name, method))
+	}
+
+	return method, complaints
 }
 
 func kebab(input string) string {
@@ -379,10 +379,11 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 	p := d[maps.Keys(d)[0]]
 
 	infoss := map[Receiver]map[string]Info{}
-	for _, f := range p.Files {
+	for fn, f := range p.Files {
 		for _, h := range findHandlers(f) {
 			doc := parseDoc(h)
-			if doc.Ignore {
+			if doc.Ignore && verbose {
+				fmt.Fprintf(os.Stderr, "%s: ignoring %s:%s\n", NOTICE, fn, h.Name.Name)
 				continue
 			}
 
@@ -403,11 +404,13 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 				}
 			}
 
-			complaints := ""
-			i.Method, complaints = handlerMethod(h, doc, i.RequestType)
-			if verbose {
-				fmt.Fprintln(os.Stderr, complaints)
+			method, complaints := handlerMethod(h, doc, i.RequestType, fn)
+			for _, complaint := range complaints {
+				if verbose || strings.HasPrefix(complaint, ERROR) || strings.HasPrefix(complaint, WARNING) {
+					fmt.Fprintln(os.Stderr, complaint)
+				}
 			}
+			i.Method = method
 			i.Path = handlerPath(h, doc, i.RequestType)
 
 			bstn := fmt.Sprintf("%sResponse", h.Name.Name)

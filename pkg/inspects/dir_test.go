@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/ast"
 	"net/http"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -130,8 +131,8 @@ func TestHandlerMethodComplaints(t *testing.T) {
 		{"", input{"", "Create", Absent}, contains{"but the request binding type doesn't contain a body"}},
 		{"", input{GET, "Visit", WithBody}, contains{"but the request binding type contains a body"}},
 		{"", input{POST, "User", WithoutBody}, contains{"but the request binding type doesn't contain a body"}},
-		{"", input{POST, "Visit", Absent}, contains{"but the request binding type doesn't contain a body", "name implies different HTTP method"}},
-		{"", input{POST, "Visit", WithBody}, contains{"name implies different HTTP method"}},
+		{"", input{POST, "Visit", Absent}, contains{"but the request binding type doesn't contain a body", "name implies"}},
+		{"", input{POST, "Visit", WithBody}, contains{"name implies"}},
 	}
 
 	for _, tc := range tcs {
@@ -147,9 +148,9 @@ func TestHandlerMethodComplaints(t *testing.T) {
 				h.Doc = &ast.CommentGroup{List: []*ast.Comment{{Text: fmt.Sprintf("// %s", tc.docComment)}}}
 			}
 			doc := parseDoc(h)
-			_, complaints := handlerMethod(h, doc, bti)
+			_, complaints := handlerMethod(h, doc, bti, "")
 			for _, expectation := range tc.contains {
-				if !strings.Contains(complaints, string(expectation)) {
+				if !slices.ContainsFunc(complaints, func(complaint string) bool { return strings.Contains(complaint, expectation) }) {
 					t.Errorf("method: expected to contain %q, got %q", expectation, complaints)
 				}
 			}
@@ -204,13 +205,13 @@ func TestHandlerMethod(t *testing.T) {
 				h.Doc = &ast.CommentGroup{List: []*ast.Comment{{Text: fmt.Sprintf("// %s", tc.docComment)}}}
 			}
 			doc := parseDoc(h)
-			method, complaints := handlerMethod(h, doc, bti)
+			method, complaints := handlerMethod(h, doc, bti, "")
 			if method != tc.expected {
 				t.Errorf("method: expected %q, got %q", tc.expected, method)
 			}
-			if (complaints != "") != tc.complain {
-				t.Errorf("complaints: expected %v, got %v", tc.complain, complaints != "")
-				t.Log(complaints)
+			if (complaints != nil) != tc.complain {
+				t.Errorf("complaints: expected %v, got %v", tc.complain, complaints != nil)
+				t.Log(strings.Join(complaints, "\n"))
 			}
 		})
 	}
