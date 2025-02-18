@@ -1,6 +1,7 @@
 package inspects
 
 import (
+	"cmp"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"regexp"
 	"slices"
 	"strings"
 	"unicode"
@@ -186,18 +188,74 @@ var methods = []string{
 	http.MethodTrace,
 }
 
-func findMethodInDocs(fd *ast.FuncDecl) (string, bool) {
+type Doc struct {
+	Method, Path string
+	Ignore       bool
+}
+
+var whitespaces = regexp.MustCompile(`\s+`)
+
+func parseDoc(fd *ast.FuncDecl) Doc {
+	doc := Doc{}
 	if fd.Doc != nil {
-		for _, d := range fd.Doc.List {
-			ts := strings.Split(d.Text, " ")
-			if len(ts) >= 2 {
-				if slices.Index(methods, ts[1]) != -1 {
-					return ts[1], true
+		for _, c := range fd.Doc.List {
+			line := c.Text
+			line = strings.TrimPrefix(line, "//")
+			line = strings.TrimPrefix(line, "/*")
+			line = strings.TrimPrefix(line, "*")
+			line = strings.TrimSpace(line)
+			line = whitespaces.ReplaceAllString(line, " ")
+			for i, word := range strings.Split(line, " ") {
+				switch {
+				case word == "gh:ignore" && i == 0:
+					doc.Ignore = true
+				case slices.Contains(methods, word) && i == 0:
+					doc.Method = word
+				case strings.HasPrefix(word, "/") && i <= 1:
+					doc.Path = word
 				}
 			}
 		}
 	}
-	return "", false
+	return doc
+}
+
+func has[K comparable, V any](m map[K]V, k K) bool {
+	_, ok := m[k]
+	return ok
+}
+
+var titles = regexp.MustCompile(`([A-Z][a-z]+)\S*`)
+
+var methodMap = map[string]string{
+	"Get":   "GET",
+	"Visit": "GET", //
+
+	"Head": "HEAD",
+
+	"Post":   "POST",
+	"Create": "POST", //
+
+	"Put":     "PUT",
+	"Replace": "PUT", //
+
+	"Patch":  "PATCH",
+	"Update": "PATCH", //
+
+	"Delete": "DELETE",
+	"Remove": "DELETE", //
+
+	"Connect": "CONNECT",
+	"Options": "OPTIONS",
+	"Trace":   "TRACE",
+}
+
+func decideMethodFromHandlerName(h *ast.FuncDecl) string {
+	matches := titles.FindStringSubmatch(h.Name.Name)
+	if len(matches) > 1 && has(methodMap, matches[1]) {
+		return methodMap[matches[1]]
+	}
+	return ""
 }
 
 func decideMethodFromRequest(rti *BindingTypeInfo) string {
@@ -213,39 +271,54 @@ var bodied = []string{
 	http.MethodPut,
 }
 
-func handlerMethod(h *ast.FuncDecl, rti *BindingTypeInfo) string {
-	mDoc, okDoc := findMethodInDocs(h)
+// ordered by precedence
+func electMethod(docComment, handlerName, requestBinding string) string {
+	return cmp.Or(docComment, handlerName, requestBinding, string(http.MethodGet))
+}
 
-	var mBq string
-	var okBq bool
+func neither(s string, values ...string) bool {
+	for _, v := range values {
+		if s == v {
+			return false
+		}
+	}
+	return true
+}
+
+func red(s string) string {
+	return fmt.Sprintf("\033[31m%s\033[0m", s)
+}
+
+func orange(s string) string {
+	return fmt.Sprintf("\033[32m%s\033[0m", s)
+}
+
+func handlerMethod(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo) (string, string) {
+	bindingType := ""
 	if rti != nil {
-		mBq = decideMethodFromRequest(rti)
-		okBq = true
+		bindingType = decideMethodFromRequest(rti)
+	}
+	handlerName := decideMethodFromHandlerName(h)
+	method := electMethod(doc.Method, handlerName, bindingType)
+
+	complaints := []string{}
+	if cmp.Or(doc.Method, handlerName, bindingType) == "" {
+		complaints = append(complaints, fmt.Sprintf("%s: handler %q implicitly assigned %q without any information\n", orange("notice"), h.Name.Name, method))
+	}
+	if cmp.Or(doc.Method, handlerName) == "" && bindingType != "" {
+		complaints = append(complaints, fmt.Sprintf("%s: handler %q implicitly assigned %q based on if the request contains a body\n", orange("notice"), h.Name.Name, method))
+	}
+	if neither(handlerName, "", method) {
+		complaints = append(complaints, fmt.Sprintf("%s: handler %qs name implies different HTTP method in the prefix than the doc comment specifies\n", red("error"), h.Name.Name))
+	}
+	if !slices.Contains(bodied, method) && slices.Contains(bodied, bindingType) {
+		complaints = append(complaints, fmt.Sprintf("%s: handler %q assigned %q by doc comment; but the request binding type contains a body\n", red("error"), h.Name.Name, method))
+	}
+	if slices.Contains(bodied, method) && !slices.Contains(bodied, bindingType) {
+		complaints = append(complaints, fmt.Sprintf("%s: handler %q assigned %q by doc comment; but the request binding type doesn't contain a body\n", red("error"), h.Name.Name, method))
 	}
 
-	switch {
-	case okDoc && okBq:
-		if mDoc == http.MethodGet && mBq != http.MethodGet {
-			fmt.Fprintf(os.Stderr, "warning: handler %q explicitly assigned %q but the request contains a body\n", h.Name.Name, http.MethodGet)
-		}
-		if slices.Contains(bodied, mDoc) && mBq == http.MethodGet {
-			fmt.Fprintf(os.Stderr, "warning: handler %q explicitly assigned %q but the request doesn't contains a body\n", h.Name.Name, mDoc)
-		}
-		return mDoc
-
-	case okDoc && !okBq:
-		return mDoc
-
-	case !okDoc && okBq:
-		fmt.Fprintf(os.Stderr, "notice: handler %q implicitly assigned %q because of the request contains body\n", h.Name.Name, mBq)
-		return mBq
-
-	case !okDoc && !okBq:
-		fmt.Fprintf(os.Stderr, "warning: handler %q is assigned %q even though there is not enough information to decide\n", h.Name.Name, http.MethodGet)
-		return http.MethodGet
-	}
-
-	return "" // can't reach here
+	return method, strings.Join(complaints, "\n")
 }
 
 func kebab(input string) string {
@@ -263,7 +336,7 @@ func kebab(input string) string {
 	return result.String()
 }
 
-func handlerPath(h *ast.FuncDecl, rti *BindingTypeInfo) string {
+func handlerPath(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo) string {
 	ps := []string{}
 	if rti != nil {
 		for i := range rti.Params.Route {
@@ -308,6 +381,11 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 	infoss := map[Receiver]map[string]Info{}
 	for _, f := range p.Files {
 		for _, h := range findHandlers(f) {
+			doc := parseDoc(h)
+			if doc.Ignore {
+				continue
+			}
+
 			recvt, err := receiverType(h)
 			if err != nil {
 				return nil, "", fmt.Errorf("inspecting receiver type of handler: %w", err)
@@ -325,8 +403,12 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 				}
 			}
 
-			i.Method = handlerMethod(h, i.RequestType)
-			i.Path = handlerPath(h, i.RequestType)
+			complaints := ""
+			i.Method, complaints = handlerMethod(h, doc, i.RequestType)
+			if verbose {
+				fmt.Fprintln(os.Stderr, complaints)
+			}
+			i.Path = handlerPath(h, doc, i.RequestType)
 
 			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
 			bs, ok := findTypeSpec(f, bstn)
