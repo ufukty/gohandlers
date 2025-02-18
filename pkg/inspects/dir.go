@@ -382,8 +382,10 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 	for fn, f := range p.Files {
 		for _, h := range findHandlers(f) {
 			doc := parseDoc(h)
-			if doc.Ignore && verbose {
-				fmt.Fprintf(os.Stderr, "%s: ignoring %s:%s\n", NOTICE, fn, h.Name.Name)
+			if doc.Ignore {
+				if verbose {
+					fmt.Fprintf(os.Stderr, "%s: ignoring %s:%s\n", NOTICE, fn, h.Name.Name)
+				}
 				continue
 			}
 
