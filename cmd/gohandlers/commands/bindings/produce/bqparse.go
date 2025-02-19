@@ -109,23 +109,23 @@ func (p *bqParse) route(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	for rp, fn := range sorted.ByValues(info.RequestType.Params.Route) {
 		stmts = append(stmts,
-			&ast.AssignStmt{
-				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
-				Tok: token.DEFINE,
-				Rhs: []ast.Expr{
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{
-							X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}},
-							Sel: &ast.Ident{Name: "FromRoute"},
+			&ast.IfStmt{
+				Init: &ast.AssignStmt{
+					Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
+					Tok: token.DEFINE,
+					Rhs: []ast.Expr{
+						&ast.CallExpr{
+							Fun: &ast.SelectorExpr{
+								X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}},
+								Sel: &ast.Ident{Name: "FromRoute"},
+							},
+							Args: []ast.Expr{&ast.CallExpr{
+								Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "PathValue"}},
+								Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(rp)}},
+							}},
 						},
-						Args: []ast.Expr{&ast.CallExpr{
-							Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "PathValue"}},
-							Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: quotes(rp)}},
-						}},
 					},
 				},
-			},
-			&ast.IfStmt{
 				Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
 				Body: &ast.BlockStmt{List: []ast.Stmt{
 					&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
