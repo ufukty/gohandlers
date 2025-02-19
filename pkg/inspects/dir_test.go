@@ -23,10 +23,10 @@ func TestParseDoc(t *testing.T) {
 	}
 	tcs := []tc{
 		{description: "ignore",
-			input: []string{"// gh:ignore"}, output: Doc{Ignore: true}},
+			input: []string{"// gh:ignore"}, output: Doc{Mode: "ignore"}},
 
 		{description: "ignore with whitespaces",
-			input: []string{"//    gh:ignore"}, output: Doc{Ignore: true}},
+			input: []string{"//    gh:ignore"}, output: Doc{Mode: "ignore"}},
 
 		{description: "only the method",
 			input: []string{"// GET"}, output: Doc{Method: GET}},
@@ -47,10 +47,10 @@ func TestParseDoc(t *testing.T) {
 			input: []string{"//   GET   /index.html    "}, output: Doc{Method: GET, Path: "/index.html"}},
 
 		{description: "ignore, method and path",
-			input: []string{"// gh:ignore", "// GET /index.html"}, output: Doc{Method: GET, Path: "/index.html", Ignore: true}},
+			input: []string{"// gh:ignore", "// GET /index.html"}, output: Doc{Method: GET, Path: "/index.html", Mode: "ignore"}},
 
 		{description: "ignore, method and path with whitespaces",
-			input: []string{"//   gh:ignore    ", "// GET     /index.html   "}, output: Doc{Method: GET, Path: "/index.html", Ignore: true}},
+			input: []string{"//   gh:ignore    ", "// GET     /index.html   "}, output: Doc{Method: GET, Path: "/index.html", Mode: "ignore"}},
 	}
 
 	for _, tc := range tcs {
@@ -61,8 +61,8 @@ func TestParseDoc(t *testing.T) {
 			}
 			fd := &ast.FuncDecl{Doc: &ast.CommentGroup{List: list}}
 			got := parseDoc(fd)
-			if got.Ignore != tc.output.Ignore {
-				t.Errorf(".Ignore: expected '%v' got '%v'", tc.output.Ignore, got.Ignore)
+			if got.Ignore() != tc.output.Ignore() {
+				t.Errorf(".Ignore: expected '%v' got '%v'", tc.output.Ignore(), got.Ignore())
 			}
 			if got.Method != tc.output.Method {
 				t.Errorf(".Method: expected '%v' got '%v'", tc.output.Method, got.Method)

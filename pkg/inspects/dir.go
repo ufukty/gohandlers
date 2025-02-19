@@ -195,9 +195,23 @@ var methods = []string{
 	http.MethodTrace,
 }
 
+type Mode string
+
+func (m Mode) Ignore() bool {
+	return m == "ignore"
+}
+
+func (m Mode) ToList() bool {
+	return m != "ignore" && m == "list"
+}
+
+func (m Mode) ParseBindings() bool {
+	return m != "ignore" && m != "list"
+}
+
 type Doc struct {
 	Method, Path string
-	Ignore       bool
+	Mode
 }
 
 var whitespaces = regexp.MustCompile(`\s+`)
@@ -214,8 +228,8 @@ func parseDoc(fd *ast.FuncDecl) Doc {
 			line = whitespaces.ReplaceAllString(line, " ")
 			for i, word := range strings.Split(line, " ") {
 				switch {
-				case word == "gh:ignore" && i == 0:
-					doc.Ignore = true
+				case strings.HasPrefix(word, "gh:") && i == 0:
+					doc.Mode = Mode(strings.TrimPrefix(word, "gh:"))
 				case slices.Contains(methods, word) && i == 0:
 					doc.Method = word
 				case strings.HasPrefix(word, "/") && i <= 1:
@@ -286,7 +300,7 @@ func electMethod(docComment, handlerName, requestBinding string) string {
 
 func handlerMethod(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo, filename string) (string, []string) {
 	fromBindingType := ""
-	if rti != nil {
+	if rti != nil && doc.ParseBindings() {
 		fromBindingType = decideMethodFromRequest(rti)
 	}
 	fromHandlerName := decideMethodFromHandlerName(h)
@@ -298,25 +312,29 @@ func handlerMethod(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo, filename stri
 
 	complaints := []string{}
 
-	// implicit assignment notices
-	// TODO: decide if assigning method by handler name prefix implicit?
-	if !okDoc && !okName {
-		if okBq {
-			complaints = append(complaints, fmt.Sprintf("%s: %s:%s: implicitly assigned %q based on if the request contains a body", NOTICE, filename, h.Name.Name, method))
-		} else {
-			complaints = append(complaints, fmt.Sprintf("%s: %s:%s: implicitly assigned %q without any information", NOTICE, filename, h.Name.Name, method))
-		}
-	} else if okDoc && okName {
+	if okDoc && okName {
 		if doc.Method != fromHandlerName {
 			complaints = append(complaints, fmt.Sprintf("%s: %s:%s: handler name implies %q but doc comment specifies %q", WARNING, filename, h.Name.Name, fromHandlerName, doc.Method))
 		}
 	}
 
-	if !slices.Contains(bodied, method) && slices.Contains(bodied, fromBindingType) {
-		complaints = append(complaints, fmt.Sprintf("%s: %s:%s: assigned %q but the request binding type contains a body", ERROR, filename, h.Name.Name, method))
-	}
-	if slices.Contains(bodied, method) && !slices.Contains(bodied, fromBindingType) {
-		complaints = append(complaints, fmt.Sprintf("%s: %s:%s: assigned %q but the request binding type doesn't contain a body", ERROR, filename, h.Name.Name, method))
+	if doc.ParseBindings() {
+		// implicit assignment notices
+		// TODO: decide if assigning method by handler name prefix implicit?
+		if !okDoc && !okName {
+			if okBq {
+				complaints = append(complaints, fmt.Sprintf("%s: %s:%s: implicitly assigned %q based on if the request contains a body", NOTICE, filename, h.Name.Name, method))
+			} else {
+				complaints = append(complaints, fmt.Sprintf("%s: %s:%s: implicitly assigned %q without any information", NOTICE, filename, h.Name.Name, method))
+			}
+		}
+
+		if !slices.Contains(bodied, method) && slices.Contains(bodied, fromBindingType) {
+			complaints = append(complaints, fmt.Sprintf("%s: %s:%s: assigned %q but the request binding type contains a body", ERROR, filename, h.Name.Name, method))
+		}
+		if slices.Contains(bodied, method) && !slices.Contains(bodied, fromBindingType) {
+			complaints = append(complaints, fmt.Sprintf("%s: %s:%s: assigned %q but the request binding type doesn't contain a body", ERROR, filename, h.Name.Name, method))
+		}
 	}
 
 	return method, complaints
@@ -411,7 +429,7 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 	for fn, f := range p.Files {
 		for _, h := range findHandlers(f) {
 			doc := parseDoc(h)
-			if doc.Ignore {
+			if doc.Mode.Ignore() {
 				if verbose {
 					fmt.Fprintf(os.Stderr, "%s: ignoring %s:%s\n", NOTICE, fn, h.Name.Name)
 				}
@@ -426,12 +444,14 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 				Ref: ref(h, recvt),
 			}
 
-			bqtn := fmt.Sprintf("%sRequest", h.Name.Name)
-			bq, ok := findTypeSpec(f, bqtn)
-			if ok && checkBodyForIdent(h, bq.Name) {
-				i.RequestType, err = bti(bqtn, bq)
-				if err != nil {
-					return nil, "", fmt.Errorf("inspecting request binding type: %w", err)
+			if doc.Mode.ParseBindings() {
+				bqtn := fmt.Sprintf("%sRequest", h.Name.Name)
+				bq, ok := findTypeSpec(f, bqtn)
+				if ok && checkBodyForIdent(h, bq.Name) {
+					i.RequestType, err = bti(bqtn, bq)
+					if err != nil {
+						return nil, "", fmt.Errorf("inspecting request binding type: %w", err)
+					}
 				}
 			}
 
@@ -449,12 +469,14 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 			}
 			i.Path = path
 
-			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
-			bs, ok := findTypeSpec(f, bstn)
-			if ok && checkBodyForIdent(h, bs.Name) {
-				i.ResponseType, err = bti(bstn, bs)
-				if err != nil {
-					return nil, "", fmt.Errorf("inspecting response binding type: %w", err)
+			if doc.Mode.ParseBindings() {
+				bstn := fmt.Sprintf("%sResponse", h.Name.Name)
+				bs, ok := findTypeSpec(f, bstn)
+				if ok && checkBodyForIdent(h, bs.Name) {
+					i.ResponseType, err = bti(bstn, bs)
+					if err != nil {
+						return nil, "", fmt.Errorf("inspecting response binding type: %w", err)
+					}
 				}
 			}
 
