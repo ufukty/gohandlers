@@ -11,13 +11,32 @@ import (
 type bqParse struct{}
 
 func (p *bqParse) contentTypeCheck(info inspects.Info) []ast.Stmt {
-	return []ast.Stmt{
-		&ast.IfStmt{
-			Cond: &ast.UnaryExpr{
-				Op: token.NOT,
-				X: &ast.CallExpr{
-					Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "strings"}, Sel: &ast.Ident{Name: "HasPrefix"}},
+	stmts := []ast.Stmt{}
+	if info.RequestType.ContentType != "" {
+		stmts = append(stmts,
+			&ast.IfStmt{
+				Cond: &ast.UnaryExpr{
+					Op: token.NOT,
+					X: &ast.CallExpr{
+						Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "strings"}, Sel: &ast.Ident{Name: "HasPrefix"}},
+						Args: []ast.Expr{
+							&ast.CallExpr{
+								Fun: &ast.SelectorExpr{
+									X:   &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "Header"}},
+									Sel: &ast.Ident{Name: "Get"},
+								},
+								Args: []ast.Expr{
+									&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
+								},
+							},
+							&ast.BasicLit{Kind: token.STRING, Value: quotes(info.RequestType.ContentType)},
+						},
+					},
+				},
+				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
+					Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
 					Args: []ast.Expr{
+						&ast.BasicLit{Kind: token.STRING, Value: `"invalid content type for request: %s"`},
 						&ast.CallExpr{
 							Fun: &ast.SelectorExpr{
 								X:   &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "Header"}},
@@ -27,27 +46,12 @@ func (p *bqParse) contentTypeCheck(info inspects.Info) []ast.Stmt {
 								&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
 							},
 						},
-						&ast.BasicLit{Kind: token.STRING, Value: quotes(info.RequestType.ContentType)},
 					},
-				},
+				}}}}},
 			},
-			Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
-				Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-				Args: []ast.Expr{
-					&ast.BasicLit{Kind: token.STRING, Value: `"invalid content type for request: %s"`},
-					&ast.CallExpr{
-						Fun: &ast.SelectorExpr{
-							X:   &ast.SelectorExpr{X: &ast.Ident{Name: "rq"}, Sel: &ast.Ident{Name: "Header"}},
-							Sel: &ast.Ident{Name: "Get"},
-						},
-						Args: []ast.Expr{
-							&ast.BasicLit{Kind: token.STRING, Value: `"Content-Type"`},
-						},
-					},
-				},
-			}}}}},
-		},
+		)
 	}
+	return stmts
 }
 
 func (p *bqParse) query(info inspects.Info) []ast.Stmt {
