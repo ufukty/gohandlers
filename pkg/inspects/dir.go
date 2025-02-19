@@ -8,6 +8,7 @@ import (
 	"go/token"
 	"net/http"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"slices"
@@ -336,7 +337,7 @@ func kebab(input string) string {
 	return result.String()
 }
 
-func handlerPath(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo) string {
+func handlerPathFromBindingType(h *ast.FuncDecl, rti *BindingTypeInfo) string {
 	ps := []string{}
 	if rti != nil {
 		for i := range rti.Params.Route {
@@ -350,7 +351,35 @@ func handlerPath(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo) string {
 		path = fmt.Sprintf("%s/%s", path, strings.Join(ps, "/"))
 	}
 	return path
+}
 
+func checkHandlerPathInDoc(doc Doc, rti *BindingTypeInfo) (missing []string) {
+	if rti == nil || rti.Params.Route == nil {
+		return
+	}
+	words := strings.Split(strings.TrimPrefix(doc.Path, "/"), "/")
+	for _, param := range maps.Keys(rti.Params.Route) {
+		if !slices.Contains(words, fmt.Sprintf("{%s}", param)) {
+			missing = append(missing, param)
+		}
+	}
+	return
+}
+
+func handlerPath(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo, filename string) (string, string) {
+	if doc.Path == "" {
+		return handlerPathFromBindingType(h, rti), ""
+	}
+	missings := checkHandlerPathInDoc(doc, rti)
+	if len(missings) > 0 {
+		complaint := fmt.Sprintf("%s: %s:%s: the path specified in doc comment has been added missing route parameters: %s", NOTICE, filename, h.Name.Name, strings.Join(missings, ", "))
+		suffix := ""
+		for _, missing := range missings {
+			suffix += fmt.Sprintf("/{%s}", missing)
+		}
+		return filepath.Join(doc.Path, suffix), complaint
+	}
+	return doc.Path, ""
 }
 
 type Receiver struct {
@@ -413,7 +442,12 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 				}
 			}
 			i.Method = method
-			i.Path = handlerPath(h, doc, i.RequestType)
+
+			path, complaint := handlerPath(h, doc, i.RequestType, fn)
+			if complaint != "" && verbose {
+				fmt.Fprintln(os.Stderr, complaint)
+			}
+			i.Path = path
 
 			bstn := fmt.Sprintf("%sResponse", h.Name.Name)
 			bs, ok := findTypeSpec(f, bstn)
