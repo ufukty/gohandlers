@@ -66,7 +66,11 @@ func produce(bti *inspects.BindingTypeInfo) *ast.FuncDecl {
 				{Names: []*ast.Ident{{Name: "errs"}}, Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "error"}}},
 			}},
 		},
-		Body: &ast.BlockStmt{List: []ast.Stmt{}},
+		Body: &ast.BlockStmt{List: []ast.Stmt{&ast.AssignStmt{
+			Lhs: []ast.Expr{ast.NewIdent("errs")},
+			Tok: token.ASSIGN,
+			Rhs: []ast.Expr{&ast.CompositeLit{Type: &ast.MapType{Key: ast.NewIdent("string"), Value: ast.NewIdent("error")}}},
+		}}},
 	}
 	params := merge(
 		bti.Params.Form,
