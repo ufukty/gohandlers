@@ -8,6 +8,7 @@ import (
 	"go/printer"
 	"go/token"
 	"gohandlers/cmd/gohandlers/commands/version"
+	"gohandlers/internal/sorted"
 	"gohandlers/pkg/inspects"
 	"os"
 	"path/filepath"
@@ -73,7 +74,7 @@ func produce(bti *inspects.BindingTypeInfo) *ast.FuncDecl {
 		bti.Params.Query,
 		bti.Params.Route,
 	)
-	for p, fn := range params {
+	for p, fn := range sorted.ByValues(params) {
 		fd.Body.List = append(fd.Body.List, &ast.IfStmt{
 			Init: &ast.AssignStmt{
 				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
