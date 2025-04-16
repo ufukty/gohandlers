@@ -11,5 +11,5 @@ func (b Boolean) Validate() error {
 	case True:
 		return nil
 	}
-	return fmt.Errorf("invalid value")
+	return fmt.Errorf("invalid value: %q", b)
 }
