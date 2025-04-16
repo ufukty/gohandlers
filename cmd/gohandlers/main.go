@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/bindings"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/clients"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/client"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/list"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/mock"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/validate"
@@ -19,7 +19,7 @@ import (
 func Main() error {
 	commands := map[string]func() error{
 		"bindings": bindings.Main,
-		"clients":  clients.Main,
+		"client":   client.Main,
 		"list":     list.Main,
 		"mock":     mock.Main,
 		"validate": validate.Main,
