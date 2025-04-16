@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"maps"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/bindings"
@@ -12,9 +14,11 @@ import (
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/validate"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/yaml"
-
-	"golang.org/x/exp/maps"
 )
+
+func listcmds(commands map[string]func() error) string {
+	return strings.Join(slices.Sorted(maps.Keys(commands)), ", ")
+}
 
 func Main() error {
 	commands := map[string]func() error{
@@ -28,13 +32,13 @@ func Main() error {
 	}
 
 	if len(os.Args) < 2 {
-		return fmt.Errorf("subcommands: %s", strings.Join(maps.Keys(commands), ", "))
+		return fmt.Errorf("subcommands: %s", listcmds(commands))
 	}
 
 	cmd := os.Args[1]
 	command, ok := commands[cmd]
 	if !ok {
-		return fmt.Errorf("available subcommands: %s", strings.Join(maps.Keys(commands), ", "))
+		return fmt.Errorf("available subcommands: %s", listcmds(commands))
 	}
 
 	os.Args = os.Args[1:]
