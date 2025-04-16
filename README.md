@@ -3,6 +3,8 @@
 
 # gohandlers
 
+<img src="assets/logo@1x.png" srcset="assets/logo@2x.png 2x, assets/logo@3x.png 3x" width="256px">
+
 gohandlers is a CLI tool that creates Go files contain information about handlers and their binding types that are defined in a directory. The produced files make the information previously embedded in the type names and discarded by compiler available to developer's use.
 
 gohandlers allows defining the path and method information in one place and to get type-checked. gohandlers is designed to let the server implementation of an API to be the single source of truth to let it contain all the information to generate client code and rest. So, gohandlers makes writing API spec definitions redundant.
