@@ -2,8 +2,9 @@ package validate
 
 import (
 	"cmp"
-	"gohandlers/pkg/inspects"
 	"slices"
+
+	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
 // just used for stable ordering of methods

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"gohandlers/pkg/inspects"
+
+	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
 func quotes(s string) string {

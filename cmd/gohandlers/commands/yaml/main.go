@@ -3,8 +3,9 @@ package yaml
 import (
 	"flag"
 	"fmt"
-	"gohandlers/pkg/inspects"
 	"path/filepath"
+
+	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
 type Args struct {

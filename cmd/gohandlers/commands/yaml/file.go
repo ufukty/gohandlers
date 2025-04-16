@@ -2,8 +2,9 @@ package yaml
 
 import (
 	"fmt"
-	"gohandlers/pkg/inspects"
 	"os"
+
+	"github.com/ufukty/gohandlers/pkg/inspects"
 
 	"gopkg.in/yaml.v3"
 )

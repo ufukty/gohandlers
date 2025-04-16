@@ -7,14 +7,15 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
-	"gohandlers/cmd/gohandlers/commands/bindings/imports"
-	"gohandlers/cmd/gohandlers/commands/bindings/produce"
-	"gohandlers/cmd/gohandlers/commands/bindings/utilities"
-	"gohandlers/cmd/gohandlers/commands/version"
-	"gohandlers/pkg/inspects"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/bindings/imports"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/bindings/produce"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/bindings/utilities"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
+	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
 type Args struct {

@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
-	"gohandlers/cmd/gohandlers/commands/bindings"
-	"gohandlers/cmd/gohandlers/commands/clients"
-	"gohandlers/cmd/gohandlers/commands/list"
-	"gohandlers/cmd/gohandlers/commands/mock"
-	"gohandlers/cmd/gohandlers/commands/validate"
-	"gohandlers/cmd/gohandlers/commands/version"
-	"gohandlers/cmd/gohandlers/commands/yaml"
 	"os"
 	"strings"
+
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/bindings"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/clients"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/list"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/mock"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/validate"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/yaml"
 
 	"golang.org/x/exp/maps"
 )

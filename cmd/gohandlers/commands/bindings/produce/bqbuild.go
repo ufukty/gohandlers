@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"gohandlers/internal/sorted"
-	"gohandlers/pkg/inspects"
+
+	"github.com/ufukty/gohandlers/internal/sorted"
+	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
 type bqBuildSymbolTable struct {

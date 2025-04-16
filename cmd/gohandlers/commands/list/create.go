@@ -7,11 +7,12 @@ import (
 	"go/format"
 	"go/printer"
 	"go/token"
-	"gohandlers/cmd/gohandlers/commands/version"
-	"gohandlers/pkg/inspects"
 	"io"
 	"os"
 	"strings"
+
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
+	"github.com/ufukty/gohandlers/pkg/inspects"
 
 	"golang.org/x/exp/slices"
 )

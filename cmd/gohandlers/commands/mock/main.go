@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"go/printer"
 	"go/token"
-	"gohandlers/cmd/gohandlers/commands/version"
-	"gohandlers/pkg/inspects"
 	"os"
 	"strings"
+
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
+	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
 type Args struct {

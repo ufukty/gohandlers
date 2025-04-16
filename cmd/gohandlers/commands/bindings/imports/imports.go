@@ -4,8 +4,9 @@ import (
 	"cmp"
 	"go/ast"
 	"go/token"
-	"gohandlers/pkg/inspects"
 	"slices"
+
+	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
 // bq.Parse and bs.Parse needs for content type check
