@@ -149,7 +149,7 @@ func receiverType(h *ast.FuncDecl) (string, error) {
 }
 
 func recvn(s string) string {
-	return strings.ToLower(string(s[0:2]))
+	return strings.ToLower(string(s[0:min(2, len(s))]))
 }
 
 func ref(h *ast.FuncDecl, recvt string) ast.Expr {
