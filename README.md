@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> Work in progress. The direction on implementing features and solving bugs depending on the reach. Leave a mark in issues, PRs or discussions mentioning your use case for the project.
+
 # gohandlers
 
 gohandlers is a CLI tool that creates Go files contain information about handlers and their binding types that are defined in a directory. The produced files make the information previously embedded in the type names and discarded by compiler available to developer's use.
