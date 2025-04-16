@@ -3,7 +3,7 @@
 
 # gohandlers
 
-<img src="assets/logo@1x.png" srcset="assets/logo@2x.png 2x, assets/logo@3x.png 3x" width="256px">
+<img src="assets/logo@3x.png" width="256px">
 
 gohandlers is a CLI tool that creates Go files contain information about handlers and their binding types that are defined in a directory. The produced files make the information previously embedded in the type names and discarded by compiler available to developer's use.
 
@@ -44,11 +44,13 @@ With gohandlers, developers can declare a type to list all the parameters for in
 gohandlers [command] <command args>
 
 commands:
-    bindings : Produces a file contains Build and Parse methods for binding types
-    client   : Produces a file contains Client and its methods
-    mock     : Produces a file contains Client mock and an interface
-    list     : Produces a file contains ListHandlers function/methods
-    yaml     : Produces a yaml file contains handler paths and methods for non-Go clients
+		bindings : Produces a file contains Build and Parse methods for binding types
+		client   : Produces a file contains Client and its methods
+		list     : Produces a file contains ListHandlers function/methods
+		mock     : Produces a file contains Client mock and an interface
+		validate : Produces a file contains Validate methods for request binding types
+		version  : Prints version
+		yaml     : Produces a yaml file contains handler paths and methods for non-Go clients
 
 Run to get help on specific command, where available:
     gohandlers [command] --help
