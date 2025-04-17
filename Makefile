@@ -24,6 +24,3 @@ install:
 README.toc.md: README.md
 	pandoc -s --toc --toc-depth=6 --wrap=preserve README.md -o README.toc.md
 	gsed --in-place 's/{.*}//g' README.toc.md
-
-all:
-	$(MAKE) -C pkg

@@ -14,7 +14,7 @@ const (
 
 func (b *Boolean) FromRoute(src string) error {
 	*b = Boolean(src)
-	return b.Validate()
+	return nil
 }
 
 func (b Boolean) ToRoute() (string, error) {
@@ -28,6 +28,16 @@ func (s *Boolean) FromQuery(v string) error {
 
 func (s Boolean) ToQuery() (string, bool, error) {
 	return string(s), s != "", nil
+}
+
+func (b Boolean) Validate() error {
+	switch b {
+	case False:
+		return nil
+	case True:
+		return nil
+	}
+	return fmt.Errorf("invalid value: %q", b)
 }
 
 type String string
