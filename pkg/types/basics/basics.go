@@ -37,8 +37,8 @@ func (s *String) FromQuery(v string) error {
 	return nil
 }
 
-func (s String) ToQuery() (string, error) {
-	return string(s), nil
+func (s String) ToQuery() (string, bool, error) {
+	return string(s), s != "", nil
 }
 
 type Int int
