@@ -21,6 +21,15 @@ func (b Boolean) ToRoute() (string, error) {
 	return string(b), nil
 }
 
+func (s *Boolean) FromQuery(v string) error {
+	*s = Boolean(v)
+	return nil
+}
+
+func (s Boolean) ToQuery() (string, bool, error) {
+	return string(s), s != "", nil
+}
+
 type String string
 
 func (s *String) FromRoute(v string) error {
