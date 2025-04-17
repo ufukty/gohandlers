@@ -43,8 +43,8 @@ func filterByRecv(infoss map[inspects.Receiver]map[string]inspects.Info, recvt s
 
 func Main() error {
 	args := &Args{}
-	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files")
-	flag.StringVar(&args.Out, "out", "", "the output file")
+	flag.StringVar(&args.Dir, "dir", "", "the source directory contains Go files")
+	flag.StringVar(&args.Out, "out", "bindings.gh.go", "the output file that will be created in -dir")
 	flag.StringVar(&args.Recv, "recv", "", "only use request types that is prefixed with handlers defined on this type")
 	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
 	flag.Parse()
@@ -90,9 +90,6 @@ func Main() error {
 		}
 	}
 
-	if args.Out == "" {
-		args.Out = "bindings.gh.go"
-	}
 	fh, err := os.Create(filepath.Join(args.Dir, args.Out))
 	if err != nil {
 		return fmt.Errorf("creating file: %w", err)
