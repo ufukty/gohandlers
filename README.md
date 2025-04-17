@@ -113,7 +113,7 @@ To better utilize gohandlers, it helps to know how it identifies handlers and ty
 
 - **Handler Identification:** Any function with signature `func(http.ResponseWriter, *http.Request)` is considered a handler. If it’s a method (with a receiver), that method is a handler too. You can **optionally add a comment** above the function to explicitly declare the HTTP method (e.g., `// GET` or `// POST`). If no comment is present, gohandlers will **infer the method** from the name (`GetX` -> GET, `CreateX` -> POST, `UpdateX` -> PATCH, `DeleteX` -> DELETE, etc.) or the presence of a request body. For example, a handler named `GetProfile` with no body will default to GET, whereas `CreateProfile` will default to POST.
 
-- **Binding Types:** If you define struct types that **share the handler’s name as prefix** and end in `Request` or `Response`, gohandlers links them as the input/output for that handler. In the earlier example, `CreatePetRequest` and `CreatePetResponse` are automatically tied to the `CreatePet` handler. Handlers can have:
+- **Binding Types:** If you define struct types that **share the handler’s name as prefix** and end in `Request` or `Response`, gohandlers links them as the input/output for that handler. In [this example](docs/commands/bindings.md#example), `CreatePetRequest` and `CreatePetResponse` are automatically tied to the `CreatePet` handler. Handlers can have:
 
   - Request type only
   - Response type only
