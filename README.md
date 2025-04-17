@@ -105,7 +105,7 @@ Continue in [Docs > Commands > `yaml`](docs/commands/yaml.md)
 
 3. **Integrate into build/test:** Many projects add gohandlers to a Makefile or a code generation script, so it runs whenever types or handlers change. It’s also common to check in the generated `.gh.go` files so that others can use the client library without generating it themselves. Just remember to regenerate when you make changes.
 
-4. **Use generated code:** In your server, call `bq.Parse(r)` at the top of handlers to get a filled request struct; use `bs.Write(w)` to output responses. In other services (or even the same codebase), use the `Client` to make requests in a type-safe way. In tests, use `MockClient` to simulate server behavior.
+4. **Use generated code:** In your server, call `bq.Parse(r)` at the top of handlers to get a filled request struct; use `bs.Write(w)` to output responses. In other services (or even the same codebase), use the `Client` to make requests in a type-safe way. In tests, use `Mock` to simulate server behavior.
 
 ## How gohandlers Works (Briefly)
 
