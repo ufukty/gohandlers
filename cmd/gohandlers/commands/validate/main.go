@@ -104,7 +104,7 @@ func produce(bti *inspects.BindingTypeInfo) *ast.FuncDecl {
 func Main() error {
 	args := &Args{}
 	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files")
-	flag.StringVar(&args.Out, "out", "", "the output file")
+	flag.StringVar(&args.Out, "out", "validate.gh.go", "the output file")
 	flag.StringVar(&args.Recv, "recv", "", "only use request types that is prefixed with handlers defined on this type")
 	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
 	flag.Parse()
@@ -138,9 +138,6 @@ func Main() error {
 		}
 	}
 
-	if args.Out == "" {
-		args.Out = "validate.gh.go"
-	}
 	fh, err := os.Create(filepath.Join(args.Dir, args.Out))
 	if err != nil {
 		return fmt.Errorf("creating file: %w", err)
