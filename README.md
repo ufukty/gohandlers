@@ -103,7 +103,7 @@ Continue in [Docs > Commands > `yaml`](docs/commands/yaml.md)
    - Use `client` (and `mock`) if you need client-side code for your API.
    - Use `yaml` if you want an external spec overview.
 
-3. **Integrate into build/test:** Many projects add gohandlers to a Makefile or a code generation script, so it runs whenever types or handlers change. It’s also common to check in the generated `.gh.go` files so that others can use the client library without generating it themselves. Just remember to regenerate when you make changes.
+3. **Integrate into build/test:**  Projects are meant to add gohandlers to a Makefile or a code generation script, so it runs whenever types or handlers change. It’s also common to check in the generated `.gh.go` files so that others can use the client library without generating it themselves. Just remember to regenerate when you make changes.
 
 4. **Use generated code:** In your server, call `bq.Parse(r)` at the top of handlers to get a filled request struct; use `bs.Write(w)` to output responses. In other services (or even the same codebase), use the `Client` to make requests in a type-safe way. In tests, use `Mock` to simulate server behavior.
 
@@ -140,7 +140,7 @@ To better utilize gohandlers, it helps to know how it identifies handlers and ty
 
 - **Path Generation:** If you don’t supply a path via comment, gohandlers will generate one from the handler name and any `route` tags. It strips common verbs (`Get, Create, Update, Delete`) and uses the remainder as the resource. For example, `GetProfile` becomes `/profile`. If `CreateMember` has a route param `supervisor`, the path might become `/member/{supervisor}`. This is an inference to follow REST conventions (but you can always override by providing a full path in a top comment).
 
-- **Conflict Detection:** gohandlers will alert you (probably via console logs or comments) if it detects conflicting paths or methods (like two handlers inferred to have the same path/method). This helps maintain clarity as your API grows.
+- **Conflict Detection:** gohandlers will alert you if it detects conflicting paths or methods (like one handler's body/verb inferred method conflicts with the specifed doc method). This helps maintain clarity as your API grows.
 
 ## Full example: Petstore
 
