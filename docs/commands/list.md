@@ -22,7 +22,7 @@ What it generates:
 
 - These functions gather **method and path** from the handlers (using gohandlers’ knowledge of HTTP method and path assignments, see below) and the handler function itself.
 
-- **Custom HandlerInfo:** By default, gohandlers defines its own `HandlerInfo` in each generated file. However, if you want to use a shared type (perhaps your project defines a global route struct), you can provide `-info-pkg "myapp/router"` and `-info-type "HandlerInfo"` flags. Then gohandlers will import your package and use `myapp/router.HandlerInfo` instead in the return type. This can simplify integrating with your router setup.
+- **Custom HandlerInfo:** By default, gohandlers defines its own `HandlerInfo` in each generated file. However, if you want to use a shared type (perhaps your project defines a global route struct), you can provide `-hi-import "myapp/router"` and `-hi-type "HandlerInfo"` flags. Then gohandlers will import your package and use `myapp/router.HandlerInfo` instead in the return type. This can simplify integrating with your router setup.
 
 ## What it solves?
 
