@@ -1,0 +1,185 @@
+:root {
+  color-scheme: light dark;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  font-weight: inherit;
+  scroll-margin-top: 20px;
+}
+
+html {
+  font-size: 16px;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: light-dark(#444, #aaa);
+  background-color: light-dark(#fff, #191a1b);
+  line-height: 2;
+  font-weight: 400;
+  scroll-behavior: smooth;
+  scroll-margin-top: 70px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+
+h1 {
+  --heading-order: 1;
+  font-size: 1.4rem
+}
+
+h2 {
+  --heading-order: 2;
+  font-size: 1.2rem
+}
+
+h3 {
+  --heading-order: 3;
+  font-size: 1.1rem
+}
+
+h4 {
+  --heading-order: 4;
+}
+
+h5 {
+  --heading-order: 5;
+}
+
+h6 {
+  --heading-order: 6;
+}
+
+p {
+  --heading-order: 7;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+}
+
+h1:not(:first-child),
+h2:not(:first-child),
+h3:not(:first-child),
+h4:not(:first-child),
+h5:not(:first-child),
+h6:not(:first-child),
+p:not(:first-child) {
+  margin: calc(((7 - var(--heading-order)) / 6 + 1) * 10px) 0;
+}
+
+footer {
+  width: 100%;
+  padding: 20px 20px 100px;
+  border-top: 0.5px solid #eee;
+}
+
+html {
+  width: 100%;
+}
+
+.site-wide-note {
+  padding: 10px 20px;
+  background-color: light-dark(#f6e0ff, #280039);
+  color: light-dark(#7a08aa, #e4a4ff);
+  text-align: center;
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+body {
+  width: 100%;
+  padding-bottom: 200px;
+
+  #markdown-page-column-layout {
+    padding: 20px;
+
+    @media screen and (width<700px) {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+
+      &>header {
+        display: contents;
+      }
+    }
+
+    @media screen and (700px<=width) and (width<1400px) {
+      display: grid;
+      grid-template-columns: min-content 1fr;
+      justify-content: left;
+      align-items: start;
+      gap: 20px;
+
+      position: relative;
+
+      &>header {
+        grid-column: 1 / 2;
+        grid-row: 1 / 2;
+
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      &>main {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        overflow-x: hidden;
+      }
+    }
+
+    @media screen and (1400px<=width) {
+      display: grid;
+      grid-template-columns: auto min-content auto;
+      justify-content: space-between;
+      align-items: start;
+      gap: 20px;
+
+      position: relative;
+
+      &>header {
+        display: contents;
+
+        &>nav#sitemap {
+          grid-column: 1 / 2;
+          grid-row: 1 / 2;
+          position: sticky;
+          top: 20px;
+        }
+
+        &>nav#toc {
+          grid-column: 3 / 4;
+          grid-row: 1 / 2;
+          position: sticky;
+          top: 20px;
+        }
+      }
+
+      &>main {
+        grid-column: 2 / 3;
+        grid-row: 1 / 2;
+        overflow-x: hidden;
+        justify-self: center;
+      }
+    }
+  }
+}
