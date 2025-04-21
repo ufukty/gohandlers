@@ -2,23 +2,23 @@
 
 Generates a Go file (default `bindings.gh.go`) containing `Build`, `Parse` and `Write` methods for each “binding” struct in your code. **Binding structs** are simply your request and response types for handlers that contains route, query, form or json values as fields.
 
-- **`Parse` Methods:** For each request binding (suffix `Request`) and response binding (suffix `Response`), a method is generated to populate that struct from an `*http.Request` or `*http.Response`. This reads URL path parameters, query parameters, form data, or JSON bodies as needed, and converts them to the correct types:
+-   **`Parse` Methods:** For each request binding (suffix `Request`) and response binding (suffix `Response`), a method is generated to populate that struct from an `*http.Request` or `*http.Response`. This reads URL path parameters, query parameters, form data, or JSON bodies as needed, and converts them to the correct types:
 
-  ```go
-  func (req *XRequest) Parse(r *http.Request) error    // populates XRequest from HTTP request
-  func (res *XResponse) Parse(r *http.Response) error  // populates XResponse from HTTP response
-  ```
+    ```go
+    func (req *XRequest) Parse(r *http.Request) error    // populates XRequest from HTTP request
+    func (res *XResponse) Parse(r *http.Response) error  // populates XResponse from HTTP response
+    ```
 
-  _Example:_ If `XRequest` has a field tagged `route:"id"`, the generated `Parse` will extract `id` from the URL path. Fields tagged `query:"q"` come from `r.URL.Query()`, and `json:"field"` from the JSON body, etc.. This ensures each part of the request (route, query, form, JSON) is handled appropriately, and errors (like missing or invalid values) are propagated.
+    _Example:_ If `XRequest` has a field tagged `route:"id"`, the generated `Parse` will extract `id` from the URL path. Fields tagged `query:"q"` come from `r.URL.Query()`, and `json:"field"` from the JSON body, etc.. This ensures each part of the request (route, query, form, JSON) is handled appropriately, and errors (like missing or invalid values) are propagated.
 
-- **`Build` / `Write` Methods:** For request bindings, `Build` creates an `*http.Request` ready to send (with method, URL, query params, JSON body, etc.). For response bindings, `Write` writes the data to an `http.ResponseWriter` (sets headers like Content-Type, writes the body):
+-   **`Build` / `Write` Methods:** For request bindings, `Build` creates an `*http.Request` ready to send (with method, URL, query params, JSON body, etc.). For response bindings, `Write` writes the data to an `http.ResponseWriter` (sets headers like Content-Type, writes the body):
 
-  ```go
-  func (req XRequest) Build(host string) (*http.Request, error)
-  func (res XResponse) Write(w http.ResponseWriter) error
-  ```
+    ```go
+    func (req XRequest) Build(host string) (*http.Request, error)
+    func (res XResponse) Write(w http.ResponseWriter) error
+    ```
 
-  When calling `Build`, you provide a `host` (because Go’s `http.NewRequest` needs a URL). The returned request is ready to be sent (with all fields serialized properly). Similarly, `Write` on a response binding will serialize that struct (as JSON, form data, etc.) and write to the HTTP response in a handler context.
+    When calling `Build`, you provide a `host` (because Go’s `http.NewRequest` needs a URL). The returned request is ready to be sent (with all fields serialized properly). Similarly, `Write` on a response binding will serialize that struct (as JSON, form data, etc.) and write to the HTTP response in a handler context.
 
 ## What it solves?
 

@@ -94,11 +94,11 @@ func main() {
   pets := client.NewClient(pool)
 
   resp, err := pets.CreatePet(&pets.CreatePetRequest{
-      Name: "Doge",
-      Tag:  "meme",
+    Name: "Doge",
+    Tag:  "meme",
   })
   if err != nil {
-      //
+    //
   }
   fmt.Println("New pet ID:", resp.ID)
 }

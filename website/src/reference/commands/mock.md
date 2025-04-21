@@ -2,8 +2,8 @@
 
 Generates a Go file (default `mock.gh.go`) with two things:
 
-- An **interface** that your `Client` implements (all the methods generated in `client`).
-- A **mock client struct** that also implements this interface, but allows you to customize behavior for testing.
+-   An **interface** that your `Client` implements (all the methods generated in `client`).
+-   A **mock client struct** that also implements this interface, but allows you to customize behavior for testing.
 
 ## Why `mock`?
 
@@ -41,29 +41,28 @@ Generates a [`client/mock.gh.go`](https://github.com/ufukty/gohandlers-petstore/
 
 ```go
 type Interface interface {
-	CreatePet(*pets.CreatePetRequest) (*pets.CreatePetResponse, error)
-	DeletePet(*pets.DeletePetRequest) (*http.Response, error)
-	GetPet(*pets.GetPetRequest) (*pets.GetPetResponse, error)
-	ListPets(*pets.ListPetsRequest) (*pets.ListPetsResponse, error)
+  CreatePet(*pets.CreatePetRequest) (*pets.CreatePetResponse, error)
+  DeletePet(*pets.DeletePetRequest) (*http.Response, error)
+  GetPet(*pets.GetPetRequest) (*pets.GetPetResponse, error)
+  ListPets(*pets.ListPetsRequest) (*pets.ListPetsResponse, error)
 }
 
-type Mock struct {
-}
+type Mock struct {}
 
 func (m *Mock) CreatePet(*pets.CreatePetRequest) (*pets.CreatePetResponse, error) {
-	return nil, nil
+  return nil, nil
 }
 
 func (m *Mock) DeletePet(*pets.DeletePetRequest) (*http.Response, error) {
-	return nil, nil
+  return nil, nil
 }
 
 func (m *Mock) GetPet(*pets.GetPetRequest) (*pets.GetPetResponse, error) {
-	return nil, nil
+  return nil, nil
 }
 
 func (m *Mock) ListPets(*pets.ListPetsRequest) (*pets.ListPetsResponse, error) {
-	return nil, nil
+  return nil, nil
 }
 
 ```
