@@ -4,7 +4,7 @@
 
 <img src="assets/logo@3x.png" width="256px">
 
-Visit [gohandlers.pages.dev](gohandlers.pages.dev) for documentation.
+Visit [gohandlers.pages.dev](https://gohandlers.pages.dev) for documentation.
 
 ## License
 
