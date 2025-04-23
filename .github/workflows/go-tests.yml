@@ -1,0 +1,23 @@
+name: go tests
+
+on:
+  push: {}
+  pull_request: {}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out code
+        uses: actions/checkout@v3
+
+      - name: set up go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.24.2"
+
+      - name: get dependencies
+        run: go mod download
+
+      - name: run tests
+        run: go test ./...
