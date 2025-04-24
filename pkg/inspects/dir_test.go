@@ -3,7 +3,9 @@ package inspects
 import (
 	"fmt"
 	"go/ast"
+	"maps"
 	"net/http"
+	"os"
 	"slices"
 	"strings"
 	"testing"
@@ -214,5 +216,19 @@ func TestHandlerMethod(t *testing.T) {
 				t.Log(strings.Join(complaints, "\n"))
 			}
 		})
+	}
+}
+
+func TestDir_petstore(t *testing.T) {
+	os.Stderr, _ = os.Open(os.DevNull) // silence printed errors
+
+	infoss, _, err := Dir("testdata/petstore", false)
+	if err != nil {
+		t.Fatalf("act: Dir: %v", err)
+	}
+
+	petstore := first(maps.Values(infoss))
+	if l := len(petstore); l != 4 {
+		t.Fatalf("expected 4 got %d", l)
 	}
 }
