@@ -6,6 +6,8 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"iter"
+	"maps"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -15,8 +17,16 @@ import (
 	"strings"
 	"unicode"
 
-	"golang.org/x/exp/maps"
+	"github.com/ufukty/gohandlers/pkg/inspects/join"
 )
+
+func first[E any](i iter.Seq[E]) (e E) {
+	i(func(v E) bool {
+		e = v
+		return false
+	})
+	return
+}
 
 var (
 	NOTICE  = "\033[34m" + "notice" + "\033[0m"
@@ -120,7 +130,8 @@ func bti(rqtn string, ts *ast.TypeSpec) (*BindingTypeInfo, error) {
 
 	if len(bti.Params.Json) > 0 && len(bti.Params.Form) > 0 {
 		return nil, fmt.Errorf("determining Content Type for body: both json {%s} and form {%s} tagged fields found",
-			strings.Join(maps.Values(bti.Params.Json), ", "), strings.Join(maps.Values(bti.Params.Form), ", "),
+			join.Values(bti.Params.Json, ", "),
+			join.Values(bti.Params.Form, ", "),
 		)
 	}
 
@@ -376,7 +387,7 @@ func checkHandlerPathInDoc(doc Doc, rti *BindingTypeInfo) (missing []string) {
 		return
 	}
 	words := strings.Split(strings.TrimPrefix(doc.Path, "/"), "/")
-	for _, param := range maps.Keys(rti.Params.Route) {
+	for param := range maps.Keys(rti.Params.Route) {
 		if !slices.Contains(words, fmt.Sprintf("{%s}", param)) {
 			missing = append(missing, param)
 		}
@@ -419,11 +430,11 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 	}
 
 	if len(d) > 1 {
-		return nil, "", fmt.Errorf("found more than one packages: %s", strings.Join(maps.Keys(d), ", "))
+		return nil, "", fmt.Errorf("found more than one packages: %s", join.Keys(d, ", "))
 	} else if len(d) == 0 {
 		return nil, "", fmt.Errorf("no packages found")
 	}
-	p := d[maps.Keys(d)[0]]
+	p := d[first(maps.Keys(d))]
 
 	infoss := map[Receiver]map[string]Info{}
 	for fn, f := range p.Files {
@@ -491,5 +502,5 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 		}
 	}
 
-	return infoss, maps.Values(p.Files)[0].Name.Name, nil
+	return infoss, first(maps.Values(p.Files)).Name.Name, nil
 }
