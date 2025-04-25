@@ -9,12 +9,11 @@ import (
 	"go/token"
 	"io"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
 	"github.com/ufukty/gohandlers/pkg/inspects"
-
-	"golang.org/x/exp/slices"
 )
 
 func quotes(src string) string {
