@@ -1,20 +1,18 @@
 {{define "sitemap-item"}}
 {{with .}}
 <ul>
-  {{if .Visitable}}
-  <a href="/{{.TargetInSitePath}}">{{.Title}}</a>
+  {{if ne .Href ""}}
+  <a href="{{.Href}}">{{.Title}}</a>
   {{else}}
   <span>{{.Title}}</span>
   {{end}}
-  {{range .Subsections}}
-  <li>{{template "sitemap-item" .}}</li>{{end}}
-  {{range .Subpages}}
+  {{range .Children}}
   <li>{{template "sitemap-item" .}}</li>{{end}}
 </ul>
 {{end}}
 {{end}}
 
-{{define "page"}}
+{{define "markdown-page"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -43,12 +41,12 @@
           <details open>
             <summary>Site map</summary>
             <div class="summarized">
-              {{template "sitemap-item" .WebSiteRoot}}
+              {{template "sitemap-item" .Root}}
             </div>
           </details>
         </nav>
 
-        {{with .MarkdownTOC}}
+        {{with .Markdown.Toc}}
         <nav id="toc">
           <details open>
             <summary>In this page</summary>
@@ -108,7 +106,7 @@
       </script>
 
       <main class="markdown">
-        {{.MarkdownContent}}
+        {{.Markdown.Content}}
       </main>
 
     </div>
