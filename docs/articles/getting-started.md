@@ -1,4 +1,4 @@
-# Getting Started with gohandlers: Build HTTP APIs in Go—Effortlessly!
+# 🎉 Getting Started
 
 Building HTTP APIs in Go is powerful, but repetitive boilerplate often sneaks into your handlers, validation, and routing setup. Wouldn't it be great if you could automate away that tedious code?
 
@@ -20,6 +20,8 @@ Here's the beauty of gohandlers at a glance:
 
 Sounds good? Let’s set it up!
 
+Use these validators inside your handlers to quickly return precise validation errors.
+
 ## 🚧 Installation
 
 Install the gohandlers CLI with one simple Go command:
@@ -38,7 +40,7 @@ gohandlers
 
 If you see list of available commands, you're all set!
 
-## 🗂️ Set Up Your Project Structure
+## 🗂️ Project Structure
 
 Let's create a minimal project to see gohandlers in action:
 
@@ -63,12 +65,13 @@ petstore/
 
 Each handler file will define request and response structs, along with handler logic.
 
-## 🧩 Define Your Request and Response Structs
+## 🧩 Binding types
 
 Create simple Go structs with clear field tags to describe your HTTP inputs and outputs:
 
 -   Use `json` tags for request/response bodies.
--   Use `route` and `query` tags for URL parameters (we'll see these next!).
+-   Use `route` and `query` tags for URL parameters
+-   Use `form` tags to map form fields.
 
 ```go
 // handlers/pets/create.go
@@ -111,7 +114,7 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 
 No parsing, validation, or serialization logic is needed—gohandlers handles it automatically.
 
-## 🚀 Generate Your HTTP Bindings
+## 🤙 Generate `Parse`, `Write` and `Build` Helpers for Binding Types
 
 Run the `bindings` command to auto-generate serialization/deserialization code:
 
@@ -129,7 +132,7 @@ func (resp CreatePetResponse) Write(w http.ResponseWriter) error { /* ... */ }
 
 Your handlers can now directly parse requests and write responses effortlessly!
 
-## 🛡️ Add Effortless Validation
+## ✅ Add Effortless Validation
 
 gohandlers also automates validation generation:
 
@@ -148,35 +151,6 @@ func (req CreatePetRequest) Validate() map[string]error {
   return errs
 }
 ```
-
-Use these validators inside your handlers to quickly return precise validation errors.
-
-## 🎯 Write Simple, Consistent Handlers
-
-Here’s your handler, simplified and elegant:
-
-```go
-func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
-  req := &CreatePetRequest{}
-
-  if err := req.Parse(r); err != nil {
-    //
-  }
-
-  if errs := req.Validate(); len(errs) > 0 {
-    //
-  }
-
-  id := uuid.New().String() // Simulate DB insertion
-  resp := &CreatePetResponse{ID: id}
-
-  if err := resp.Write(w); err != nil {
-    //
-  }
-}
-```
-
-Your handler is clean, readable, and easy to maintain!
 
 ## 🗺️ Automatic Handler Registration
 
