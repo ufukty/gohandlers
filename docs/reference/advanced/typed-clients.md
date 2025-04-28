@@ -1,4 +1,4 @@
-# Generating Typed HTTP Clients with gohandlers
+# 🤙 Generating Clients
 
 Building an HTTP API is only half the battle. The other half? **Consuming it safely and efficiently.**
 

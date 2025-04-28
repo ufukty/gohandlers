@@ -2,7 +2,7 @@
 >
 > Functionality in this post is in consideration and is not currently under development.
 
-# Testing Your API with Generated Mock Clients in gohandlers
+# 🧪 Testing Clients
 
 When building an HTTP API, it’s crucial to test the layers _around_ your HTTP handlers: the business logic, the services, the integrations. But if your code depends on a real HTTP client to call your own API, testing can get messy and slow—requiring servers, requests, responses, and a lot of setup.
 

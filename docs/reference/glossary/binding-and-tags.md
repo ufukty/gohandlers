@@ -1,4 +1,4 @@
-# Understanding Binding Structs and Tags in gohandlers
+# Bindings and Tags
 
 At the heart of **gohandlers** is a simple, powerful idea: your Go structs define your API.
 

@@ -1,4 +1,4 @@
-# Core Concepts: Overview
+# Core Concepts
 
 Understand the foundational principles behind **gohandlers**, including how it covers request/response bindings, validation, handler listing, client generation, and mocking—so you can design your APIs in alignment with its core abstractions.
 

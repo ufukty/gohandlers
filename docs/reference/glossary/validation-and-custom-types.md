@@ -1,4 +1,4 @@
-# Understanding Validation & Custom Types in gohandlers
+# Validation & Custom Types
 
 One of the most powerful features of **gohandlers** is its ability to generate consistent and thorough validation logic—without adding extra boilerplate to your handlers. This is made possible by a combination of **validation-aware request structs** and support for **custom types** that encapsulate their own parsing and checking rules.
 

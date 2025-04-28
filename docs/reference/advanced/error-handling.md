@@ -1,4 +1,4 @@
-# Error Handling & Customization Patterns in gohandlers
+# 🧨 Error Handling
 
 Error handling in HTTP APIs is one of the most nuanced parts of backend development. You want to be descriptive but secure, structured but flexible, and consistent across hundreds of endpoints.
 
