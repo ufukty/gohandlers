@@ -2,9 +2,13 @@
 
 set -ve
 
-git fetch --tags --quiet
-git checkout "$(git tag --list 'v*' | sort -Vr | head -n 1)"
-go install ./cmd/kask
+(
+  cd "$(mktemp)"
+  git clone github.com/ufukty/kask
+  cd kask
+  git fetch --tags --quiet
+  git checkout "$(git tag --list 'v*' | sort -Vr | head -n 1)"
+  go install ./cmd/kask
+)
 
-git checkout dev --
 $(go env GOPATH)/bin/kask build -in docs -out docs-build -domain / -v
