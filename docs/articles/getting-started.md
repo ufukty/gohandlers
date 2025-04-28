@@ -6,6 +6,8 @@ Meet **gohandlers**, your new best friend for creating robust, maintainable, and
 
 This comprehensive, friendly guide will help you quickly and confidently get started with gohandlers, step-by-step. Let's dive right in!
 
+---
+
 ## ✨ What is gohandlers, Anyway?
 
 **gohandlers** is a code-generation tool designed to remove boilerplate when building HTTP handlers in Go. It automatically generates serialization, validation, routing, clients, and mocks—freeing you to focus purely on your business logic.
@@ -21,6 +23,8 @@ Here's the beauty of gohandlers at a glance:
 Sounds good? Let’s set it up!
 
 Use these validators inside your handlers to quickly return precise validation errors.
+
+---
 
 ## 🚧 Installation
 
@@ -39,6 +43,8 @@ gohandlers
 ```
 
 If you see list of available commands, you're all set!
+
+---
 
 ## 🗂️ Project Structure
 
@@ -64,6 +70,8 @@ petstore/
 ```
 
 Each handler file will define request and response structs, along with handler logic.
+
+---
 
 ## 🧩 Binding types
 
@@ -114,6 +122,8 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 
 No parsing, validation, or serialization logic is needed—gohandlers handles it automatically.
 
+---
+
 ## 🤙 Generate `Parse`, `Write` and `Build` Helpers for Binding Types
 
 Run the `bindings` command to auto-generate serialization/deserialization code:
@@ -131,6 +141,8 @@ func (resp CreatePetResponse) Write(w http.ResponseWriter) error { /* ... */ }
 ```
 
 Your handlers can now directly parse requests and write responses effortlessly!
+
+---
 
 ## ✅ Add Effortless Validation
 
@@ -151,6 +163,8 @@ func (req CreatePetRequest) Validate() map[string]error {
   return errs
 }
 ```
+
+---
 
 ## 🗺️ Automatic Handler Registration
 
@@ -177,6 +191,8 @@ func main() {
 ```
 
 Voila! All your handlers are registered automatically.
+
+---
 
 ## 🏁 Run Your Server
 
@@ -209,6 +225,8 @@ You'll receive a JSON response:
 
 Congrats! You've successfully set up your first gohandlers-based API endpoint.
 
+---
+
 ## 🎁 Generate Typed API Clients (Bonus!)
 
 Let’s not forget clients. Generate strongly typed Go clients for your API consumers:
@@ -223,6 +241,8 @@ Your consumers will love how easy it is to interact with your API:
 client := client.NewClient(client.StaticPool("http://localhost:8080"))
 resp, err := client.CreatePet(ctx, dto.Pet{Name: "Buddy", Tag: "dog"})
 ```
+
+---
 
 ## 🧪 Mock Clients for Simple Testing
 
@@ -242,6 +262,8 @@ mock.CreatePetFunc = func(ctx context.Context, dto dto.Pet) (*CreatePetResponse,
 ```
 
 Your unit tests become simple, predictable, and maintainable!
+
+---
 
 ## 🎯 Final Thoughts: Why Use gohandlers?
 
