@@ -1,4 +1,4 @@
-# The Gohandler Way
+# 🎸 The Gohandler Way
 
 Writing HTTP handlers in Go is straightforward—but repetitive boilerplate often creeps into your codebase. **gohandlers** simplifies this significantly by providing a consistent, maintainable approach to handler creation and management.
 
