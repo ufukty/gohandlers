@@ -4,7 +4,7 @@ set -ve
 
 (
   cd "$(mktemp -d)"
-  git clone github.com/ufukty/kask
+  git clone https://github.com/ufukty/kask
   cd kask
   git fetch --tags --quiet
   git checkout "$(git tag --list 'v*' | sort -Vr | head -n 1)"
