@@ -3,7 +3,7 @@
 set -ve
 
 (
-  cd "$(mktemp)"
+  cd "$(mktemp -d)"
   git clone github.com/ufukty/kask
   cd kask
   git fetch --tags --quiet
