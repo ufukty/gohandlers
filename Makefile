@@ -25,5 +25,8 @@ README.toc.md: README.md
 	pandoc -s --toc --toc-depth=6 --wrap=preserve README.md -o README.toc.md
 	gsed --in-place 's/{.*}//g' README.toc.md
 
-all:
-	$(MAKE) -C website
+docs-build: $(shell find docs -type f)
+	rm -rfv build
+	kask build -in docs -out docs-build -domain / -v
+
+all: docs-build
