@@ -7,7 +7,13 @@ body {
   p:not(:has(img)),
   li:not(:has(pre)),
   blockquote {
-    max-width: 600px
+    max-width: 600px;
+  }
+
+  >p:not(:has(img)),
+  >li:not(:has(pre)),
+  >blockquote {
+    width: min(100%, 600px);
   }
 
   >p:has(img),

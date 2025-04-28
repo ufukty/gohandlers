@@ -149,7 +149,7 @@ body {
 
     @media screen and (1400px<=width) {
       display: grid;
-      grid-template-columns: minmax(200px, 1fr) auto minmax(200px, 1fr);
+      grid-template-columns: 350px 1fr 350px;
       justify-content: space-between;
       align-items: start;
       gap: 20px;
@@ -177,7 +177,6 @@ body {
       &>main {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
-        overflow-x: hidden;
         justify-self: center;
       }
     }
