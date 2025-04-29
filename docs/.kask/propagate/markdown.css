@@ -129,7 +129,7 @@ body {
       width: 1.6rem;
       height: 1.6rem;
       padding: 0.45rem 0 0.35rem 0;
-      margin-top: -0.15rem;
+      margin-top: 0.15rem;
 
       background-color: light-dark(black, #ddd);
       color: light-dark(white, black);
