@@ -1,4 +1,4 @@
-# `bindings`
+# ✱ `bindings`
 
 Generates a Go file (default `bindings.gh.go`) containing `Build`, `Parse` and `Write` methods for each “binding” struct in your code. **Binding structs** are simply your request and response types for handlers that contains route, query, form or json values as fields.
 

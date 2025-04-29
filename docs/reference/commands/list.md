@@ -1,28 +1,28 @@
-# `list`
+# ✱ `list`
 
 Generates a Go file (default `list.gh.go`) with a function or methods to **list all handlers and their metadata** (like method and path). This is extremely useful to automatically register your handlers with a router (e.g., `http.ServeMux` or any router library) without manually writing each route.
 
 What it generates:
 
-- **Global `ListHandlers` function:** If you have any free functions (not methods) that serve as handlers, it generates:
+-   **Global `ListHandlers` function:** If you have any free functions (not methods) that serve as handlers, it generates:
 
-  ```go
-  func ListHandlers() map[string]HandlerInfo { ... }
-  ```
+    ```go
+    func ListHandlers() map[string]HandlerInfo { ... }
+    ```
 
-  where `HandlerInfo` is a struct containing at least `Method`, `Path`, and `Ref` (the handler function). The map key is usually a unique name for the handler (like `"CreatePet"`).
+    where `HandlerInfo` is a struct containing at least `Method`, `Path`, and `Ref` (the handler function). The map key is usually a unique name for the handler (like `"CreatePet"`).
 
-- **`ListHandlers` methods on receiver types:** If you have handlers defined as methods on structs (e.g., `func (p *Pets) CreatePet(...)`), it will generate a `ListHandlers()` method for each such receiver type:
+-   **`ListHandlers` methods on receiver types:** If you have handlers defined as methods on structs (e.g., `func (p *Pets) CreatePet(...)`), it will generate a `ListHandlers()` method for each such receiver type:
 
-  ```go
-  func (p *Pets) ListHandlers() map[string]HandlerInfo { ... }
-  ```
+    ```go
+    func (p *Pets) ListHandlers() map[string]HandlerInfo { ... }
+    ```
 
-  This map will include entries for all handlers that have receiver `*Pets`.
+    This map will include entries for all handlers that have receiver `*Pets`.
 
-- These functions gather **method and path** from the handlers (using gohandlers’ knowledge of HTTP method and path assignments, see below) and the handler function itself.
+-   These functions gather **method and path** from the handlers (using gohandlers’ knowledge of HTTP method and path assignments, see below) and the handler function itself.
 
-- **Custom HandlerInfo:** By default, gohandlers defines its own `HandlerInfo` in each generated file. However, if you want to use a shared type (perhaps your project defines a global route struct), you can provide `-hi-import "myapp/router"` and `-hi-type "HandlerInfo"` flags. Then gohandlers will import your package and use `myapp/router.HandlerInfo` instead in the return type. This can simplify integrating with your router setup.
+-   **Custom HandlerInfo:** By default, gohandlers defines its own `HandlerInfo` in each generated file. However, if you want to use a shared type (perhaps your project defines a global route struct), you can provide `-hi-import "myapp/router"` and `-hi-type "HandlerInfo"` flags. Then gohandlers will import your package and use `myapp/router.HandlerInfo` instead in the return type. This can simplify integrating with your router setup.
 
 ## What it solves?
 

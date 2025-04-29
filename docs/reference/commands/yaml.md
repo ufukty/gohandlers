@@ -1,4 +1,4 @@
-# `yaml`
+# ✱ `yaml`
 
 Generates a YAML file (default `gh.yml`) that lists handlers, their HTTP methods, and paths. This is like a lightweight documentation or can be seen as a mini OpenAPI output. It’s useful if other services or tools (not written in Go) need to know about your API.
 
@@ -6,17 +6,17 @@ The YAML might look like:
 
 ```yaml
 CreatePet:
-  method: POST
-  path: /create-pet
+    method: POST
+    path: /create-pet
 DeletePet:
-  method: DELETE
-  path: /pets/{id}
+    method: DELETE
+    path: /pets/{id}
 GetPet:
-  method: GET
-  path: /pets/{id}
+    method: GET
+    path: /pets/{id}
 ListPets:
-  method: GET
-  path: /pets
+    method: GET
+    path: /pets
 ```
 
 _(The exact structure can be observed in the petstore example in the repository.)_

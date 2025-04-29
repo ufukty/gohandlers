@@ -1,39 +1,39 @@
-# `client`
+# ✱ `client`
 
 Generates a Go file (default `client.gh.go`) containing a **Client struct** and one method per handler function. These methods construct HTTP requests using your binding types and send them, returning the response (either raw or parsed into a response binding).
 
-- **Generated Client Structure:** The client has a simple pool-based design for obtaining host URLs:
+-   **Generated Client Structure:** The client has a simple pool-based design for obtaining host URLs:
 
-  ```go
-  type Pool interface {
-    Host() (string, error)
-  }
+    ```go
+    type Pool interface {
+      Host() (string, error)
+    }
 
-  type Client struct {
-    p Pool
-  }
+    type Client struct {
+      p Pool
+    }
 
-  func NewClient(p Pool) *Client {
-    return &Client{p: p}
-  }
-  ```
+    func NewClient(p Pool) *Client {
+      return &Client{p: p}
+    }
+    ```
 
-  You supply a `Pool` (which could be as simple as a struct with a `Host()` that returns a constant base URL, or something more sophisticated for load balancing).
+    You supply a `Pool` (which could be as simple as a struct with a `Host()` that returns a constant base URL, or something more sophisticated for load balancing).
 
-- **Generated Methods:** For each handler, the client has a similarly named method. It takes a pointer to the request struct and returns either a pointer to the response struct (if one is defined) or an `*http.Response` (if no response binding exists). Example:
+-   **Generated Methods:** For each handler, the client has a similarly named method. It takes a pointer to the request struct and returns either a pointer to the response struct (if one is defined) or an `*http.Response` (if no response binding exists). Example:
 
-  ```go
-  func (c *Client) CreatePet(req *pets.CreatePetRequest) (*pets.CreatePetResponse, error)
-  func (c *Client) DeletePet(req *pets.DeletePetRequest) (*http.Response, error)
-  ```
+    ```go
+    func (c *Client) CreatePet(req *pets.CreatePetRequest) (*pets.CreatePetResponse, error)
+    func (c *Client) DeletePet(req *pets.DeletePetRequest) (*http.Response, error)
+    ```
 
-  Under the hood, these methods will:
+    Under the hood, these methods will:
 
-  1. Call `c.p.Host()` to get the base URL.
-  2. Call `req.Build(host)` to get an `*http.Request`.
-  3. Use `http.DefaultClient.Do(request)` to perform the HTTP call.
-  4. Check for non-200 status codes and return errors accordingly.
-  5. If there’s a response struct (`CreatePetResponse` in this case), instantiate it and [call](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/client/client.gh.go#L40) `.Parse(response)` to populate it, then return it.
+    1. Call `c.p.Host()` to get the base URL.
+    2. Call `req.Build(host)` to get an `*http.Request`.
+    3. Use `http.DefaultClient.Do(request)` to perform the HTTP call.
+    4. Check for non-200 status codes and return errors accordingly.
+    5. If there’s a response struct (`CreatePetResponse` in this case), instantiate it and [call](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/client/client.gh.go#L40) `.Parse(response)` to populate it, then return it.
 
 ## What it solves?
 

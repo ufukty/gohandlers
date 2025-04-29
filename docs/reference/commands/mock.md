@@ -1,4 +1,4 @@
-# `mock`
+# ✱ `mock`
 
 Generates a Go file (default `mock.gh.go`) with two things:
 
