@@ -1,6 +1,6 @@
-# Automatic ServeMux Registration
+# 📦 `ServeMux` Integration
 
-Routing in Go web applications can quickly become a tangled web of `mux.HandleFunc(...)` calls, especially as your API grows. Keeping route paths, handler names, and HTTP methods in sync across documentation and implementation can become a serious source of bugs and drift.
+Routing in Go web applications can quickly become a tangled web of `s.HandleFunc(...)` calls, especially as your API grows. Keeping route paths, handler names, and HTTP methods in sync across documentation and implementation can become a serious source of bugs and drift.
 
 **Gohandlers** eliminates this problem by embracing a **metadata-driven approach** to routing—automatically generating handler registrations based on your code’s structure and field tags. In this article, we’ll walk through how it works, how to use it, and how it keeps your server and docs perfectly in sync.
 
@@ -11,10 +11,10 @@ Routing in Go web applications can quickly become a tangled web of `mux.HandleFu
 Here’s what typical manual routing might look like:
 
 ```go
-mux := http.NewServeMux()
-mux.HandleFunc("/pets", listPetsHandler)
-mux.HandleFunc("/pets/{id}", getPetHandler)
-mux.HandleFunc("/pets", createPetHandler) // different method!
+s := http.NewServeMux()
+s.HandleFunc("/pets", listPetsHandler)
+s.HandleFunc("/pets/{id}", getPetHandler)
+s.HandleFunc("/pets", createPetHandler) // different method!
 ```
 
 Issues this introduces:
@@ -95,9 +95,9 @@ Each `HandlerInfo` struct includes:
 You can now wire up all routes in one consistent loop:
 
 ```go
-mux := http.NewServeMux()
+s := http.NewServeMux()
 for _, h := range myHandler.ListHandlers() {
-  mux.HandleFunc(h.Path, h.Ref)
+  s.HandleFunc(h.Path, h.Ref)
 }
 ```
 
@@ -107,7 +107,7 @@ for _, h := range myHandler.ListHandlers() {
 
 -   **No manual route wiring:** Paths and handlers stay in sync with your code.
 -   **No route duplication bugs:** Each handler is defined only once.
--   **Cleaner `main.go`:** No clutter of `mux.HandleFunc(...)` calls.
+-   **Cleaner `main.go`:** No clutter of `s.HandleFunc(...)` calls.
 -   **Perfect doc generation:** Routes and methods are exported to a YAML file (`gh.yml`) for use in documentation or tooling.
 
 ---
