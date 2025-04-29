@@ -93,17 +93,6 @@ html {
   width: 100%;
 }
 
-.site-wide-note {
-  padding: 10px 20px;
-  background-color: light-dark(#f6e0ff, #280039);
-  color: light-dark(#7a08aa, #e4a4ff);
-  text-align: center;
-
-  a {
-    text-decoration: underline;
-  }
-}
-
 body {
   width: 100%;
   padding-bottom: 200px;
