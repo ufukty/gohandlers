@@ -40,7 +40,7 @@ You use a **mock client**—one that pretends to be the real thing, but behaves 
 To generate mocks for your typed API client, run:
 
 ```bash
-Gohandlers mock \
+gohandlers mock \
   --dir handlers/pets \
   --pkg client \
   --out mock.gh.go \

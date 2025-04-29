@@ -36,7 +36,7 @@ Usage of mock:
 Running `Gohandlers mock` similarly to `client`:
 
 ```bash
-Gohandlers mock \
+gohandlers mock \
   -dir handlers/pets \
   -out client/mock.gh.go \
   -pkg client \

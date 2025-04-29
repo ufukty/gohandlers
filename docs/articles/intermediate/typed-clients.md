@@ -39,7 +39,7 @@ Gohandlers solves this by generating a client that knows how to:
 After defining your handlers and binding structs, run:
 
 ```bash
-Gohandlers client \
+gohandlers client \
   --dir handlers/pets \
   --pkg client \
   --out client.gh.go \
@@ -149,7 +149,7 @@ You can then manually inspect headers, body, or status if needed.
 Gohandlers can also generate a mock implementation of the same client interface:
 
 ```bash
-Gohandlers mock \
+gohandlers mock \
   --dir handlers/pets \
   --pkg client \
   --out mock.gh.go \

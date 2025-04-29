@@ -39,7 +39,7 @@ This gives you immediate access to the `Gohandlers` command-line tool.
 Ensure your Go environment (`$GOPATH/bin`) is set in your system’s `PATH`. Check your installation with:
 
 ```bash
-Gohandlers
+gohandlers
 ```
 
 If you see list of available commands, you're all set!
@@ -149,7 +149,7 @@ Your handlers can now directly parse requests and write responses effortlessly!
 Gohandlers also automates validation generation:
 
 ```bash
-Gohandlers validate --dir . --out validate.gh.go --recv Pets --v
+gohandlers validate --dir . --out validate.gh.go --recv Pets --v
 ```
 
 You'll get field-level validators like:
@@ -171,7 +171,7 @@ func (req CreatePetRequest) Validate() map[string]error {
 Stop manually registering your routes! Instead, use the auto-generated handler listing:
 
 ```bash
-Gohandlers list --dir . --out list.gh.go --recv Pets --v
+gohandlers list --dir . --out list.gh.go --recv Pets --v
 ```
 
 Your generated `ListHandlers()` method lets you effortlessly wire everything into your HTTP server:
@@ -232,7 +232,7 @@ Congrats! You've successfully set up your first Gohandlers-based API endpoint.
 Let’s not forget clients. Generate strongly typed Go clients for your API consumers:
 
 ```bash
-Gohandlers client --dir handlers/pets --out client.gh.go --pkg client --v
+gohandlers client --dir handlers/pets --out client.gh.go --pkg client --v
 ```
 
 Your consumers will love how easy it is to interact with your API:
@@ -249,7 +249,7 @@ resp, err := client.CreatePet(ctx, dto.Pet{Name: "Buddy", Tag: "dog"})
 Testing your handlers couldn't be easier:
 
 ```bash
-Gohandlers mock --dir handlers/pets --out mock.gh.go --pkg client --v
+gohandlers mock --dir handlers/pets --out mock.gh.go --pkg client --v
 ```
 
 Now you can mock responses effortlessly:

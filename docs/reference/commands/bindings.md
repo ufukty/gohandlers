@@ -69,7 +69,7 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 Run Gohandlers for bindings in the [`handlers/pets`](https://github.com/ufukty/gohandlers-petstore/tree/main/handlers/pets) directory:
 
 ```bash
-Gohandlers bindings -dir handlers/pets -out bindings.gh.go
+gohandlers bindings -dir handlers/pets -out bindings.gh.go
 ```
 
 This generates [**`handlers/pets/bindings.gh.go`**](https://github.com/ufukty/gohandlers-petstore/blob/main/handlers/pets/bindings.gh.go) with those:

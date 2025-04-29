@@ -55,7 +55,7 @@ Usage of list:
 If [`handlers/pets`](https://github.com/ufukty/gohandlers-petstore/tree/main/handlers/pets) directory has handlers on `*Pets` receiver, after running:
 
 ```bash
-Gohandlers list -dir handlers/pets -out list.gh.go
+gohandlers list -dir handlers/pets -out list.gh.go
 ```
 
 You [get](https://github.com/ufukty/gohandlers-petstore/blob/main/handlers/pets/list.gh.go) something like:

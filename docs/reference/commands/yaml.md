@@ -50,7 +50,7 @@ Usage of yaml:
 You provide the source directory contain your Go handlers and filename that will be created in that directory:
 
 ```bash
-Gohandlers yaml -dir handlers/pets -out gh.yml
+gohandlers yaml -dir . -out gh.yml
 ```
 
 After this, you will get the yaml file just like the one above.
