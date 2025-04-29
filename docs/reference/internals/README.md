@@ -1,4 +1,4 @@
-# Internals: Overview
+# 🔑 Internals
 
 ## AST Parsing of Go Source
 
