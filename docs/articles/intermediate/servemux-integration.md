@@ -1,3 +1,5 @@
+TODO:
+
 # 🧇 `ServeMux` Integration
 
 Routing in Go web applications can quickly become a tangled web of `s.HandleFunc(...)` calls, especially as your API grows. Keeping route paths, handler names, and HTTP methods in sync across documentation and implementation can become a serious source of bugs and drift.
@@ -12,9 +14,9 @@ Here’s what typical manual routing might look like:
 
 ```go
 s := http.NewServeMux()
-s.HandleFunc("/pets", listPetsHandler)
-s.HandleFunc("/pets/{id}", getPetHandler)
-s.HandleFunc("/pets", createPetHandler) // different method!
+s.HandleFunc("GET /pets", listPetsHandler)
+s.HandleFunc("GET /pets/{id}", getPetHandler)
+s.HandleFunc("POST /pets", getPetHandler) // ⚠️ wrong handler
 ```
 
 Issues this introduces:
@@ -30,38 +32,28 @@ Issues this introduces:
 
 Gohandlers generates routing metadata automatically by inspecting:
 
--   Your handler names (e.g., `GetPet`, `ListPets`)
--   Associated request/response structs (`GetPetRequest`, etc.)
--   Tags like `route`, `query`, and `json`
--   Optional documentation comments like `// GET /pets/{id}`
+-   Handler names  
+    (e.g., `GetPet`, `ListPets`)
 
-From this, it generates:
+-   Associated request/response structs  
+    (`GetPetRequest`, `ListPetsResponse`, etc.)
 
-1. **A function that returns all your handlers as a map**
-2. **A YAML file documenting your HTTP surface**
-3. **Everything in sync with your real code**
+-   Field tags of associated request/response structs,  
+    (eg. `route`, `query`, `form` and `json`)
+
+-   Doc comments.  
+    (eg. `// GET /pets/{id}`)
+
+From this, it generates: a file with functions and methods that returns all your handlers as maps. Thus, everything stays in sync with your real code.
 
 ---
 
-## 🔍 How Metadata is Collected
+## 🦺 Automatic Routing Benefits
 
-Gohandlers parses your code and builds a model for each handler, including:
-
--   Handler name (e.g. `CreatePet`)
--   HTTP method (e.g. `POST`)
--   URL path (e.g. `/pets`)
--   Reference to the actual Go handler function
-
-This metadata comes from:
-
-| Source                     | What it provides                            |
-| -------------------------- | ------------------------------------------- |
-| Function names             | Base name of the handler                    |
-| Comments (`// GET /users`) | HTTP method and path if explicitly declared |
-| Tags on struct fields      | Parameters used in URL paths or query       |
-| Struct naming (`XRequest`) | Used to infer method and path               |
-
-If no method or path is declared, Gohandlers uses naming conventions and your binding struct’s `route:` tags to derive them automatically.
+-   **No manual route wiring:** Paths and handlers stay in sync with your code.
+-   **No route duplication bugs:** Each handler is defined only once.
+-   **Cleaner `main.go`:** No clutter of `s.HandleFunc(...)` calls.
+-   **Perfect doc generation:** Routes and methods are exported to a YAML file (`gh.yml`) for use in documentation or tooling.
 
 ---
 
@@ -103,16 +95,28 @@ for _, h := range myHandler.ListHandlers() {
 
 ---
 
-## 🧠 Automatic Routing Benefits
+## 🔍 How Metadata is Collected
 
--   **No manual route wiring:** Paths and handlers stay in sync with your code.
--   **No route duplication bugs:** Each handler is defined only once.
--   **Cleaner `main.go`:** No clutter of `s.HandleFunc(...)` calls.
--   **Perfect doc generation:** Routes and methods are exported to a YAML file (`gh.yml`) for use in documentation or tooling.
+Gohandlers parses your code and builds a model for each handler, including:
+
+-   Handler name (e.g. `CreatePet`)
+-   HTTP method (e.g. `POST`)
+-   URL path (e.g. `/pets`)
+-   Reference from the actual Go handler function
+
+This metadata comes from:
+
+| Source                  | What it provides                            |
+| ----------------------- | ------------------------------------------- |
+| Handler name            | Base name of the handler                    |
+| Handler doc comment     | HTTP method and path if explicitly declared |
+| Binding type field tags | URL path, URL query and body parameters     |
+
+If no method or path is declared, Gohandlers uses naming conventions and your binding struct’s `route:` tags to derive them automatically.
 
 ---
 
-## ✍️ Declaring Metadata with Comments
+## ✍️ Doc Comments
 
 If you want more control, Gohandlers supports in-code comments above your handlers:
 
@@ -132,24 +136,11 @@ This is useful when the default inference from naming isn’t sufficient or if y
 
 ---
 
-## ⚙️ Filtering Handlers by Receiver
-
-If your application is organized by service types (e.g., `Pets`, `Users`, `Orders`), you can generate handler lists per receiver using the `--recv` flag:
-
-```bash
-gohandlers list --dir handlers/pets --recv Pets --out list.gh.go
-```
-
-This lets you cleanly group and register handlers on a per-module basis.
-
----
-
 ## 🧼 Best Practices
 
 -   Use meaningful handler names (`GetPet`, `ListOrders`, etc.)
--   Always tag route fields with `route:"..."` to clarify URL parameters
+-   Tag route values with `route:"..."` to clarify URL parameters
 -   Use structured comments to document custom routes and methods
--   Keep related handlers grouped under receiver structs (e.g. `*Pets`)
 
 ---
 
@@ -157,7 +148,7 @@ This lets you cleanly group and register handlers on a per-module basis.
 
 Gohandlers’ metadata-driven routing and automatic registration eliminates the need to manually wire up routes. It:
 
--   Keeps your handlers and routes in sync
+-   Keeps your handlers and mux in sync
 -   Reduces the potential for errors or duplication
 -   Provides a clean, declarative routing setup
 -   Enables easy documentation export via YAML
