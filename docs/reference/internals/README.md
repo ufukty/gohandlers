@@ -17,6 +17,8 @@ After this parsing phase, the tool builds an internal model of the API:
 
 The discovered handlers are then paired with their corresponding request/response structs by name. Gohandlers enforces a naming convention for this pairing: for a handler named **X**, it expects an `XRequest` and `XResponse` struct (defined in the code) to exist. The internal descriptor for a handler will link to the descriptors of its request and response binding types. (There’s logic to handle edge cases – e.g. if two handlers share a name in one file, or a handler with no request body – to ensure correct matching.)
 
+---
+
 ## Building Data Descriptors
 
 Once the AST is processed, gohandlers constructs higher-level **descriptor objects** that drive code generation. Key components of this internal model include:
@@ -29,6 +31,8 @@ Once the AST is processed, gohandlers constructs higher-level **descriptor objec
 
 All these descriptors are stored in data structures (maps/slices) within the `inspects` package. For example, after inspection, you might have a map of receiver -> handlers, where each handler entry contains its HandlerInfo (with links to binding info). This structured representation of “what endpoints exist and what data they expect/produce” is now ready to feed into code generation.
 
+---
+
 ## Tag Extraction and Validation
 
 A crucial part of building the descriptors is **extracting struct tags** and validating that they make sense. Gohandlers goes field-by-field in each binding struct and parses the tag string (the content inside backticks). It looks for known keys like `route`, `query`, `json`, and `form`. If a field has a `json:"..."` tag, it’s treated as part of the JSON payload; if it has `query:"..."`, it’s marked as coming from the URL query parameters, and so on. This multi-source handling is done without runtime reflection – it’s all determined at compile time and hard-coded into the generated code. For instance, if `XRequest` has `ID string \`route:"id"\` and `Name string \`query:"name"\` defined, the generator knows that on an incoming request, `ID` must be pulled from the URL path and `Name` from the query string. The documentation confirms this: _“Fields tagged `route:"id"` will be extracted from the URL path. Fields tagged `query:"q"` come from `r.URL.Query()`, and `json:"field"` from the JSON body, etc.”_ ([gohandlers/docs/commands/bindings.md at dev · ufukty/gohandlers · GitHub](https://github.com/ufukty/gohandlers/blob/dev/docs/commands/bindings.md#:~:text=Example%3A%20If%20,are%20propagated)). The tool ensures each field is accounted for in one of these sources. (If a field is tagged in a way gohandlers doesn’t expect, or if required tags are missing for a given context, it will likely skip or raise an error via the CLI validate command – but generally the convention is that every field in a binding struct should have a recognized tag indicating where to get/set its value.)
@@ -36,6 +40,8 @@ A crucial part of building the descriptors is **extracting struct tags** and val
 **Struct tags vs. Content-Type:** Based on the tags present, gohandlers also deduces what content types an endpoint uses. For example, if a request struct has any `json:"..."` fields (and no `form:"..."`), the request body is assumed to be JSON. Conversely, if it has `form:"..."` fields, it expects `application/x-www-form-urlencoded` form data (the tool added support for parsing form fields in addition to JSON). It will generate different code paths depending on this – e.g. calling `r.ParseForm()` for form data versus decoding a JSON body for JSON fields. It does **not** mix JSON and form in one request; one struct is generally one content type for the body. Route and query tags can coexist with either, of course. This analysis is done up front so that the code generator knows whether to include form-parsing logic, JSON unmarshaling, both, or neither for each binding. (Notably, earlier versions even had experimental support for `multipart/form-data` with file uploads, with tags like `part` and `file`, but that was removed as it added complexity with minimal benefit ([History for pkg - ufukty/gohandlers · GitHub](https://github.com/ufukty/gohandlers/commits/dev/pkg#:~:text=Commits%20on%20Feb%202%2C%202025)) ([History for pkg - ufukty/gohandlers · GitHub](https://github.com/ufukty/gohandlers/commits/dev/pkg#:~:text=%2A%20,data%60%20support)).)
 
 Before generation, gohandlers effectively has a complete picture of each binding struct (the “shape” of the data and where it comes from/goes) and each handler (the endpoint details and linked data types). Now it’s ready to produce code.
+
+---
 
 ## Template Application & Code Generation
 

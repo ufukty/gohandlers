@@ -4,6 +4,8 @@ Writing HTTP APIs in Go is enjoyable due to Go’s simplicity, performance, and 
 
 **gohandlers** addresses these issues directly, streamlining your development process and letting you focus purely on your core logic. Let’s explore precisely what problems gohandlers solves, and why it matters.
 
+---
+
 ## 🧩 The Problem: Repetitive Boilerplate Code
 
 In typical Go HTTP APIs, each handler often looks like this:
@@ -49,6 +51,8 @@ Almost every handler repeats similar logic:
 
 Multiply this by dozens or even hundreds of handlers, and your codebase becomes difficult to maintain, tedious to extend, and prone to inconsistencies.
 
+---
+
 ## ⚠️ The Hidden Costs of Manual Boilerplate
 
 Manually written boilerplate isn’t just tedious—it leads to real problems:
@@ -57,6 +61,8 @@ Manually written boilerplate isn’t just tedious—it leads to real problems:
 -   **Error-prone:** Inconsistent validation, serialization, or parsing can cause bugs.
 -   **Reduced readability:** Repetitive code obscures business logic.
 -   **Difficult onboarding:** New developers must understand the repetitive patterns in each handler.
+
+---
 
 ## 🚀 How gohandlers Solves This Problem
 
@@ -112,6 +118,8 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 
 Your handler is clean, readable, and purely focused on the business logic. All repetitive parsing, validation, and serialization is handled automatically.
 
+---
+
 ## 🔥 Benefits of Using gohandlers
 
 Here’s what you gain by adopting gohandlers:
@@ -124,12 +132,16 @@ Here’s what you gain by adopting gohandlers:
 -   **Simplified testing:** Built-in mocks and clients ease testing and client integration.
 -   **Better readability:** Clearly separates business logic from plumbing code.
 
+---
+
 ## 🌟 Who Benefits Most from gohandlers?
 
 -   **Teams building RESTful APIs in Go:** Save significant time and maintain cleaner codebases.
 -   **Projects requiring rapid iteration:** Quickly iterate your API without repetitive boilerplate slowing you down.
 -   **Large APIs with many endpoints:** Maintain consistency and reduce the complexity of updates.
 -   **Developers who value type safety and maintainability:** Improve developer experience and onboarding significantly.
+
+---
 
 ## 🎯 Conclusion: Less Boilerplate, More Business Logic
 

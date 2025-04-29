@@ -4,6 +4,8 @@ Writing HTTP handlers in Go is straightforward—but repetitive boilerplate ofte
 
 This article guides you through the core philosophy and practical approach of structuring HTTP handlers, "the gohandlers way."
 
+---
+
 ## Embrace a Struct-Driven Approach
 
 In gohandlers, your HTTP endpoints are modeled using clearly defined request and response structs. This creates a direct mapping between your Go types and your API’s interface.
@@ -22,6 +24,8 @@ type GetUserResponse struct {
 
 -   Struct names clearly communicate their role (`…Request`, `…Response`).
 -   Struct tags (`route`, `query`, `json`) directly express how HTTP data maps to Go fields.
+
+---
 
 ## Consistent Handler Signature
 
@@ -63,26 +67,38 @@ func (u *Users) GetUser(w http.ResponseWriter, r *http.Request) {
 
 Each handler is clear, consistent, and readable—helping teams onboard new developers and easily maintain code.
 
+---
+
 ## Leverage Automatic Code Generation
 
 The power of gohandlers comes from its automated code generation. It transforms your simple request and response definitions into fully-fledged parsing, validation, and serialization logic, eliminating boilerplate.
+
+---
 
 ### Automatic Binding Generation
 
 -   Transforms your request structs into methods that parse HTTP requests (`Parse`) and build HTTP responses (`Write`).
 
+---
+
 ### Validation Generation
 
 -   Automatically produces `Validate()` methods that aggregate errors at the field-level.
+
+---
 
 ### Handler Listing
 
 -   Generates a metadata-driven registry (`ListHandlers`) for seamless endpoint registration and documentation.
 
+---
+
 ### Client & Mock Generation
 
 -   Provides strongly typed clients for interacting with your API.
 -   Creates mocks for effortless testing.
+
+---
 
 ## Domain Logic Stays in Custom Types
 
@@ -100,6 +116,8 @@ func (e *Email) Validate() error {
 ```
 
 This allows gohandlers to remain focused purely on generating HTTP-related boilerplate, while your custom types encapsulate domain rules clearly.
+
+---
 
 ## Simplified Handler Registration
 
@@ -128,6 +146,8 @@ http.ListenAndServe(":8080", mux)
 
 This approach guarantees synchronization between your route definitions and actual handler implementations.
 
+---
+
 ## Testing Made Easy
 
 With generated mock clients, testing your handlers and business logic becomes straightforward:
@@ -140,6 +160,8 @@ mock.GetUserFunc = func(ctx context.Context, id string) (*GetUserResponse, error
 ```
 
 Inject these mocks into your unit tests for predictable, reliable, and isolated testing scenarios.
+
+---
 
 ## Why Adopt the gohandlers Approach?
 

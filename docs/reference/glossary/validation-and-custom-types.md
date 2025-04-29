@@ -4,6 +4,8 @@ One of the most powerful features of **gohandlers** is its ability to generate c
 
 In this article, we’ll explore how gohandlers manages validation, how to design custom types, and how to apply both in real-world scenarios.
 
+---
+
 ## ✅ Why Validation Matters
 
 Validation ensures your application doesn't receive malformed, missing, or inconsistent data. In traditional Go APIs, you often write repetitive if-else blocks like:
@@ -18,6 +20,8 @@ if req.Email == "" {
 These checks become cumbersome to maintain, especially across many endpoints.
 
 With **gohandlers**, validation is cleanly defined within the struct and handled via generated `Validate()` methods—without cluttering your handler logic.
+
+---
 
 ## 🧩 Auto-Generated Field-Level Validation
 
@@ -59,6 +63,8 @@ if errs := req.Validate(); len(errs) > 0 {
 
 No need to repeat yourself.
 
+---
+
 ## 🧠 Custom Types for Reusable Validation
 
 Validation gets even more powerful when you move logic into **custom types**. You can define domain-specific types that:
@@ -71,6 +77,8 @@ gohandlers detects and uses these interfaces automatically:
 -   `FromRoute(string) error`
 -   `FromQuery(string) error`
 -   `Validate() error`
+
+---
 
 ### Example: Email Type
 
@@ -104,6 +112,8 @@ gohandlers will automatically:
 -   Call `Validate()` during validation.
 -   Include `"email": "invalid email format"` in the error map if needed.
 
+---
+
 ## 🔄 Reusable Validators with `pkg/types/basics`
 
 gohandlers provides a standard set of reusable wrappers in the [`types/basics`](https://github.com/ufukty/gohandlers/tree/main/pkg/types/basics) package:
@@ -112,6 +122,8 @@ gohandlers provides a standard set of reusable wrappers in the [`types/basics`](
 -   `types.Int`: For parsing integers with min/max
 -   `types.Boolean`: For boolean values (`true`, `false`, `1`, `0`)
 -   `types.Time`: For parsing RFC3339 timestamps
+
+---
 
 ### Example: Bounded Integer
 
@@ -136,6 +148,8 @@ gohandlers will enforce that `?limit=0` returns:
 
 These types make it trivial to define reusable validation across many endpoints.
 
+---
+
 ## 🔗 Cross-Field Validation
 
 While field-level checks cover most use cases, you can also define cross-field validation manually in your `Validate()` method.
@@ -151,6 +165,8 @@ func (req CreateBookingRequest) Validate() map[string]error {
 ```
 
 You can combine generated validation with your own logic. If you use custom types on each field, gohandlers will still generate the wrapper that aggregates them.
+
+---
 
 ## 🛑 Handling Optional Fields
 
@@ -173,6 +189,8 @@ if req.Page != nil && *req.Page < 1 {
 
 This gives you full control over optional vs. required semantics.
 
+---
+
 ## 🧪 Testing Validation
 
 Because all validation lives in `Validate()` methods, it’s easy to unit test:
@@ -189,6 +207,8 @@ func TestInviteUserValidation(t *testing.T) {
 
 This separation also allows you to reuse request types across HTTP and non-HTTP contexts, like CLI tools or background jobs.
 
+---
+
 ## ✅ Best Practices
 
 -   Use custom types to encapsulate parsing + validation logic.
@@ -197,6 +217,8 @@ This separation also allows you to reuse request types across HTTP and non-HTTP 
 -   Use pointers for optional fields.
 -   Adopt `types/basics` for quick rules like min/max, pattern matching, etc.
 -   Keep validation logic _inside_ request structs—not your handler.
+
+---
 
 ## 🔚 Summary
 

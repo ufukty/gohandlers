@@ -25,6 +25,8 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request)
 
 Notice even though the implementation of `CreatePet` is not here, you can make your guesses on what it internally does based on its name and request, response data.
 
+---
+
 ## Field tags
 
 Gohandlers supports 4 types of field tags:

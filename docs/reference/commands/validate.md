@@ -2,6 +2,8 @@
 
 Generates a Go file (default `validate.gh.go`) contains validation helpers for request binding types. Those helpers are meant to be called from handlers, after parsing is done. Validation methods call each field's validation method one by one, and collects all errors in a map. Then the handler can use its custom method of serialization based on its return type being JSON or HTML.
 
+---
+
 ## Args
 
 ```sh
@@ -15,6 +17,8 @@ Usage of validate:
         only use request types that is prefixed with handlers defined on this type
   -v    prints additional information
 ```
+
+---
 
 ## Example
 

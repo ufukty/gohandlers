@@ -6,6 +6,8 @@ Manually crafting client code to call your Go API can lead to duplicated logic, 
 
 In this article, you'll learn how gohandlers turns your existing request/response types into a complete HTTP client, complete with automatic serialization, request building, and error parsing—no manual code required.
 
+---
+
 ## 🧩 Why Typed Clients?
 
 When you consume your own API (or someone else's), you often end up writing code like:
@@ -29,6 +31,8 @@ gohandlers solves this by generating a client that knows how to:
 -   Send them with standard or custom HTTP clients
 -   Parse responses into your `...Response` types
 -   Return typed results with minimal code
+
+---
 
 ## ⚙️ Generating the Client Code
 
@@ -64,6 +68,8 @@ func (c *Client) CreatePet(ctx context.Context, in *CreatePetRequest) (*CreatePe
 }
 ```
 
+---
+
 ## 🏗️ How the Client Works
 
 Each method follows this pattern:
@@ -74,6 +80,8 @@ Each method follows this pattern:
 4. **Return** the typed response or any errors
 
 This means all serialization logic is already defined by your struct tags—you never touch `json.Marshal` or `http.NewRequest` again.
+
+---
 
 ## ✨ Example Usage
 
@@ -111,6 +119,8 @@ No need to:
 
 The generated method does all of that for you.
 
+---
+
 ## 🌐 Pooling & Hosts
 
 The generated client uses a **`Pool` interface** to select the base URL for a request. This gives you flexibility:
@@ -119,6 +129,8 @@ The generated client uses a **`Pool` interface** to select the base URL for a re
 -   Implement your own pool (e.g. for sharding, round-robin, or fallback hosts)
 
 You can also override this per-request using client `Options`.
+
+---
 
 ## 🔁 Returning Raw Responses
 
@@ -129,6 +141,8 @@ resp, err := client.CreatePetRaw(ctx, &CreatePetRequest{...})
 ```
 
 You can then manually inspect headers, body, or status if needed.
+
+---
 
 ## 🧪 Testing with Mocks
 
@@ -153,6 +167,8 @@ mock.CreatePetFunc = func(ctx context.Context, req *CreatePetRequest) (*CreatePe
 
 Inject `mock` wherever the real client would go—no networking required.
 
+---
+
 ## 🔐 Bonus: Customizing Transport
 
 The `Client` struct exposes a `Doer` interface, allowing you to:
@@ -170,6 +186,8 @@ client.Doer = &http.Client{
 
 Or use it with an HTTP tracing package or distributed tracing header injector.
 
+---
+
 ## ✅ Summary: Why Typed Clients Rock
 
 | Feature                | Benefit                                               |
@@ -179,6 +197,8 @@ Or use it with an HTTP tracing package or distributed tracing header injector.
 | Consistent with server | Uses the same structs and tags as your handlers       |
 | Easy to test           | Built-in mocks for each method                        |
 | Configurable transport | Support for pooling, retries, and custom HTTP clients |
+
+---
 
 ## 🎯 Conclusion
 

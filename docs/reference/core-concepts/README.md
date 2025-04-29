@@ -2,6 +2,8 @@
 
 Understand the foundational principles behind **gohandlers**, including how it covers request/response bindings, validation, handler listing, client generation, and mocking—so you can design your APIs in alignment with its core abstractions.
 
+---
+
 ## Tag‑Driven Binding Types
 
 Your HTTP contract lives in Go structs, annotated with specific tags:
@@ -23,6 +25,8 @@ type CreatePetResponse struct {
 
 These tags directly map HTTP request and response fields, allowing your Go types to clearly define your API's shape.
 
+---
+
 ## Automatic Glue Code Generation
 
 gohandlers reads your tagged structs and generates all necessary boilerplate code:
@@ -36,6 +40,8 @@ gohandlers reads your tagged structs and generates all necessary boilerplate cod
 | **mock**     | Generates mock implementations of API clients for testing                              | `mock.gh.go`           |
 
 This automated pipeline ensures consistency and removes repetitive coding tasks.
+
+---
 
 ## Custom Types & Domain Logic
 
@@ -64,6 +70,8 @@ func (p PetID) Validate() error {
 -   Use `Validate()` methods to enforce data constraints and business rules.
 
 Generated code simply invokes these methods, maintaining separation between your domain logic and HTTP handling code.
+
+---
 
 ## Consistent Handler Flow
 
@@ -105,6 +113,8 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 
 This uniform approach simplifies readability, debugging, and testing.
 
+---
+
 ## Metadata‑Driven Handler Registration
 
 Rather than manually registering each handler, gohandlers generates a registry:
@@ -118,7 +128,11 @@ map[string]HandlerInfo{
 
 This registry enables automatic routing setup and keeps documentation and server code synchronized effortlessly.
 
+---
+
 ## Typed Client Generation & Mocking
+
+---
 
 ### Typed API Clients
 
@@ -130,6 +144,8 @@ resp, err := client.CreatePet(ctx, petDTO)
 ```
 
 These clients abstract away repetitive HTTP request logic, giving you strongly typed interactions with your APIs.
+
+---
 
 ### Mock Clients for Testing
 
@@ -143,6 +159,8 @@ mock.CreatePetFunc = func(_ context.Context, dto PetDTO) (*CreatePetResponse, er
 ```
 
 These mocks streamline testing, enabling quick and reliable test setups.
+
+---
 
 ## Benefits and Philosophy
 

@@ -35,9 +35,13 @@ Generates a Go file (default `client.gh.go`) containing a **Client struct** and 
     4. Check for non-200 status codes and return errors accordingly.
     5. If there’s a response struct (`CreatePetResponse` in this case), instantiate it and [call](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/client/client.gh.go#L40) `.Parse(response)` to populate it, then return it.
 
+---
+
 ## What it solves?
 
 Writing and maintaining custom client code for your API (or using generic tools) can lead to mismatches as your API evolves. The gohandlers client ensures **the client library always matches the server**. If you add a new query parameter or change an endpoint, regenerate the client — it will have the updated method signature and logic.
+
+---
 
 ## Usage
 
@@ -54,6 +58,8 @@ Usage of client:
         package name for the generated file
   -v    prints additional information
 ```
+
+---
 
 ## Example
 

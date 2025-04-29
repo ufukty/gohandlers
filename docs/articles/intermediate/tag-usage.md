@@ -1,12 +1,10 @@
-> **PREVIEW**
->
-> Some of the functionality in this post are in consideration and is not currently under development.
-
 # 🏷️ Tag Usage
 
 **gohandlers** greatly simplifies building Go APIs by generating boilerplate code based on simple struct tags. For basic endpoints, the default tags (`route`, `query`, `json`) cover most cases effortlessly. But as your API grows more sophisticated, you'll need to manage complex scenarios like deeply nested JSON, optional query parameters, conditional validation, or dynamic routes.
 
 This article guides you through powerful techniques and advanced tag usage to elegantly handle these more intricate API requirements.
+
+---
 
 ## 👟 Quick Refresher: Standard Tags
 
@@ -27,6 +25,8 @@ type UpdateUserRequest struct {
 
 These tags handle the majority of common use cases clearly and efficiently. Now, let's explore advanced usage scenarios.
 
+---
+
 ## 🚦 Handling Optional Query Parameters
 
 In more complex APIs, you might have optional query parameters that require custom handling.
@@ -37,6 +37,8 @@ type ListPetsRequest struct {
   SortBy string `query:"sortBy"`
 }
 ```
+
+---
 
 ## 🌳 Deeply Nested JSON Structures
 
@@ -58,6 +60,8 @@ type CreateOrderRequest struct {
 
 As gohandlers only calls the JSON encoder/decoder inside helpers when it sees a field with `json` tag, you can keep defining your binding types as you do it with JSON encoder.
 
+---
+
 ## 🌀 Arrays & Collections in Query Parameters
 
 Sometimes, APIs use arrays or multiple query params:
@@ -75,6 +79,8 @@ type ListPetsByTagsRequest struct {
 ```
 
 gohandlers automatically captures multiple values and populates your slice correctly.
+
+---
 
 ## 🔍 Custom Tag Parsing with Domain-Specific Types
 
@@ -103,6 +109,8 @@ gohandlers recognizes these interfaces:
 
 and automatically invokes your parsing logic, enabling precise validation.
 
+---
+
 ## 🚩 Handling Form-Encoded Data
 
 For APIs accepting form data (`application/x-www-form-urlencoded`):
@@ -115,6 +123,8 @@ type LoginRequest struct {
 ```
 
 gohandlers auto-generates correct logic to parse and handle form data efficiently.
+
+---
 
 ## 📌 Mixing Data Sources Gracefully
 

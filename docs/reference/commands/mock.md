@@ -5,9 +5,13 @@ Generates a Go file (default `mock.gh.go`) with two things:
 -   An **interface** that your `Client` implements (all the methods generated in `client`).
 -   A **mock client struct** that also implements this interface, but allows you to customize behavior for testing.
 
+---
+
 ## Why `mock`?
 
 When writing unit tests for your application, you might not want to make real HTTP calls. The mock client has stubbed methods (you can replace them) to simulate responses. This way, your service code can depend on an interface (abstract client) and in tests you inject the mock.
+
+---
 
 ## Usage
 
@@ -24,6 +28,8 @@ Usage of mock:
         package name for the generated file
   -v    prints additional information
 ```
+
+---
 
 ## Example
 

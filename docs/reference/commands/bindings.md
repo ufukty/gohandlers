@@ -20,9 +20,13 @@ Generates a Go file (default `bindings.gh.go`) containing `Build`, `Parse` and `
 
     When calling `Build`, you provide a `host` (because Go’s `http.NewRequest` needs a URL). The returned request is ready to be sent (with all fields serialized properly). Similarly, `Write` on a response binding will serialize that struct (as JSON, form data, etc.) and write to the HTTP response in a handler context.
 
+---
+
 ## What it solves?
 
 Writing request parsing and response writing logic for each handler can be tedious and error-prone. Tags in your struct (like `route:"id"` or `json:"name"`) guide gohandlers to generate this logic, so you don’t have to write the same code repeatedly. This also ensures that if your types change (e.g., you add a new query param), the parsing/building logic updates on regeneration.
+
+---
 
 ## Usage
 
@@ -37,6 +41,8 @@ Usage of bindings:
         only use request types that is prefixed with handlers defined on this type
   -v    prints additional information
 ```
+
+---
 
 ## Example
 

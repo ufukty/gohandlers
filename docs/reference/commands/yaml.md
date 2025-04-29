@@ -23,9 +23,13 @@ _(The exact structure can be observed in the petstore example in the repository.
 
 Other tools or documentation generators could use this YAML to produce API docs or stubs in other languages if needed.
 
+---
+
 ## What it solves?
 
 While gohandlers removes the need to manually maintain OpenAPI specs, sometimes you still want to share the API structure with others who aren’t reading your Go code. The `yaml` output is a quick way to export the essential info (endpoints and methods) in a language-agnostic format.
+
+---
 
 ## Usage
 
@@ -38,6 +42,8 @@ Usage of yaml:
         yaml file that will be generated in the 'dir' (default "gh.yml")
   -v    prints additional information
 ```
+
+---
 
 ## Example
 
