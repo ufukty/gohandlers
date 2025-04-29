@@ -71,16 +71,11 @@ h4,
 h5,
 h6 {
   font-weight: 600;
+  margin: calc(((7 - var(--heading-order)) / 6 + 1) * 30px) 0;
 }
 
-h1:not(:first-child),
-h2:not(:first-child),
-h3:not(:first-child),
-h4:not(:first-child),
-h5:not(:first-child),
-h6:not(:first-child),
-p:not(:first-child) {
-  margin: calc(((7 - var(--heading-order)) / 6 + 1) * 10px) 0;
+p {
+  margin: 10px 0;
 }
 
 footer {
@@ -167,6 +162,7 @@ body {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
         justify-self: center;
+        margin-bottom: 500px;
       }
     }
   }
