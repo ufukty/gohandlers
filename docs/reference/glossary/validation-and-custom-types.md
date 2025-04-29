@@ -1,8 +1,8 @@
 # Validation & Custom Types
 
-One of the most powerful features of **gohandlers** is its ability to generate consistent and thorough validation logic—without adding extra boilerplate to your handlers. This is made possible by a combination of **validation-aware request structs** and support for **custom types** that encapsulate their own parsing and checking rules.
+One of the most powerful features of **Gohandlers** is its ability to generate consistent and thorough validation logic—without adding extra boilerplate to your handlers. This is made possible by a combination of **validation-aware request structs** and support for **custom types** that encapsulate their own parsing and checking rules.
 
-In this article, we’ll explore how gohandlers manages validation, how to design custom types, and how to apply both in real-world scenarios.
+In this article, we’ll explore how Gohandlers manages validation, how to design custom types, and how to apply both in real-world scenarios.
 
 ---
 
@@ -19,13 +19,13 @@ if req.Email == "" {
 
 These checks become cumbersome to maintain, especially across many endpoints.
 
-With **gohandlers**, validation is cleanly defined within the struct and handled via generated `Validate()` methods—without cluttering your handler logic.
+With **Gohandlers**, validation is cleanly defined within the struct and handled via generated `Validate()` methods—without cluttering your handler logic.
 
 ---
 
 ## 🧩 Auto-Generated Field-Level Validation
 
-gohandlers analyzes your `...Request` structs and produces a `Validate()` method for each, which returns a `map[string]error`.
+Gohandlers analyzes your `...Request` structs and produces a `Validate()` method for each, which returns a `map[string]error`.
 
 Example:
 
@@ -72,7 +72,7 @@ Validation gets even more powerful when you move logic into **custom types**. Yo
 -   Know how to parse themselves from strings (e.g., from URL/query params)
 -   Know how to validate themselves
 
-gohandlers detects and uses these interfaces automatically:
+Gohandlers detects and uses these interfaces automatically:
 
 -   `FromRoute(string) error`
 -   `FromQuery(string) error`
@@ -106,7 +106,7 @@ type InviteUserRequest struct {
 }
 ```
 
-gohandlers will automatically:
+Gohandlers will automatically:
 
 -   Call `FromQuery()` during parsing.
 -   Call `Validate()` during validation.
@@ -116,7 +116,7 @@ gohandlers will automatically:
 
 ## 🔄 Reusable Validators with `pkg/types/basics`
 
-gohandlers provides a standard set of reusable wrappers in the [`types/basics`](https://github.com/ufukty/gohandlers/tree/main/pkg/types/basics) package:
+Gohandlers provides a standard set of reusable wrappers in the [`types/basics`](https://github.com/ufukty/gohandlers/tree/main/pkg/types/basics) package:
 
 -   `types.String`: For parsing strings with length/regex rules
 -   `types.Int`: For parsing integers with min/max
@@ -140,7 +140,7 @@ func init() {
 }
 ```
 
-gohandlers will enforce that `?limit=0` returns:
+Gohandlers will enforce that `?limit=0` returns:
 
 ```json
 { "limit": "value must be at least 1" }
@@ -164,7 +164,7 @@ func (req CreateBookingRequest) Validate() map[string]error {
 }
 ```
 
-You can combine generated validation with your own logic. If you use custom types on each field, gohandlers will still generate the wrapper that aggregates them.
+You can combine generated validation with your own logic. If you use custom types on each field, Gohandlers will still generate the wrapper that aggregates them.
 
 ---
 
@@ -222,14 +222,14 @@ This separation also allows you to reuse request types across HTTP and non-HTTP 
 
 ## 🔚 Summary
 
-With gohandlers, validation is:
+With Gohandlers, validation is:
 
 -   **Automatic:** Generated for each field based on type and presence.
 -   **Extendable:** Easy to override or enhance with custom logic.
 -   **Encapsulated:** Lives alongside your request structs or custom types.
 -   **Testable:** Clean, consistent, and independently testable.
 
-By combining generated validators with domain-specific custom types, gohandlers helps you write APIs that are not only easy to build—but also hard to break.
+By combining generated validators with domain-specific custom types, Gohandlers helps you write APIs that are not only easy to build—but also hard to break.
 
 Validation becomes something you **declare**, not something you **repeat**.
 

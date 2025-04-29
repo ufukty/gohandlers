@@ -1,6 +1,6 @@
 # 🏷️ Tag Usage
 
-**gohandlers** greatly simplifies building Go APIs by generating boilerplate code based on simple struct tags. For basic endpoints, the default tags (`route`, `query`, `json`) cover most cases effortlessly. But as your API grows more sophisticated, you'll need to manage complex scenarios like deeply nested JSON, optional query parameters, conditional validation, or dynamic routes.
+**Gohandlers** greatly simplifies building Go APIs by generating boilerplate code based on simple struct tags. For basic endpoints, the default tags (`route`, `query`, `json`) cover most cases effortlessly. But as your API grows more sophisticated, you'll need to manage complex scenarios like deeply nested JSON, optional query parameters, conditional validation, or dynamic routes.
 
 This article guides you through powerful techniques and advanced tag usage to elegantly handle these more intricate API requirements.
 
@@ -42,7 +42,7 @@ type ListPetsRequest struct {
 
 ## 🌳 Deeply Nested JSON Structures
 
-Complex APIs frequently use nested structures. gohandlers supports nested JSON structs seamlessly:
+Complex APIs frequently use nested structures. Gohandlers supports nested JSON structs seamlessly:
 
 ```go
 type CreateOrderRequest struct {
@@ -58,7 +58,7 @@ type CreateOrderRequest struct {
 }
 ```
 
-As gohandlers only calls the JSON encoder/decoder inside helpers when it sees a field with `json` tag, you can keep defining your binding types as you do it with JSON encoder.
+As Gohandlers only calls the JSON encoder/decoder inside helpers when it sees a field with `json` tag, you can keep defining your binding types as you do it with JSON encoder.
 
 ---
 
@@ -78,7 +78,7 @@ type ListPetsByTagsRequest struct {
 }
 ```
 
-gohandlers automatically captures multiple values and populates your slice correctly.
+Gohandlers automatically captures multiple values and populates your slice correctly.
 
 ---
 
@@ -102,7 +102,7 @@ type GetPetRequest struct {
 }
 ```
 
-gohandlers recognizes these interfaces:
+Gohandlers recognizes these interfaces:
 
 -   `FromRoute(string) error`
 -   `FromQuery(string) error`
@@ -122,7 +122,7 @@ type LoginRequest struct {
 }
 ```
 
-gohandlers auto-generates correct logic to parse and handle form data efficiently.
+Gohandlers auto-generates correct logic to parse and handle form data efficiently.
 
 ---
 
@@ -141,4 +141,4 @@ type ComplexSearchRequest struct {
 }
 ```
 
-gohandlers seamlessly handles multiple simultaneous sources, keeping your code clean and declarative.
+Gohandlers seamlessly handles multiple simultaneous sources, keeping your code clean and declarative.

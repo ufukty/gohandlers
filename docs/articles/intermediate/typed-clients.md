@@ -2,9 +2,9 @@
 
 Building an HTTP API is only half the battle. The other half? **Consuming it safely and efficiently.**
 
-Manually crafting client code to call your Go API can lead to duplicated logic, fragile interfaces, and plenty of boilerplate. That’s why **gohandlers** doesn’t just generate server-side glue—it also gives you **typed, ready-to-use clients** for your endpoints.
+Manually crafting client code to call your Go API can lead to duplicated logic, fragile interfaces, and plenty of boilerplate. That’s why **Gohandlers** doesn’t just generate server-side glue—it also gives you **typed, ready-to-use clients** for your endpoints.
 
-In this article, you'll learn how gohandlers turns your existing request/response types into a complete HTTP client, complete with automatic serialization, request building, and error parsing—no manual code required.
+In this article, you'll learn how Gohandlers turns your existing request/response types into a complete HTTP client, complete with automatic serialization, request building, and error parsing—no manual code required.
 
 ---
 
@@ -25,7 +25,7 @@ This is:
 -   **Unstructured**—no compile-time guarantees
 -   **Disconnected** from your server’s logic and types
 
-gohandlers solves this by generating a client that knows how to:
+Gohandlers solves this by generating a client that knows how to:
 
 -   Build requests using your `...Request` types
 -   Send them with standard or custom HTTP clients
@@ -39,14 +39,14 @@ gohandlers solves this by generating a client that knows how to:
 After defining your handlers and binding structs, run:
 
 ```bash
-gohandlers client \
+Gohandlers client \
   --dir handlers/pets \
   --pkg client \
   --out client.gh.go \
   --v
 ```
 
-This tells gohandlers to:
+This tells Gohandlers to:
 
 -   Inspect all `...Request` and `...Response` types
 -   Look up the associated handler metadata (method, path, etc.)
@@ -146,10 +146,10 @@ You can then manually inspect headers, body, or status if needed.
 
 ## 🧪 Testing with Mocks
 
-gohandlers can also generate a mock implementation of the same client interface:
+Gohandlers can also generate a mock implementation of the same client interface:
 
 ```bash
-gohandlers mock \
+Gohandlers mock \
   --dir handlers/pets \
   --pkg client \
   --out mock.gh.go \
@@ -202,7 +202,7 @@ Or use it with an HTTP tracing package or distributed tracing header injector.
 
 ## 🎯 Conclusion
 
-Typed HTTP clients from gohandlers bridge the gap between server and consumer. They reduce friction, cut boilerplate, and give you a clean, safe way to consume your own APIs (or provide SDKs to others).
+Typed HTTP clients from Gohandlers bridge the gap between server and consumer. They reduce friction, cut boilerplate, and give you a clean, safe way to consume your own APIs (or provide SDKs to others).
 
 With one command, you gain:
 
@@ -210,6 +210,6 @@ With one command, you gain:
 -   Full control over transport
 -   Easy integration with tests
 
-You’ve already defined the shape of your API—why write a client by hand? Let gohandlers do it for you.
+You’ve already defined the shape of your API—why write a client by hand? Let Gohandlers do it for you.
 
 **Code once. Use everywhere.** 🚀

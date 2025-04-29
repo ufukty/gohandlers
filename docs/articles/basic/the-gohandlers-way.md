@@ -1,14 +1,14 @@
 # 🎸 The Gohandlers Way
 
-Writing HTTP handlers in Go is straightforward—but repetitive boilerplate often creeps into your codebase. **gohandlers** simplifies this significantly by providing a consistent, maintainable approach to handler creation and management.
+Writing HTTP handlers in Go is straightforward—but repetitive boilerplate often creeps into your codebase. **Gohandlers** simplifies this significantly by providing a consistent, maintainable approach to handler creation and management.
 
-This article guides you through the core philosophy and practical approach of structuring HTTP handlers, "the gohandlers way."
+This article guides you through the core philosophy and practical approach of structuring HTTP handlers, "the Gohandlers way."
 
 ---
 
 ## Embrace a Struct-Driven Approach
 
-In gohandlers, your HTTP endpoints are modeled using clearly defined request and response structs. This creates a direct mapping between your Go types and your API’s interface.
+In Gohandlers, your HTTP endpoints are modeled using clearly defined request and response structs. This creates a direct mapping between your Go types and your API’s interface.
 
 **Example Request and Response:**
 
@@ -29,7 +29,7 @@ type GetUserResponse struct {
 
 ## Consistent Handler Signature
 
-With gohandlers, each handler follows the same predictable flow:
+With Gohandlers, each handler follows the same predictable flow:
 
 1. **Parsing** – Transform the incoming HTTP request into a structured Go request.
 2. **Validation** – Ensure input correctness through clearly defined validation methods.
@@ -71,7 +71,7 @@ Each handler is clear, consistent, and readable—helping teams onboard new deve
 
 ## Leverage Automatic Code Generation
 
-The power of gohandlers comes from its automated code generation. It transforms your simple request and response definitions into fully-fledged parsing, validation, and serialization logic, eliminating boilerplate.
+The power of Gohandlers comes from its automated code generation. It transforms your simple request and response definitions into fully-fledged parsing, validation, and serialization logic, eliminating boilerplate.
 
 ---
 
@@ -115,13 +115,13 @@ func (e *Email) Validate() error {
 }
 ```
 
-This allows gohandlers to remain focused purely on generating HTTP-related boilerplate, while your custom types encapsulate domain rules clearly.
+This allows Gohandlers to remain focused purely on generating HTTP-related boilerplate, while your custom types encapsulate domain rules clearly.
 
 ---
 
 ## Simplified Handler Registration
 
-Gone are the days of manually registering each handler. gohandlers generates a single method to register all handlers automatically:
+Gone are the days of manually registering each handler. Gohandlers generates a single method to register all handlers automatically:
 
 **Example Generated ListHandlers:**
 
@@ -163,11 +163,11 @@ Inject these mocks into your unit tests for predictable, reliable, and isolated 
 
 ---
 
-## Why Adopt the gohandlers Approach?
+## Why Adopt the Gohandlers Approach?
 
 -   **Consistency:** Every handler shares the same clear structure.
 -   **Reduced Boilerplate:** Automated generation removes tedious, repetitive code.
 -   **Clear Separation:** Business logic remains separated from HTTP-handling concerns.
 -   **Maintainability:** Struct-driven definitions and generated handlers simplify ongoing maintenance and evolution.
 
-By embracing these principles, gohandlers helps your team build maintainable, scalable, and reliable HTTP APIs—letting you focus more on your application’s core logic, and less on boilerplate HTTP code.
+By embracing these principles, Gohandlers helps your team build maintainable, scalable, and reliable HTTP APIs—letting you focus more on your application’s core logic, and less on boilerplate HTTP code.

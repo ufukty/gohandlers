@@ -1,6 +1,6 @@
 # 🧶 Core Concepts
 
-Understand the foundational principles behind **gohandlers**, including how it covers request/response bindings, validation, handler listing, client generation, and mocking—so you can design your APIs in alignment with its core abstractions.
+Understand the foundational principles behind **Gohandlers**, including how it covers request/response bindings, validation, handler listing, client generation, and mocking—so you can design your APIs in alignment with its core abstractions.
 
 ---
 
@@ -29,7 +29,7 @@ These tags directly map HTTP request and response fields, allowing your Go types
 
 ## Automatic Glue Code Generation
 
-gohandlers reads your tagged structs and generates all necessary boilerplate code:
+Gohandlers reads your tagged structs and generates all necessary boilerplate code:
 
 | Stage        | What It Does                                                                           | Generated File(s)      |
 | ------------ | -------------------------------------------------------------------------------------- | ---------------------- |
@@ -75,7 +75,7 @@ Generated code simply invokes these methods, maintaining separation between your
 
 ## Consistent Handler Flow
 
-Handlers built with gohandlers typically follow a consistent four-step pattern:
+Handlers built with Gohandlers typically follow a consistent four-step pattern:
 
 1. **Parse**: Convert incoming HTTP requests into structured request objects.
 2. **Validate**: Run field-level validation methods to ensure data correctness.
@@ -117,7 +117,7 @@ This uniform approach simplifies readability, debugging, and testing.
 
 ## Metadata‑Driven Handler Registration
 
-Rather than manually registering each handler, gohandlers generates a registry:
+Rather than manually registering each handler, Gohandlers generates a registry:
 
 ```go
 map[string]HandlerInfo{
@@ -136,7 +136,7 @@ This registry enables automatic routing setup and keeps documentation and server
 
 ### Typed API Clients
 
-gohandlers generates typed Go client implementations that mirror your server's API endpoints:
+Gohandlers generates typed Go client implementations that mirror your server's API endpoints:
 
 ```go
 client := NewClient(pool)
@@ -170,4 +170,4 @@ These mocks streamline testing, enabling quick and reliable test setups.
 -   **Easy Testing**: Consistent handlers and built-in mocking simplify testing practices.
 -   **Maintainable Design**: Centralized definitions and generated code keep your project easy to scale and maintain.
 
-By embracing these core concepts, gohandlers helps you build maintainable, robust, and efficient HTTP APIs in Go.
+By embracing these core concepts, Gohandlers helps you build maintainable, robust, and efficient HTTP APIs in Go.

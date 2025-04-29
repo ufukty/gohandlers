@@ -1,10 +1,10 @@
 # Bindings and Tags
 
-At the heart of **gohandlers** is a simple, powerful idea: your Go structs define your API.
+At the heart of **Gohandlers** is a simple, powerful idea: your Go structs define your API.
 
-Instead of writing verbose parsing logic, gohandlers inspects your `Request` and `Response` structs—using their names, field types, and tags—to generate the boilerplate that turns raw HTTP requests into typed Go values, and back again.
+Instead of writing verbose parsing logic, Gohandlers inspects your `Request` and `Response` structs—using their names, field types, and tags—to generate the boilerplate that turns raw HTTP requests into typed Go values, and back again.
 
-In this article, you’ll learn how to design effective binding structs, how tags map fields to HTTP inputs/outputs, and how to unlock gohandlers’ full potential with clean, declarative type definitions.
+In this article, you’ll learn how to design effective binding structs, how tags map fields to HTTP inputs/outputs, and how to unlock Gohandlers’ full potential with clean, declarative type definitions.
 
 ---
 
@@ -19,7 +19,7 @@ There are two main types:
 -   `...Response` structs  
     Used to serialize Go values **into** HTTP responses.
 
-gohandlers looks for these by naming convention. If you define a handler named `CreatePet`, it expects:
+Gohandlers looks for these by naming convention. If you define a handler named `CreatePet`, it expects:
 
 ```go
 type CreatePetRequest struct { ... }
@@ -37,7 +37,7 @@ These two structs become the source of truth for generating:
 
 ## 🏷 Field Tags: Declaring Where Data Comes From
 
-Tags tell gohandlers how to connect struct fields to HTTP components. Each field should include one of the following:
+Tags tell Gohandlers how to connect struct fields to HTTP components. Each field should include one of the following:
 
 | Tag     | Used In            | Purpose                             |
 | ------- | ------------------ | ----------------------------------- |
@@ -79,7 +79,7 @@ type GetUserRequest struct {
 
 The field name doesn’t have to match the tag—it just needs to match the placeholder in the URL path template.
 
-gohandlers will replace or extract values from the URL automatically during parsing/building.
+Gohandlers will replace or extract values from the URL automatically during parsing/building.
 
 ---
 
@@ -95,7 +95,7 @@ type ListOrdersRequest struct {
 }
 ```
 
-gohandlers parses these values from `r.URL.Query()`, converting them to the correct types.
+Gohandlers parses these values from `r.URL.Query()`, converting them to the correct types.
 
 Use `[]string` or `[]int` to capture multiple values like `?tag=foo&tag=bar`.
 
@@ -112,7 +112,7 @@ type LoginRequest struct {
 }
 ```
 
-gohandlers will automatically call `r.ParseForm()` and extract the fields accordingly.
+Gohandlers will automatically call `r.ParseForm()` and extract the fields accordingly.
 
 ---
 
@@ -131,7 +131,7 @@ type CreatePostResponse struct {
 }
 ```
 
-JSON tags work just like in the standard `encoding/json` package—gohandlers uses those conventions directly for marshaling and unmarshaling.
+JSON tags work just like in the standard `encoding/json` package—Gohandlers uses those conventions directly for marshaling and unmarshaling.
 
 ---
 
@@ -153,7 +153,7 @@ In this example:
 -   `Name` comes from the JSON body
 -   `Age` is parsed from `?age=3`
 
-gohandlers will generate code to assemble the entire struct from these parts—no manual parsing required.
+Gohandlers will generate code to assemble the entire struct from these parts—no manual parsing required.
 
 ---
 
@@ -190,7 +190,7 @@ type InviteRequest struct {
 }
 ```
 
-gohandlers will automatically detect these interfaces and call them in the generated `Parse` and `Validate` methods.
+Gohandlers will automatically detect these interfaces and call them in the generated `Parse` and `Validate` methods.
 
 ---
 
@@ -204,7 +204,7 @@ type GetPetResponse struct {
 }
 ```
 
-When you call `resp.Write(w)`, gohandlers serializes the response into JSON and sets the correct headers.
+When you call `resp.Write(w)`, Gohandlers serializes the response into JSON and sets the correct headers.
 
 Form-encoded output is also supported (with `form` tags), but most APIs use JSON.
 
@@ -222,9 +222,9 @@ Form-encoded output is also supported (with `form` tags), but most APIs use JSON
 
 ## 🧭 Summary
 
-Binding structs and their tags are the foundation of gohandlers. They let you describe your API contract clearly, declaratively, and type-safely—without any runtime reflection or handwritten parsing code.
+Binding structs and their tags are the foundation of Gohandlers. They let you describe your API contract clearly, declaratively, and type-safely—without any runtime reflection or handwritten parsing code.
 
-With just a few tagged structs, gohandlers will generate:
+With just a few tagged structs, Gohandlers will generate:
 
 -   Request parsers
 -   Response writers
@@ -234,4 +234,4 @@ With just a few tagged structs, gohandlers will generate:
 
 Your API becomes easier to maintain, safer to extend, and faster to develop.
 
-Start with the tags—let gohandlers handle the rest. 🚀
+Start with the tags—let Gohandlers handle the rest. 🚀

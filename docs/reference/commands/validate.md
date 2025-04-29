@@ -7,7 +7,7 @@ Generates a Go file (default `validate.gh.go`) contains validation helpers for r
 ## Args
 
 ```sh
-# gohandlers validate --help
+# Gohandlers validate --help
 Usage of validate:
   -dir string
         the directory contains Go files
@@ -25,7 +25,7 @@ Usage of validate:
 You provide the source directory contain your Go handlers and filename that will be created in that directory:
 
 ```sh
-gohandlers validate --dir handlers/pets --out validate.gh.go
+Gohandlers validate --dir handlers/pets --out validate.gh.go
 ```
 
 This would create [handlers/pets/validate.gh.go](https://github.com/ufukty/gohandlers-petstore/blob/main/handlers/pets/validate.gh.go):

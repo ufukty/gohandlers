@@ -2,9 +2,9 @@
 
 When building an HTTP API, it’s crucial to test the layers _around_ your HTTP handlers: the business logic, the services, the integrations. But if your code depends on a real HTTP client to call your own API, testing can get messy and slow—requiring servers, requests, responses, and a lot of setup.
 
-That’s where **gohandlers** shines again. It doesn’t just generate server-side code and typed HTTP clients—it also creates **mock clients**, so you can test your services quickly and deterministically, with no need to spin up HTTP servers or stub request objects.
+That’s where **Gohandlers** shines again. It doesn’t just generate server-side code and typed HTTP clients—it also creates **mock clients**, so you can test your services quickly and deterministically, with no need to spin up HTTP servers or stub request objects.
 
-In this article, you’ll learn how to use gohandlers’ generated mocks to write fast, focused, and maintainable tests for any code that uses your API clients.
+In this article, you’ll learn how to use Gohandlers’ generated mocks to write fast, focused, and maintainable tests for any code that uses your API clients.
 
 ---
 
@@ -40,7 +40,7 @@ You use a **mock client**—one that pretends to be the real thing, but behaves 
 To generate mocks for your typed API client, run:
 
 ```bash
-gohandlers mock \
+Gohandlers mock \
   --dir handlers/pets \
   --pkg client \
   --out mock.gh.go \
@@ -203,13 +203,13 @@ Mocks are ideal when testing **how your code behaves**, not the behavior of the 
 
 ## ✅ Summary
 
-gohandlers-generated mock clients help you write tests that are:
+Gohandlers-generated mock clients help you write tests that are:
 
 -   Fast ⚡
 -   Predictable 📋
 -   Focused 🔍
 -   Typed-safe 🧬
 
-You don’t need to write mocks by hand, and you don’t need to simulate full HTTP interactions. With gohandlers, testing your API-consuming code is just as clean as writing it.
+You don’t need to write mocks by hand, and you don’t need to simulate full HTTP interactions. With Gohandlers, testing your API-consuming code is just as clean as writing it.
 
 **Code with confidence. Test with ease.** 🧪✅🚀

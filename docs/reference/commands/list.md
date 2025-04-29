@@ -20,9 +20,9 @@ What it generates:
 
     This map will include entries for all handlers that have receiver `*Pets`.
 
--   These functions gather **method and path** from the handlers (using gohandlers’ knowledge of HTTP method and path assignments, see below) and the handler function itself.
+-   These functions gather **method and path** from the handlers (using Gohandlers’ knowledge of HTTP method and path assignments, see below) and the handler function itself.
 
--   **Custom HandlerInfo:** By default, gohandlers defines its own `HandlerInfo` in each generated file. However, if you want to use a shared type (perhaps your project defines a global route struct), you can provide `-hi-import "myapp/router"` and `-hi-type "HandlerInfo"` flags. Then gohandlers will import your package and use `myapp/router.HandlerInfo` instead in the return type. This can simplify integrating with your router setup.
+-   **Custom HandlerInfo:** By default, Gohandlers defines its own `HandlerInfo` in each generated file. However, if you want to use a shared type (perhaps your project defines a global route struct), you can provide `-hi-import "myapp/router"` and `-hi-type "HandlerInfo"` flags. Then Gohandlers will import your package and use `myapp/router.HandlerInfo` instead in the return type. This can simplify integrating with your router setup.
 
 ---
 
@@ -35,7 +35,7 @@ In a growing API, it’s easy to forget to register a handler or to mismatch the
 ## Usage
 
 ```sh
-# gohandlers list --help
+# Gohandlers list --help
 Usage of list:
   -dir string
         the directory contains Go files. one handler and a request binding type is allowed per file
@@ -55,7 +55,7 @@ Usage of list:
 If [`handlers/pets`](https://github.com/ufukty/gohandlers-petstore/tree/main/handlers/pets) directory has handlers on `*Pets` receiver, after running:
 
 ```bash
-gohandlers list -dir handlers/pets -out list.gh.go
+Gohandlers list -dir handlers/pets -out list.gh.go
 ```
 
 You [get](https://github.com/ufukty/gohandlers-petstore/blob/main/handlers/pets/list.gh.go) something like:
@@ -77,7 +77,7 @@ func (pe *Pets) ListHandlers() map[string]HandlerInfo {
 }
 ```
 
-_(Here `HandlerInfo` is a type provided by gohandlers by default. It has `Method, Path, Ref` fields as shown.)_
+_(Here `HandlerInfo` is a type provided by Gohandlers by default. It has `Method, Path, Ref` fields as shown.)_
 
 To register these with a router, you could do:
 

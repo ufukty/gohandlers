@@ -27,14 +27,14 @@ Other tools or documentation generators could use this YAML to produce API docs 
 
 ## What it solves?
 
-While gohandlers removes the need to manually maintain OpenAPI specs, sometimes you still want to share the API structure with others who aren’t reading your Go code. The `yaml` output is a quick way to export the essential info (endpoints and methods) in a language-agnostic format.
+While Gohandlers removes the need to manually maintain OpenAPI specs, sometimes you still want to share the API structure with others who aren’t reading your Go code. The `yaml` output is a quick way to export the essential info (endpoints and methods) in a language-agnostic format.
 
 ---
 
 ## Usage
 
 ```sh
-# gohandlers yaml --help
+# Gohandlers yaml --help
 Usage of yaml:
   -dir string
         the directory contains Go files. one handler and a request binding type is allowed per file
@@ -50,7 +50,7 @@ Usage of yaml:
 You provide the source directory contain your Go handlers and filename that will be created in that directory:
 
 ```bash
-gohandlers yaml -dir handlers/pets -out gh.yml
+Gohandlers yaml -dir handlers/pets -out gh.yml
 ```
 
 After this, you will get the yaml file just like the one above.

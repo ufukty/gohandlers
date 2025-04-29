@@ -2,15 +2,15 @@
 
 Error handling in HTTP APIs is one of the most nuanced parts of backend development. You want to be descriptive but secure, structured but flexible, and consistent across hundreds of endpoints.
 
-**gohandlers** provides you with just enough structure to handle errors cleanly, while giving you full control over how errors are generated, returned, logged, and encoded.
+**Gohandlers** provides you with just enough structure to handle errors cleanly, while giving you full control over how errors are generated, returned, logged, and encoded.
 
-In this article, we’ll explore the default error handling flow in gohandlers, and how you can customize it to fit your project’s needs—from basic validation to structured error types and application-specific conventions.
+In this article, we’ll explore the default error handling flow in Gohandlers, and how you can customize it to fit your project’s needs—from basic validation to structured error types and application-specific conventions.
 
 ---
 
 ## 🚧 The Default Error Handling Flow
 
-Out of the box, gohandlers separates your API logic into four clear steps:
+Out of the box, Gohandlers separates your API logic into four clear steps:
 
 1. **Parse** the incoming request:
 
@@ -150,7 +150,7 @@ func mapAppError(err error) (int, any) {
 
 ## 🧾 Handling Validation Errors
 
-gohandlers generates a `Validate()` method that returns `map[string]error`. This is a perfect structure for field-level error reporting.
+Gohandlers generates a `Validate()` method that returns `map[string]error`. This is a perfect structure for field-level error reporting.
 
 ```json
 {
@@ -218,7 +218,7 @@ for _, h := range handler.ListHandlers() {
 
 ## 🧪 Testing Errors in Handlers
 
-Since gohandlers keeps your error flow centralized and clean, you can test each failure path independently.
+Since Gohandlers keeps your error flow centralized and clean, you can test each failure path independently.
 
 ```go
 req := httptest.NewRequest("POST", "/pets", nil)
@@ -249,12 +249,12 @@ You can even test custom error structures if you wrap your error responses consi
 
 ## ✅ Summary
 
-Error handling in gohandlers gives you both structure and freedom:
+Error handling in Gohandlers gives you both structure and freedom:
 
 -   Structure through `Parse()` and `Validate()` conventions
 -   Freedom through custom types, centralized handlers, and middleware
 
-Whether you're building a prototype or a production-grade API, gohandlers makes it easy to handle errors in a consistent, testable, and user-friendly way—while keeping your core logic clean.
+Whether you're building a prototype or a production-grade API, Gohandlers makes it easy to handle errors in a consistent, testable, and user-friendly way—while keeping your core logic clean.
 
 **Say goodbye to duplicated if-else trees and hello to expressive, maintainable error flows.**
 

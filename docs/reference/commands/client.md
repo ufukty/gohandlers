@@ -39,14 +39,14 @@ Generates a Go file (default `client.gh.go`) containing a **Client struct** and 
 
 ## What it solves?
 
-Writing and maintaining custom client code for your API (or using generic tools) can lead to mismatches as your API evolves. The gohandlers client ensures **the client library always matches the server**. If you add a new query parameter or change an endpoint, regenerate the client — it will have the updated method signature and logic.
+Writing and maintaining custom client code for your API (or using generic tools) can lead to mismatches as your API evolves. The Gohandlers client ensures **the client library always matches the server**. If you add a new query parameter or change an endpoint, regenerate the client — it will have the updated method signature and logic.
 
 ---
 
 ## Usage
 
 ```sh
-# gohandlers client --help
+# Gohandlers client --help
 Usage of client:
   -dir string
         input directory
@@ -66,7 +66,7 @@ Usage of client:
 Using the `CreatePet` example from previous examples, after running:
 
 ```sh
-gohandlers client \
+Gohandlers client \
   -dir handlers/pets \
   -out client/client.gh.go \
   -pkg client \

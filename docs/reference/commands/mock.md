@@ -16,7 +16,7 @@ When writing unit tests for your application, you might not want to make real HT
 ## Usage
 
 ```sh
-# gohandlers mock --help
+# Gohandlers mock --help
 Usage of mock:
   -dir string
         input directory
@@ -33,10 +33,10 @@ Usage of mock:
 
 ## Example
 
-Running `gohandlers mock` similarly to `client`:
+Running `Gohandlers mock` similarly to `client`:
 
 ```bash
-gohandlers mock \
+Gohandlers mock \
   -dir handlers/pets \
   -out client/mock.gh.go \
   -pkg client \
