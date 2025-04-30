@@ -105,7 +105,7 @@ func Main() error {
 	args := &Args{}
 	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files")
 	flag.StringVar(&args.Out, "out", "validate.gh.go", "the output file")
-	flag.StringVar(&args.Recv, "recv", "", "only use request types that is prefixed with handlers defined on this type")
+	flag.StringVar(&args.Recv, "recv", "", "ignore handlers defined on other receivers")
 	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
 	flag.Parse()
 
