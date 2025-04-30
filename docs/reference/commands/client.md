@@ -66,7 +66,7 @@ Usage of client:
 Using the `CreatePet` example from previous examples, after running:
 
 ```sh
-Gohandlers client \
+gohandlers client \
   -dir handlers/pets \
   -out client/client.gh.go \
   -pkg client \

@@ -25,7 +25,7 @@ Usage of validate:
 You provide the source directory contain your Go handlers and filename that will be created in that directory:
 
 ```sh
-Gohandlers validate --dir handlers/pets --out validate.gh.go
+gohandlers validate --dir handlers/pets --out validate.gh.go
 ```
 
 This would create [handlers/pets/validate.gh.go](https://github.com/ufukty/gohandlers-petstore/blob/main/handlers/pets/validate.gh.go):
