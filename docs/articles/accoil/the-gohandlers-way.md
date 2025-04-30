@@ -333,7 +333,7 @@ This allows Gohandlers to remain focused purely on generating HTTP-related boile
 
 ---
 
-## 🤔 Why Adopt the Gohandlers Approach?
+## 🤔 Why adopt the gohandlers approach?
 
 -   **Consistency:** Every handler shares the same clear structure.
 -   **Reduced Boilerplate:** Automated generation removes tedious, repetitive code.
