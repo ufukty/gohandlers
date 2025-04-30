@@ -125,6 +125,7 @@ Your handler is clean, readable, and purely focused on the business logic. All r
 Here’s what you gain by adopting Gohandlers:
 
 -   **Zero boilerplate:** No manual parsing, validation, or serialization logic.
+-   **Declarative API**: Define API endpoints using struct tags, keeping definitions clear and intuitive.
 -   **Strong type safety:** Automatically generated, fully type-checked code ensures fewer runtime errors.
 -   **Consistency:** Uniform handling across your entire API.
 -   **Maintainability:** Changes in API structure propagate easily through regeneration.
