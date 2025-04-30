@@ -16,7 +16,7 @@ type Args struct {
 
 func Main() error {
 	args := Args{}
-	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files. one handler and a request binding type is allowed per file")
+	flag.StringVar(&args.Dir, "dir", "", "the directory contains Go files")
 	flag.StringVar(&args.Out, "out", "gh.yml", "yaml file that will be generated in the 'dir'")
 	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
 	flag.Parse()
