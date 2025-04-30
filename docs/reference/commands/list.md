@@ -38,7 +38,7 @@ In a growing API, it’s easy to forget to register a handler or to mismatch the
 # Gohandlers list --help
 Usage of list:
   -dir string
-        the directory contains Go files. one handler and a request binding type is allowed per file
+        the directory contains Go files
   -hi-import string
         the package to import for custom implementation of HandlerInfo
   -hi-type string
