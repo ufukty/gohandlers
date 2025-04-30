@@ -23,7 +23,7 @@ Usage of mock:
   -import string
         the import path of package declares binding types
   -out string
-        output directory
+        output file (probably in a "client" folder)
   -pkg string
         package name for the generated file
   -v    prints additional information
