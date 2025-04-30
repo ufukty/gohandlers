@@ -1,4 +1,4 @@
-# Bindings and Tags
+# 🧶 Bindings and Tags
 
 At the heart of **Gohandlers** is a simple, powerful idea: your Go structs define your API.
 
@@ -8,7 +8,7 @@ In this article, you’ll learn how to design effective binding structs, how tag
 
 ---
 
-## 📦 What Are Binding Structs?
+## 📦 What are binding structs?
 
 **Binding structs** are plain Go types that represent the structure of HTTP requests and responses in your application.
 
@@ -35,7 +35,7 @@ These two structs become the source of truth for generating:
 
 ---
 
-## 🏷 Field Tags: Declaring Where Data Comes From
+## 🏷 Tags: Declaring data source
 
 Tags tell Gohandlers how to connect struct fields to HTTP components. Each field should include one of the following:
 
@@ -48,32 +48,34 @@ Tags tell Gohandlers how to connect struct fields to HTTP components. Each field
 
 ---
 
-### Example: Typical API Request
+## ⭐️ Typical API request
+
+Here is an example:
 
 ```go
 type GetPetRequest struct {
-  ID string `route:"id"`           // /pets/{id}
+  ID basics.String `route:"id"` // /pets/{id}
 }
 
 type CreatePetRequest struct {
-  Name string `json:"name"`        // JSON body
+  Name string `json:"name"` // JSON body
   Tag  string `json:"tag"`
 }
 
 type ListPetsRequest struct {
-  Limit int `query:"limit"`        // ?limit=10
+  Limit basics.Int `query:"limit"` // ?limit=10
 }
 ```
 
 ---
 
-## 🚦 Route Parameters (`route:"..."`)
+## 🚦 Route parameters
 
 For data in the URL path like `/users/{userId}`:
 
 ```go
 type GetUserRequest struct {
-  UserID string `route:"userId"` // maps /users/{userId}
+  UserID basics.String `route:"userId"` // maps /users/{userId}
 }
 ```
 
@@ -83,40 +85,38 @@ Gohandlers will replace or extract values from the URL automatically during pars
 
 ---
 
-## 🧭 Query Parameters (`query:"..."`)
+## 🧭 Query parameters
 
 Query parameters come from the URL’s `?key=value` section:
 
 ```go
 type ListOrdersRequest struct {
-  Page  int    `query:"page"`
-  Sort  string `query:"sort"`
-  Limit int    `query:"limit"`
+  Page  basics.Int    `query:"page"`
+  Sort  basics.String `query:"sort"`
+  Limit basics.Int    `query:"limit"`
 }
 ```
 
-Gohandlers parses these values from `r.URL.Query()`, converting them to the correct types.
-
-Use `[]string` or `[]int` to capture multiple values like `?tag=foo&tag=bar`.
+Gohandlers gets these values from `r.URL.Query()` and passes to `.FromQuery()` methods of them.
 
 ---
 
-## 🧾 Form Fields (`form:"..."`)
+## 🧾 Form fields
 
 For APIs that accept `application/x-www-form-urlencoded` or form submissions:
 
 ```go
 type LoginRequest struct {
-  Username string `form:"username"`
-  Password string `form:"password"`
+  Username basics.String `form:"username"`
+  Password basics.String `form:"password"`
 }
 ```
 
-Gohandlers will automatically call `r.ParseForm()` and extract the fields accordingly.
+Gohandlers will automatically call `r.FromForm()` and extract the fields accordingly.
 
 ---
 
-## 🧱 JSON Fields (`json:"..."`)
+## 🧱 JSON fields
 
 Use `json` tags for both incoming request bodies and outgoing response payloads:
 
@@ -131,19 +131,19 @@ type CreatePostResponse struct {
 }
 ```
 
-JSON tags work just like in the standard `encoding/json` package—Gohandlers uses those conventions directly for marshaling and unmarshaling.
+JSON tags work just like in the standard `encoding/json` package, as Gohandlers only uses them to decide whether to call JSON encoder/decoder inside (de)serialization helpers.
 
 ---
 
-## 🎨 Combining Tags
+## 🎨 Combining tags
 
 Each field should have **one primary source**, but you can mix tags across fields:
 
 ```go
 type UpdatePetRequest struct {
-  PetID string `route:"petId"`   // path param
-  Name  string `json:"name"`     // body param
-  Age   int    `query:"age"`     // query param
+  PetID basics.String `route:"petId"` // path param
+  Age   basics.Int    `query:"age"`   // query param
+  Name  string        `json:"name"`   // body param
 }
 ```
 
@@ -157,66 +157,41 @@ Gohandlers will generate code to assemble the entire struct from these parts—n
 
 ---
 
-## 🧠 Custom Types & Interfaces
+## 🔍 Domain-specific types
 
-Want to validate or parse your fields with custom logic? Use your own types that implement:
+For custom parsing logic, define your own domain-specific types with custom parsing methods.
+
+```go
+type PetID string
+
+func (p *PetID) FromRoute(s string) error {
+  if len(s) != 8 {
+    return errors.New("PetID must be exactly 8 characters")
+  }
+  *p = PetID(s)
+  return nil
+}
+
+type GetPetRequest struct {
+  ID PetID `route:"id"`
+}
+```
+
+Gohandlers recognizes these interfaces:
 
 -   `FromRoute(string) error`
 -   `FromQuery(string) error`
--   `Validate() error`
 
-Example:
-
-```go
-type Email string
-
-func (e *Email) FromQuery(s string) error {
-  if !strings.Contains(s, "@") {
-    return errors.New("invalid email")
-  }
-  *e = Email(s)
-  return nil
-}
-
-func (e Email) Validate() error {
-  if len(e) < 5 {
-    return errors.New("email too short")
-  }
-  return nil
-}
-
-type InviteRequest struct {
-  Email Email `query:"email"`
-}
-```
-
-Gohandlers will automatically detect these interfaces and call them in the generated `Parse` and `Validate` methods.
+and automatically invokes your parsing logic, enabling precise validation.
 
 ---
 
-## 🧪 Response Structs & Output Tags
+## ✅ Best practices
 
-Response structs work just like request structs, usually with JSON output:
-
-```go
-type GetPetResponse struct {
-  Pet PetDTO `json:"pet"`
-}
-```
-
-When you call `resp.Write(w)`, Gohandlers serializes the response into JSON and sets the correct headers.
-
-Form-encoded output is also supported (with `form` tags), but most APIs use JSON.
-
----
-
-## ✅ Best Practices
-
--   Use **meaningful struct names** ending in `Request` or `Response`.
+-   Use **struct names** starting with the handler name and ending in `Request` or `Response`.
 -   Tag **every field** with its source (`route`, `query`, `json`, `form`).
 -   Keep each field’s source unambiguous (don’t tag one field with multiple input types).
 -   Use **custom types** to encapsulate validation logic and parsing.
--   Prefer **pointers** for optional values like `*int`, `*string`.
 
 ---
 
