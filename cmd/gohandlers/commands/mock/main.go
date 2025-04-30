@@ -30,7 +30,7 @@ func post(src string) string {
 func Main() error {
 	args := Args{}
 	flag.StringVar(&args.Dir, "dir", "", "input directory")
-	flag.StringVar(&args.Out, "out", "", "output directory")
+	flag.StringVar(&args.Out, "out", "", "output file (probably in a \"client\" folder)")
 	flag.StringVar(&args.Pkg, "pkg", "", "package name for the generated file")
 	flag.StringVar(&args.Import, "import", "", "the import path of package declares binding types")
 	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
