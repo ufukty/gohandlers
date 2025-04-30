@@ -46,7 +46,7 @@ Writing and maintaining custom client code for your API (or using generic tools)
 ## Usage
 
 ```sh
-# Gohandlers client --help
+# Gohandlers client -help
 Usage of client:
   -dir string
         input directory

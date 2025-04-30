@@ -40,10 +40,10 @@ After defining your handlers and binding structs, run:
 
 ```bash
 gohandlers client \
-  --dir handlers/pets \
-  --pkg client \
-  --out client.gh.go \
-  --v
+  -dir handlers/pets \
+  -pkg client \
+  -out client.gh.go \
+  -v
 ```
 
 This tells Gohandlers to:
@@ -150,10 +150,10 @@ Gohandlers can also generate a mock implementation of the same client interface:
 
 ```bash
 gohandlers mock \
-  --dir handlers/pets \
-  --pkg client \
-  --out mock.gh.go \
-  --v
+  -dir handlers/pets \
+  -pkg client \
+  -out mock.gh.go \
+  -v
 ```
 
 Now you can write clean, predictable tests:

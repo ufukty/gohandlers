@@ -35,7 +35,7 @@ In a growing API, it’s easy to forget to register a handler or to mismatch the
 ## Usage
 
 ```sh
-# Gohandlers list --help
+# Gohandlers list -help
 Usage of list:
   -dir string
         the directory contains Go files

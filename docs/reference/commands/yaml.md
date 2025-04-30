@@ -34,7 +34,7 @@ While Gohandlers removes the need to manually maintain OpenAPI specs, sometimes 
 ## Usage
 
 ```sh
-# Gohandlers yaml --help
+# gohandlers yaml -help
 Usage of yaml:
   -dir string
         the directory contains Go files

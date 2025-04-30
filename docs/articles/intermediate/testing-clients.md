@@ -41,10 +41,10 @@ To generate mocks for your typed API client, run:
 
 ```bash
 gohandlers mock \
-  --dir handlers/pets \
-  --pkg client \
-  --out mock.gh.go \
-  --v
+  -dir handlers/pets \
+  -pkg client \
+  -out mock.gh.go \
+  -v
 ```
 
 This will generate:
