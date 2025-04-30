@@ -24,7 +24,7 @@ In short, Gohandlers aims to **fill the missing gap** in framework-less web deve
 Make sure you have a recent version of Go installed (Go 1.24+). Install Gohandlers by running:
 
 ```bash
-go install github.com/ufukty/gohandlers@latest
+go install github.com/ufukty/gohandlers/cmd/gohandlers@latest
 ```
 
 This will put the `gohandlers` binary in your `GOPATH/bin`. To check if your temrinal can find Gohandlers binary:
