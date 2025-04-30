@@ -8,7 +8,7 @@ This comprehensive, friendly guide will help you quickly and confidently get sta
 
 ---
 
-## ✨ What is Gohandlers, Anyway?
+## ✨ What is Gohandlers, anyway?
 
 **Gohandlers** is a code-generation tool designed to remove boilerplate when building HTTP handlers in Go. It automatically generates serialization, validation, routing, clients, and mocks—freeing you to focus purely on your business logic.
 
@@ -46,7 +46,7 @@ If you see list of available commands, you're all set!
 
 ---
 
-## 🗂️ Project Structure
+## 🗂️ Project structure
 
 Let's create a minimal project to see Gohandlers in action:
 
@@ -61,10 +61,10 @@ Let’s assume you're creating a simple API for a pet store. Your directory migh
 petstore/
 ├── handlers
 │   └── pets
-│     ├── create.go
-│     ├── get.go
-│     ├── list.go
-│     └── delete.go
+│       ├── create.go
+│       ├── get.go
+│       ├── list.go
+│       └── delete.go
 ├── main.go
 └── go.mod
 ```
@@ -124,13 +124,13 @@ No parsing, validation, or serialization logic is needed—Gohandlers handles it
 
 ---
 
-## 🤙 Generate `Parse`, `Write` and `Build` Helpers for Binding Types
+## 🤙 Generate `Parse`, `Write` and `Build` helpers for binding types
 
 Run the `bindings` command to auto-generate serialization/deserialization code:
 
 ```bash
 cd handlers/pets
-Gohandlers bindings --dir . --out bindings.gh.go --recv Pets --v
+gohandlers bindings --dir . --out bindings.gh.go
 ```
 
 The magic happens automatically, producing methods like:
@@ -144,12 +144,12 @@ Your handlers can now directly parse requests and write responses effortlessly!
 
 ---
 
-## ✅ Add Effortless Validation
+## ✅ Add effortless validation
 
 Gohandlers also automates validation generation:
 
 ```bash
-gohandlers validate --dir . --out validate.gh.go --recv Pets --v
+gohandlers validate --dir . --out validate.gh.go
 ```
 
 You'll get field-level validators like:
@@ -171,7 +171,7 @@ func (req CreatePetRequest) Validate() map[string]error {
 Stop manually registering your routes! Instead, use the auto-generated handler listing:
 
 ```bash
-gohandlers list --dir . --out list.gh.go --recv Pets --v
+gohandlers list --dir . --out list.gh.go
 ```
 
 Your generated `ListHandlers()` method lets you effortlessly wire everything into your HTTP server:
@@ -227,7 +227,7 @@ Congrats! You've successfully set up your first Gohandlers-based API endpoint.
 
 ---
 
-## 🎁 Generate Typed API Clients (Bonus!)
+## 🎁 Generate typed API clients (bonus!)
 
 Let’s not forget clients. Generate strongly typed Go clients for your API consumers:
 
@@ -244,7 +244,7 @@ resp, err := client.CreatePet(ctx, dto.Pet{Name: "Buddy", Tag: "dog"})
 
 ---
 
-## 🧪 Mock Clients for Simple Testing
+## 🧪 Mock clients for simple testing
 
 Testing your handlers couldn't be easier:
 
@@ -252,20 +252,11 @@ Testing your handlers couldn't be easier:
 gohandlers mock --dir handlers/pets --out mock.gh.go --pkg client --v
 ```
 
-Now you can mock responses effortlessly:
-
-```go
-mock := &client.MockClient{}
-mock.CreatePetFunc = func(ctx context.Context, dto dto.Pet) (*CreatePetResponse, error) {
-  return &CreatePetResponse{ID: "test123"}, nil
-}
-```
-
 Your unit tests become simple, predictable, and maintainable!
 
 ---
 
-## 🎯 Final Thoughts: Why Use Gohandlers?
+## 🎯 Final thoughts: Why use Gohandlers?
 
 By adopting Gohandlers, you're making your life easier in so many ways:
 
