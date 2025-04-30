@@ -37,7 +37,7 @@ While Gohandlers removes the need to manually maintain OpenAPI specs, sometimes 
 # Gohandlers yaml --help
 Usage of yaml:
   -dir string
-        the directory contains Go files. one handler and a request binding type is allowed per file
+        the directory contains Go files
   -out string
         yaml file that will be generated in the 'dir' (default "gh.yml")
   -v    prints additional information
