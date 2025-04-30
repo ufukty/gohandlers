@@ -7,7 +7,7 @@ Generates a Go file (default `validate.gh.go`) contains validation helpers for r
 ## Args
 
 ```sh
-# Gohandlers validate -help
+# gohandlers validate -help
 Usage of validate:
   -dir string
         the directory contains Go files

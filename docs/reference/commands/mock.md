@@ -16,7 +16,7 @@ When writing unit tests for your application, you might not want to make real HT
 ## Usage
 
 ```sh
-# Gohandlers mock -help
+# gohandlers mock -help
 Usage of mock:
   -dir string
         input directory

@@ -31,7 +31,7 @@ Writing request parsing and response writing logic for each handler can be tedio
 ## Usage
 
 ```sh
-# Gohandlers bindings -help
+# gohandlers bindings -help
 Usage of bindings:
   -dir string
         the source directory contains Go files
