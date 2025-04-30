@@ -1,8 +1,10 @@
-# Overview: What Problem Does gohandlers Solve?
+# 🤔 What Gohandlers Solve?
 
 Writing HTTP APIs in Go is enjoyable due to Go’s simplicity, performance, and strong type system. However, as your project grows, managing repetitive boilerplate code quickly becomes a significant pain point. Handlers start looking similar, with the same repeated parsing logic, validation patterns, and response serialization. Even minor changes, like adding a new field or parameter, often require tedious updates across multiple files.
 
-**gohandlers** addresses these issues directly, streamlining your development process and letting you focus purely on your core logic. Let’s explore precisely what problems gohandlers solves, and why it matters.
+**Gohandlers** addresses these issues directly, streamlining your development process and letting you focus purely on your core logic. Let’s explore precisely what problems Gohandlers solves, and why it matters.
+
+---
 
 ## 🧩 The Problem: Repetitive Boilerplate Code
 
@@ -49,6 +51,8 @@ Almost every handler repeats similar logic:
 
 Multiply this by dozens or even hundreds of handlers, and your codebase becomes difficult to maintain, tedious to extend, and prone to inconsistencies.
 
+---
+
 ## ⚠️ The Hidden Costs of Manual Boilerplate
 
 Manually written boilerplate isn’t just tedious—it leads to real problems:
@@ -58,9 +62,11 @@ Manually written boilerplate isn’t just tedious—it leads to real problems:
 -   **Reduced readability:** Repetitive code obscures business logic.
 -   **Difficult onboarding:** New developers must understand the repetitive patterns in each handler.
 
-## 🚀 How gohandlers Solves This Problem
+---
 
-**gohandlers** solves this problem by automatically generating the tedious parts of your HTTP handlers. It leverages Go structs and struct tags as a **single source of truth**, automatically producing:
+## 🚀 How Gohandlers Solves This Problem
+
+**Gohandlers** solves this problem by automatically generating the tedious parts of your HTTP handlers. It leverages Go structs and struct tags as a **single source of truth**, automatically producing:
 
 -   **Request parsing logic:** Automatically handles JSON, route params, queries, and form data.
 -   **Validation methods:** Generates per-field validation, making errors clear and consistent.
@@ -112,9 +118,11 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 
 Your handler is clean, readable, and purely focused on the business logic. All repetitive parsing, validation, and serialization is handled automatically.
 
-## 🔥 Benefits of Using gohandlers
+---
 
-Here’s what you gain by adopting gohandlers:
+## 🔥 Benefits of Using Gohandlers
+
+Here’s what you gain by adopting Gohandlers:
 
 -   **Zero boilerplate:** No manual parsing, validation, or serialization logic.
 -   **Strong type safety:** Automatically generated, fully type-checked code ensures fewer runtime errors.
@@ -124,19 +132,23 @@ Here’s what you gain by adopting gohandlers:
 -   **Simplified testing:** Built-in mocks and clients ease testing and client integration.
 -   **Better readability:** Clearly separates business logic from plumbing code.
 
-## 🌟 Who Benefits Most from gohandlers?
+---
+
+## 🌟 Who Benefits Most from Gohandlers?
 
 -   **Teams building RESTful APIs in Go:** Save significant time and maintain cleaner codebases.
 -   **Projects requiring rapid iteration:** Quickly iterate your API without repetitive boilerplate slowing you down.
 -   **Large APIs with many endpoints:** Maintain consistency and reduce the complexity of updates.
 -   **Developers who value type safety and maintainability:** Improve developer experience and onboarding significantly.
 
+---
+
 ## 🎯 Conclusion: Less Boilerplate, More Business Logic
 
-**gohandlers** solves the fundamental problem of repetitive, error-prone boilerplate in Go HTTP APIs. By generating code automatically from clear struct definitions, it empowers you to focus entirely on your application's business logic.
+**Gohandlers** solves the fundamental problem of repetitive, error-prone boilerplate in Go HTTP APIs. By generating code automatically from clear struct definitions, it empowers you to focus entirely on your application's business logic.
 
 The result? Faster development, cleaner code, fewer bugs, and a more maintainable and enjoyable coding experience.
 
-Give your API development a boost—let gohandlers handle the boring parts, so you don’t have to.
+Give your API development a boost—let Gohandlers handle the boring parts, so you don’t have to.
 
 Happy coding! 🚀

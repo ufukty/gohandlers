@@ -71,16 +71,11 @@ h4,
 h5,
 h6 {
   font-weight: 600;
+  margin: calc(((7 - var(--heading-order)) / 6 + 1) * 30px) 0;
 }
 
-h1:not(:first-child),
-h2:not(:first-child),
-h3:not(:first-child),
-h4:not(:first-child),
-h5:not(:first-child),
-h6:not(:first-child),
-p:not(:first-child) {
-  margin: calc(((7 - var(--heading-order)) / 6 + 1) * 10px) 0;
+p {
+  margin: 10px 0;
 }
 
 footer {
@@ -91,17 +86,6 @@ footer {
 
 html {
   width: 100%;
-}
-
-.site-wide-note {
-  padding: 10px 20px;
-  background-color: light-dark(#f6e0ff, #280039);
-  color: light-dark(#7a08aa, #e4a4ff);
-  text-align: center;
-
-  a {
-    text-decoration: underline;
-  }
 }
 
 body {
@@ -117,7 +101,7 @@ body {
       flex-direction: column;
       gap: 20px;
 
-      &>header {
+      &>#navs {
         display: contents;
       }
     }
@@ -131,7 +115,7 @@ body {
 
       position: relative;
 
-      &>header {
+      &>#navs {
         grid-column: 1 / 2;
         grid-row: 1 / 2;
 
@@ -156,7 +140,7 @@ body {
 
       position: relative;
 
-      &>header {
+      &>#navs {
         display: contents;
 
         &>nav#sitemap {
@@ -178,7 +162,55 @@ body {
         grid-column: 2 / 3;
         grid-row: 1 / 2;
         justify-self: center;
+        margin-bottom: 500px;
       }
     }
   }
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0;
+
+  border-bottom: 1px solid light-dark(#eee, #303c4b);
+
+  &>* {
+    padding: 20px;
+    display: block;
+  }
+
+  #home {
+    display: block;
+    font-size: clamp(1.5em, 2vw, 2em);
+    font-weight: 600;
+    text-wrap: nowrap;
+  }
+
+  #gohandlers-in-github {
+    padding: 10px 20px;
+    color: light-dark(#444, #000f21);
+    background-color: light-dark(#eee, #1167d1);
+    border-radius: 1000px;
+    margin: 20px;
+    text-wrap: nowrap;
+
+    @media screen and (width<800px) {
+      .wide {
+        display: none;
+      }
+    }
+  }
+}
+
+#top-of-content-notice {
+  width: 100%;
+  text-align: center;
+
+  color: light-dark(#3f6a9e, #9ecaff);
+  background-color: light-dark(#e9f3ff, #19314f);
+  padding: 20px;
+  border-radius: 8px;
+
 }

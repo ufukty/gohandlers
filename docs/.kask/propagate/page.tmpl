@@ -12,6 +12,15 @@
 {{end}}
 {{end}}
 
+{{define "toc-item"}}
+{{if gt .Level 0}}<a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>{{end}}
+{{with .Children}}
+<ul>
+  {{range .}}
+  <li>{{template "toc-item" .}}</li>{{end}}
+</ul>{{end}}
+{{end}}
+
 {{define "markdown-page"}}
 <!DOCTYPE html>
 <html lang="en">
@@ -32,11 +41,14 @@
 
   <body>
 
-    <div class="site-wide-note">Machine generated documentation. <a href="https://github.com/ufukty/gohandlers/issues" target="_blank">Contribute</a> to improve quality together.</div>
+    <header>
+      <a id="home" href="/">🚀 Gohandlers</a>
+      <a id="gohandlers-in-github" href="https://github.com/ufukty/gohandlers?utm_source=gohandlers.pages.dev" target="_blank"><span class="wide">Gohandlers in </span>Github</a>
+    </header>
 
     <div id="markdown-page-column-layout">
 
-      <header>
+      <div id="navs">
         <nav id="sitemap">
           <details open>
             <summary>Site map</summary>
@@ -51,30 +63,11 @@
           <details open>
             <summary>In this page</summary>
             <div class="summarized">
-              <ul>
-                {{range .Children}}
-                <li>
-                  <a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>
-                  {{if gt (len .Children) 0}}
-                  <ul>
-                    {{range .Children}}
-                    <li>
-                      <a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>
-                      {{if gt (len .Children) 0}}
-                      <ul>
-                        {{range .Children}}
-                        <li>
-                          <a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>
-                        </li>{{end}}
-                      </ul>{{end}}
-                    </li>{{end}}
-                  </ul>{{end}}
-                </li>{{end}}
-              </ul>
+              {{template "toc-item" .}}
             </div>
           </details>
         </nav>{{end}}
-      </header>
+      </div>
 
       <script>
         function onChange(eval, callback) {
@@ -106,6 +99,7 @@
       </script>
 
       <main class="markdown">
+        <div id="top-of-content-notice">Documentation is reviewed mostly after starting with machine generated content. If you spot inconsistencies <a href="https://github.com/ufukty/gohandlers/issues" target="_blank">open an issue</a>.</div>
         {{.Markdown.Content}}
       </main>
 

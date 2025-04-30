@@ -25,7 +25,6 @@ body {
     margin-top: 10px;
   }
 
-
   strong {
     font-weight: 600;
   }
@@ -63,13 +62,14 @@ body {
     color: light-dark(#6a4800, #ffbf35);
     background-color: light-dark(#fff8e9, #2d2700);
     border-radius: 8px;
+    margin: 40px 0;
   }
 
   hr {
     color: none;
     width: 100%;
     border: none;
-    border-bottom: 1px solid light-dark(#eee, #555);
+    border-bottom: 1px solid light-dark(#eee, #2a2e32);
     margin: 50px 0;
   }
 
@@ -129,7 +129,7 @@ body {
       width: 1.6rem;
       height: 1.6rem;
       padding: 0.45rem 0 0.35rem 0;
-      margin-top: -0.15rem;
+      margin-top: 0.15rem;
 
       background-color: light-dark(black, #ddd);
       color: light-dark(white, black);

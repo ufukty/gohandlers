@@ -1,4 +1,4 @@
-# `bindings`
+# ✱ `bindings`
 
 Generates a Go file (default `bindings.gh.go`) containing `Build`, `Parse` and `Write` methods for each “binding” struct in your code. **Binding structs** are simply your request and response types for handlers that contains route, query, form or json values as fields.
 
@@ -20,14 +20,18 @@ Generates a Go file (default `bindings.gh.go`) containing `Build`, `Parse` and `
 
     When calling `Build`, you provide a `host` (because Go’s `http.NewRequest` needs a URL). The returned request is ready to be sent (with all fields serialized properly). Similarly, `Write` on a response binding will serialize that struct (as JSON, form data, etc.) and write to the HTTP response in a handler context.
 
+---
+
 ## What it solves?
 
-Writing request parsing and response writing logic for each handler can be tedious and error-prone. Tags in your struct (like `route:"id"` or `json:"name"`) guide gohandlers to generate this logic, so you don’t have to write the same code repeatedly. This also ensures that if your types change (e.g., you add a new query param), the parsing/building logic updates on regeneration.
+Writing request parsing and response writing logic for each handler can be tedious and error-prone. Tags in your struct (like `route:"id"` or `json:"name"`) guide Gohandlers to generate this logic, so you don’t have to write the same code repeatedly. This also ensures that if your types change (e.g., you add a new query param), the parsing/building logic updates on regeneration.
+
+---
 
 ## Usage
 
 ```sh
-# gohandlers bindings --help
+# Gohandlers bindings --help
 Usage of bindings:
   -dir string
         the source directory contains Go files
@@ -37,6 +41,8 @@ Usage of bindings:
         only use request types that is prefixed with handlers defined on this type
   -v    prints additional information
 ```
+
+---
 
 ## Example
 
@@ -60,7 +66,7 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-Run gohandlers for bindings in the [`handlers/pets`](https://github.com/ufukty/gohandlers-petstore/tree/main/handlers/pets) directory:
+Run Gohandlers for bindings in the [`handlers/pets`](https://github.com/ufukty/gohandlers-petstore/tree/main/handlers/pets) directory:
 
 ```bash
 gohandlers bindings -dir handlers/pets -out bindings.gh.go
@@ -75,7 +81,7 @@ func (bs GetPetResponse) Write(w http.ResponseWriter) error
 func (bs *GetPetResponse) Parse(rs *http.Response) error
 ```
 
-Now your handler `CreatePet` can use `bq.Parse(r)` to [parse inputs](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/handlers/pets/create.go#L21), and `bs.Write(w)` to [write outputs](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/handlers/pets/create.go#L32), with all the heavy lifting done by gohandlers-generated code. For client-side, a `CreatePetRequest.Build()` will help [create requests](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/client/client.gh.go#L28) and `CreatePetResponse.Parse()` will help [deserializing responses](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/client/client.gh.go#L40) before returning to caller:
+Now your handler `CreatePet` can use `bq.Parse(r)` to [parse inputs](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/handlers/pets/create.go#L21), and `bs.Write(w)` to [write outputs](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/handlers/pets/create.go#L32), with all the heavy lifting done by Gohandlers-generated code. For client-side, a `CreatePetRequest.Build()` will help [create requests](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/client/client.gh.go#L28) and `CreatePetResponse.Parse()` will help [deserializing responses](https://github.com/ufukty/gohandlers-petstore/blob/280eff72d24d32f5d61b32361653de906cd639bd/client/client.gh.go#L40) before returning to caller:
 
 ```go
 type CreatePetRequest struct {

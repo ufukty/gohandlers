@@ -1,4 +1,4 @@
-header {
+#navs {
   nav {
     ul ul {
       margin-left: 20px;
@@ -6,6 +6,7 @@ header {
 
     li {
       list-style: none;
+      text-indent: 1.6em hanging;
     }
 
     a,

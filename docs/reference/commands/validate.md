@@ -1,11 +1,13 @@
-# `validate`
+# ✱ `validate`
 
 Generates a Go file (default `validate.gh.go`) contains validation helpers for request binding types. Those helpers are meant to be called from handlers, after parsing is done. Validation methods call each field's validation method one by one, and collects all errors in a map. Then the handler can use its custom method of serialization based on its return type being JSON or HTML.
+
+---
 
 ## Args
 
 ```sh
-# gohandlers validate --help
+# Gohandlers validate --help
 Usage of validate:
   -dir string
         the directory contains Go files
@@ -16,12 +18,14 @@ Usage of validate:
   -v    prints additional information
 ```
 
+---
+
 ## Example
 
 You provide the source directory contain your Go handlers and filename that will be created in that directory:
 
 ```sh
-gohandlers validate --dir handlers/pets --out validate.gh.go
+Gohandlers validate --dir handlers/pets --out validate.gh.go
 ```
 
 This would create [handlers/pets/validate.gh.go](https://github.com/ufukty/gohandlers-petstore/blob/main/handlers/pets/validate.gh.go):
