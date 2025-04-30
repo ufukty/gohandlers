@@ -11,4 +11,4 @@ set -ve
   make install
 )
 
-kask build -in docs -out docs-build -domain / -v
+~/bin/kask build -in docs -out docs-build -domain / -v
