@@ -59,6 +59,8 @@ Usage of client:
   -v    prints additional information
 ```
 
+Note that required `-import` and `-pkg` flags are unique to `client` and `mock` commands, since those files expected to be created in a separate (maybe sub) package often called `client`. Thus, Gohandlers needed to be provide the import path of tha package contains handlers.
+
 ---
 
 ## Example
