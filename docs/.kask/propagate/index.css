@@ -202,3 +202,14 @@ header {
     }
   }
 }
+
+#top-of-content-notice {
+  width: 100%;
+  text-align: center;
+
+  color: light-dark(rgb(63, 106, 158), #489aff);
+  background-color: light-dark(#bcdaff, #19314f);
+  padding: 20px;
+  border-radius: 8px;
+
+}
