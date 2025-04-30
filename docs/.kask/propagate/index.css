@@ -106,7 +106,7 @@ body {
       }
     }
 
-    @media screen and (700px<=width) and (width<1400px) {
+    @media screen and (700px<=width) and (width<1700px) {
       display: grid;
       grid-template-columns: min-content 1fr;
       justify-content: left;
@@ -131,7 +131,7 @@ body {
       }
     }
 
-    @media screen and (1400px<=width) {
+    @media screen and (1700px<=width) {
       display: grid;
       grid-template-columns: 350px 1fr 350px;
       justify-content: space-between;
