@@ -207,8 +207,8 @@ header {
   width: 100%;
   text-align: center;
 
-  color: light-dark(rgb(63, 106, 158), #489aff);
-  background-color: light-dark(#bcdaff, #19314f);
+  color: light-dark(#3f6a9e, #9ecaff);
+  background-color: light-dark(#e9f3ff, #19314f);
   padding: 20px;
   border-radius: 8px;
 
