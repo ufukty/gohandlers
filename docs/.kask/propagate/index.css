@@ -174,7 +174,7 @@ header {
   align-items: center;
   gap: 0;
 
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid light-dark(#eee, #303c4b);
 
   &>* {
     padding: 20px;
@@ -190,7 +190,8 @@ header {
 
   #gohandlers-in-github {
     padding: 10px 20px;
-    background-color: #eee;
+    color: light-dark(#444, #000f21);
+    background-color: light-dark(#eee, #1167d1);
     border-radius: 1000px;
     margin: 20px;
     text-wrap: nowrap;
