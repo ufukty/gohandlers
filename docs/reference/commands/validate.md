@@ -14,7 +14,7 @@ Usage of validate:
   -out string
         the output file (default "validate.gh.go")
   -recv string
-        only use request types that is prefixed with handlers defined on this type
+        ignore handlers defined on other receivers
   -v    prints additional information
 ```
 

@@ -38,7 +38,7 @@ Usage of bindings:
   -out string
         the output file that will be created in -dir (default "bindings.gh.go")
   -recv string
-        only use request types that is prefixed with handlers defined on this type
+        ignore handlers defined on other receivers
   -v    prints additional information
 ```
 
