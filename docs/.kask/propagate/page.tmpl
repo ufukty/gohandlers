@@ -12,6 +12,15 @@
 {{end}}
 {{end}}
 
+{{define "toc-item"}}
+{{if gt .Level 0}}<a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>{{end}}
+{{with .Children}}
+<ul>
+  {{range .}}
+  <li>{{template "toc-item" .}}</li>{{end}}
+</ul>{{end}}
+{{end}}
+
 {{define "markdown-page"}}
 <!DOCTYPE html>
 <html lang="en">
@@ -54,26 +63,7 @@
           <details open>
             <summary>In this page</summary>
             <div class="summarized">
-              <ul>
-                {{range .Children}}
-                <li>
-                  <a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>
-                  {{if gt (len .Children) 0}}
-                  <ul>
-                    {{range .Children}}
-                    <li>
-                      <a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>
-                      {{if gt (len .Children) 0}}
-                      <ul>
-                        {{range .Children}}
-                        <li>
-                          <a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>
-                        </li>{{end}}
-                      </ul>{{end}}
-                    </li>{{end}}
-                  </ul>{{end}}
-                </li>{{end}}
-              </ul>
+              {{template "toc-item" .}}
             </div>
           </details>
         </nav>{{end}}
