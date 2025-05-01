@@ -85,7 +85,7 @@ The power of Gohandlers comes from its automated code generation. It transforms 
 
 Gohandler can generate `.Parse()`, `.Build()` and `.Write()` methods on request and response binding types based on the field tags.
 
-#### Request builders
+#### 🪚 Request builders
 
 Request builders are meant to be used at the client side of request, for Go based clients (such as interservices communication).
 
@@ -126,7 +126,7 @@ Notice the function returns an `*http.Request` value. Caller then can use a cust
 
 Generated statements for setting query parameters will mind the middle return argument (`ok`) representing if the query parameter is present.
 
-#### Request and response builders
+#### 🍭 Request and response parsers
 
 Parsing methods implemented on request and response bindings are meant to be used at the receiver side of HTTP requests and responses. They are to "Unmarshal" (or "deserialize") HTTP data to typed fields, after performing proper encoding and decoding.
 
@@ -167,7 +167,7 @@ func (bq *CreatePetRequest) Parse(rq *http.Request) error {
 
 Those examples are very short as the endpoints only accepts one parameter or only a JSON body. For handlers accept more parameters, parser body gets quite long and hard to manually check for every field.
 
-#### Response writers
+#### ✏️ Response writers
 
 Just like the request builders, and request and response parsers; response writers support all the 4 field tags mentioned earlier. Depending on the field tag combination, writer body eloquently populated with `Content-Type` check based on the body-targeting fields are either of `json` or `form`. Setting status code is handled just before serializing the body.
 
