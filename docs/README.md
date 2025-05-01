@@ -1,6 +1,6 @@
-<img src=".assets/github-social-preview.png" style="width:min(100%, 640px)">
-
 # 🚀 Gohandlers
+
+<img src=".assets/github-social-preview.png" style="width:min(100%, 640px);border-radius:8px">
 
 **Gohandlers** is a command-line tool for Go that automates the generation of boilerplate code for HTTP handlers and their associated types. It’s designed for developers building REST APIs in Go, who want to keep server and client code in sync without manually writing OpenAPI/Swagger specs. By analyzing your Go code (handlers and types), Gohandlers generates type-safe code for parsing HTTP requests, building responses, registering routes, and even creating client libraries — all without reflection and with compile-time safety.
 
