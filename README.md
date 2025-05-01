@@ -1,4 +1,4 @@
-> Work in progress. The direction on implementing features and solving bugs is depending on the reach. Leave a mark in issues, PRs or discussions mentioning your use case for gohandlers.
+> Work in progress.
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/ufukty/gohandlers)](https://goreportcard.com/report/github.com/ufukty/gohandlers)
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/ufukty/gohandlers)](https://pkg.go.dev/github.com/ufukty/gohandlers)

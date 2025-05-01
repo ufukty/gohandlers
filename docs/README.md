@@ -1,4 +1,4 @@
-> Work in progress. The direction on implementing features and solving bugs is depending on the reach. Leave a mark in issues, PRs or discussions mentioning your use case for Gohandlers.
+> Work in progress.
 
 # 🚀 Gohandlers
 
