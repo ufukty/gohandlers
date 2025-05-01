@@ -22,7 +22,7 @@ install:
 	go build $(LDFLAGS) -o ~/bin/gohandlers ./cmd/gohandlers
 
 docs-build: $(shell find docs -type f)
-	rm -rfv build
+	rm -rfv docs-build
 	kask build -in docs -out docs-build -domain / -v
 
 all: docs-build
