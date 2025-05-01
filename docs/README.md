@@ -113,7 +113,7 @@ To better utilize Gohandlers, it helps to know how it identifies handlers and ty
 
     Gohandlers uses these tags to generate correct code. It will skip binding a type to a handler if, for example, the names don’t match or the tags suggest one is for body but the method infers no body, etc., and will warn you of mismatches.
 
--   **Custom (De)serialization:** Importantly, Gohandlers expects that for non-basic types in your bindings, you provide methods to serialize/deserialize them. For instance, if you have a type `UserID` used in a `route` tag, your type should implement:
+-   **Custom (De)serialization:** Importantly, Gohandlers expects that you provide `FromRoute()`, `FromQuery()`, `FromForm()`, `ToRoute()`, `ToQuery()` and `ToForm()` methods to serialize/deserialize fields. For instance, if you have a type `UserID` used in a `route` tag, your type should implement:
 
     ```go
     func (id *UserID) FromRoute(value string) error   // parse from path string
