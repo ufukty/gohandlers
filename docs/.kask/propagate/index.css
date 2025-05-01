@@ -203,14 +203,3 @@ header {
     }
   }
 }
-
-#top-of-content-notice {
-  width: 100%;
-  text-align: center;
-
-  color: light-dark(#3f6a9e, #9ecaff);
-  background-color: light-dark(#e9f3ff, #19314f);
-  padding: 20px;
-  border-radius: 8px;
-
-}
