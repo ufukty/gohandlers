@@ -63,7 +63,7 @@ Gohandlers provide multiple commands to support stepped adoption. Here is a quic
 | **client**   | Generates strongly typed API clients wrapping HTTP interactions inside `client.gh.go`.                          |
 | **list**     | Provides a `ListHandlers()` registry inside `list.gh.go`.                                                       |
 | **mock**     | Generates mock implementations of API clients for testing inside `mock.gh.go`.                                  |
-| **validate** | Adds `Validate() map[string]error` methods for request validation inside `validate.gh.go`.                      |
+| **validate** | Generates request validation methods that collects responses from each field validator and returns in a map.    |
 | **yaml**     | Writes the handler metadata to a YAML file inside `gh.yml`.                                                     |
 
 ---

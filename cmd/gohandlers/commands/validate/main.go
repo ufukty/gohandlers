@@ -64,13 +64,13 @@ func produce(bti *inspects.BindingTypeInfo) *ast.FuncDecl {
 		Type: &ast.FuncType{
 			Params: &ast.FieldList{},
 			Results: &ast.FieldList{List: []*ast.Field{
-				{Names: []*ast.Ident{{Name: "errs"}}, Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "error"}}},
+				{Names: []*ast.Ident{{Name: "issues"}}, Type: &ast.MapType{Key: &ast.Ident{Name: "string"}, Value: &ast.Ident{Name: "any"}}},
 			}},
 		},
 		Body: &ast.BlockStmt{List: []ast.Stmt{&ast.AssignStmt{
-			Lhs: []ast.Expr{ast.NewIdent("errs")},
+			Lhs: []ast.Expr{ast.NewIdent("issues")},
 			Tok: token.ASSIGN,
-			Rhs: []ast.Expr{&ast.CompositeLit{Type: &ast.MapType{Key: ast.NewIdent("string"), Value: ast.NewIdent("error")}}},
+			Rhs: []ast.Expr{&ast.CompositeLit{Type: &ast.MapType{Key: ast.NewIdent("string"), Value: ast.NewIdent("any")}}},
 		}}},
 	}
 	params := merge(
@@ -82,18 +82,18 @@ func produce(bti *inspects.BindingTypeInfo) *ast.FuncDecl {
 	for p, fn := range sorted.ByValues(params) {
 		fd.Body.List = append(fd.Body.List, &ast.IfStmt{
 			Init: &ast.AssignStmt{
-				Lhs: []ast.Expr{&ast.Ident{Name: "err"}},
+				Lhs: []ast.Expr{&ast.Ident{Name: "issue"}},
 				Tok: token.DEFINE,
 				Rhs: []ast.Expr{&ast.CallExpr{Fun: &ast.SelectorExpr{
 					X:   &ast.SelectorExpr{X: &ast.Ident{Name: "bq"}, Sel: &ast.Ident{Name: fn}},
 					Sel: &ast.Ident{Name: "Validate"},
 				}}},
 			},
-			Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "err"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
+			Cond: &ast.BinaryExpr{X: &ast.Ident{Name: "issue"}, Op: token.NEQ, Y: &ast.Ident{Name: "nil"}},
 			Body: &ast.BlockStmt{List: []ast.Stmt{&ast.AssignStmt{
-				Lhs: []ast.Expr{&ast.IndexExpr{X: &ast.Ident{Name: "errs"}, Index: &ast.BasicLit{Kind: token.STRING, Value: quotes(p)}}},
+				Lhs: []ast.Expr{&ast.IndexExpr{X: &ast.Ident{Name: "issues"}, Index: &ast.BasicLit{Kind: token.STRING, Value: quotes(p)}}},
 				Tok: token.ASSIGN,
-				Rhs: []ast.Expr{&ast.Ident{Name: "err"}},
+				Rhs: []ast.Expr{&ast.Ident{Name: "issue"}},
 			}}},
 		})
 	}
