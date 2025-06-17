@@ -15,7 +15,7 @@ type Strings struct {
 	min, max int
 }
 
-func (v Strings) Validate(s string) error {
+func (v Strings) Validate(s string) any {
 	return validate.String(s, v.min, v.max, v.pattern)
 }
 
