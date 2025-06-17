@@ -4,37 +4,41 @@
 package validate
 
 import (
-	"fmt"
 	"regexp"
 	"time"
 )
 
 var (
-	ErrPattern = fmt.Errorf("content")
-	ErrLong    = fmt.Errorf("too long")
-	ErrShort   = fmt.Errorf("too short")
-	ErrEmpty   = fmt.Errorf("empty")
+	IssueEmpty   = "empty"
+	IssueLong    = "too long"
+	IssuePattern = "pattern"
+	IssueShort   = "too short"
 )
 
-func String(s string, min, max int, pattern *regexp.Regexp) error {
+func String(s string, min, max int, pattern *regexp.Regexp) any {
 	if l := len(s); l == 0 {
-		return ErrEmpty
+		return IssueEmpty
 	} else if l < min {
-		return ErrShort
+		return IssueShort
 	} else if l > max {
-		return ErrLong
+		return IssueLong
 	} else if pattern != nil && !pattern.MatchString(string(s)) {
-		return ErrPattern
+		return IssuePattern
 	}
 	return nil
 }
 
-func Time(t, min, max time.Time) error {
+var (
+	IssueAfterValidPeriod  = "after valid period"
+	IssueBeforeValidPeriod = "before valid period"
+)
+
+func Time(t, min, max time.Time) any {
 	if t.After(max) {
-		return fmt.Errorf("after valid period")
+		return IssueAfterValidPeriod
 	}
 	if t.Before(min) {
-		return fmt.Errorf("before valid period")
+		return IssueBeforeValidPeriod
 	}
 	return nil
 }
