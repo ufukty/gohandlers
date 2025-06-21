@@ -38,6 +38,39 @@ func (b Boolean) ToQuery() (string, bool, error) {
 
 func (b Boolean) Validate() error { return nil }
 
+type FormBoolean bool
+
+const (
+	On  FormBoolean = true
+	Off FormBoolean = false
+)
+
+func (b *FormBoolean) FromRoute(v string) error {
+	*b = v == "on"
+	return nil
+}
+
+func (b FormBoolean) ToRoute() (string, error) {
+	if b {
+		return "on", nil
+	}
+	return "f", nil
+}
+
+func (b *FormBoolean) FromQuery(v string) error {
+	*b = v == "on"
+	return nil
+}
+
+func (b FormBoolean) ToQuery() (string, bool, error) {
+	if b {
+		return "on", true, nil
+	}
+	return "", false, nil
+}
+
+func (b FormBoolean) Validate() error { return nil }
+
 type String string
 
 func (s *String) FromRoute(v string) error {
