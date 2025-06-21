@@ -36,9 +36,7 @@ func (b Boolean) ToQuery() (string, bool, error) {
 	return "false", true, nil
 }
 
-func (b Boolean) Validate() error {
-	return nil
-}
+func (b Boolean) Validate() error { return nil }
 
 type String string
 
@@ -59,6 +57,8 @@ func (s *String) FromQuery(v string) error {
 func (s String) ToQuery() (string, bool, error) {
 	return string(s), s != "", nil
 }
+
+func (s String) Validate() any { return nil }
 
 type Int int
 
@@ -87,3 +87,5 @@ func (i *Int) FromQuery(v string) error {
 func (i Int) ToQuery() (string, bool, error) {
 	return strconv.Itoa(int(i)), i != 0, nil
 }
+
+func (i Int) Validate() any { return nil }
