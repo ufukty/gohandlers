@@ -36,7 +36,7 @@ func (b Boolean) ToQuery() (string, bool, error) {
 	return "f", true, nil
 }
 
-func (b Boolean) Validate() error { return nil }
+func (b Boolean) Validate() any { return nil }
 
 type FormBoolean bool
 
@@ -69,7 +69,7 @@ func (b FormBoolean) ToQuery() (string, bool, error) {
 	return "", false, nil
 }
 
-func (b FormBoolean) Validate() error { return nil }
+func (b FormBoolean) Validate() any { return nil }
 
 type String string
 
