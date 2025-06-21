@@ -25,15 +25,15 @@ func (b Boolean) ToRoute() (string, error) {
 }
 
 func (b *Boolean) FromQuery(v string) error {
-	*b = v == "true"
+	*b = v == "t"
 	return nil
 }
 
 func (b Boolean) ToQuery() (string, bool, error) {
 	if b {
-		return "true", true, nil
+		return "t", true, nil
 	}
-	return "false", true, nil
+	return "f", true, nil
 }
 
 func (b Boolean) Validate() error { return nil }
