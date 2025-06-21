@@ -5,39 +5,39 @@ import (
 	"strconv"
 )
 
-type Boolean string
+type Boolean bool
 
 const (
-	True  Boolean = "true"
-	False Boolean = "false"
+	True  Boolean = true
+	False Boolean = false
 )
 
-func (b *Boolean) FromRoute(src string) error {
-	*b = Boolean(src)
+func (b *Boolean) FromRoute(v string) error {
+	*b = v == "t"
 	return nil
 }
 
 func (b Boolean) ToRoute() (string, error) {
-	return string(b), nil
+	if b {
+		return "t", nil
+	}
+	return "f", nil
 }
 
-func (s *Boolean) FromQuery(v string) error {
-	*s = Boolean(v)
+func (b *Boolean) FromQuery(v string) error {
+	*b = v == "true"
 	return nil
 }
 
-func (s Boolean) ToQuery() (string, bool, error) {
-	return string(s), s != "", nil
+func (b Boolean) ToQuery() (string, bool, error) {
+	if b {
+		return "true", true, nil
+	}
+	return "false", true, nil
 }
 
 func (b Boolean) Validate() error {
-	switch b {
-	case False:
-		return nil
-	case True:
-		return nil
-	}
-	return fmt.Errorf("invalid value: %q", b)
+	return nil
 }
 
 type String string
