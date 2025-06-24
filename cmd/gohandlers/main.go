@@ -7,11 +7,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/bindings"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/client"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/list"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/mock"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/validate"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/yaml"
 )
@@ -22,13 +20,11 @@ func listcmds(commands map[string]func() error) string {
 
 func Main() error {
 	commands := map[string]func() error{
-		"bindings": bindings.Main,
-		"client":   client.Main,
-		"list":     list.Main,
-		"mock":     mock.Main,
-		"validate": validate.Main,
-		"version":  version.Main,
-		"yaml":     yaml.Main,
+		"client":  client.Main,
+		"helpers": helpers.Main,
+		"mock":    mock.Main,
+		"version": version.Main,
+		"yaml":    yaml.Main,
 	}
 
 	if len(os.Args) < 2 {
