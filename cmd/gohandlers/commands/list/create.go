@@ -29,21 +29,14 @@ func addnewlines(f string) string {
 	return f
 }
 
-func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string, hi HandlerInfo) error {
+func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string) error {
 	f := &ast.File{
 		Name:  ast.NewIdent(pkgname),
 		Decls: []ast.Decl{},
 	}
 
-	imports := []ast.Spec{}
-	if hi.ImportPath != "" {
-		imports = append(imports,
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: quotes(hi.ImportPath)}},
-		)
-	} else {
-		imports = append(imports,
-			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: quotes("net/http")}},
-		)
+	imports := []ast.Spec{
+		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: quotes("github.com/ufukty/gohandlers/pkg/gohandlers")}},
 	}
 
 	f.Decls = append(f.Decls,
@@ -53,39 +46,9 @@ func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, p
 		},
 	)
 
-	if hi.Typename == "" {
-		f.Decls = append(f.Decls,
-			&ast.GenDecl{
-				Tok: token.TYPE,
-				Specs: []ast.Spec{
-					&ast.TypeSpec{
-						Name: &ast.Ident{Name: "HandlerInfo"},
-						Type: &ast.StructType{Fields: &ast.FieldList{
-							List: []*ast.Field{
-								{Names: []*ast.Ident{{Name: "Method"}}, Type: &ast.Ident{Name: "string"}},
-								{Names: []*ast.Ident{{Name: "Path"}}, Type: &ast.Ident{Name: "string"}},
-								{Names: []*ast.Ident{{Name: "Ref"}}, Type: &ast.SelectorExpr{X: &ast.Ident{Name: "http"}, Sel: &ast.Ident{Name: "HandlerFunc"}}},
-							},
-						}},
-					},
-				},
-			},
-		)
-	}
-
-	var handlerinfo ast.Expr
-	if hi.Typename == "" {
-		handlerinfo = &ast.Ident{Name: "HandlerInfo"}
-	} else {
-		fgrs := strings.Split(hi.Typename, ".")
-		switch len(fgrs) {
-		case 2:
-			handlerinfo = &ast.SelectorExpr{X: ast.NewIdent(fgrs[0]), Sel: ast.NewIdent(fgrs[1])}
-		case 1:
-			handlerinfo = ast.NewIdent(hi.Typename)
-		default:
-			return fmt.Errorf("unexpected number of dots in the value for HandlerInfo substitution: %s", hi.Typename)
-		}
+	var handlerinfo ast.Expr = &ast.SelectorExpr{
+		X:   ast.NewIdent("gohandlers"),
+		Sel: ast.NewIdent("HandlerInfo"),
 	}
 
 	fds := []ast.Decl{}
