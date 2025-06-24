@@ -13,9 +13,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/bindings/imports"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/bindings/produce"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/bindings/utilities"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/imports"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/utilities"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
