@@ -70,7 +70,7 @@ func pretty(f *ast.File) (io.Reader, error) {
 
 func Main() error {
 	args := &Args{}
-	flag.StringVar(&args.Dir, "dir", "", "the source directory contains Go files")
+	flag.StringVar(&args.Dir, "dir", "", "the source directory contains Go files for handlers and binding types")
 	flag.StringVar(&args.Out, "out", "gh.go", "the path for output file")
 	flag.StringVar(&args.Recv, "recv", "", "ignore handlers defined on other receivers")
 	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
