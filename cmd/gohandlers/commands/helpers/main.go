@@ -10,7 +10,6 @@ import (
 	"go/token"
 	"io"
 	"os"
-	"path/filepath"
 	"slices"
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
@@ -72,7 +71,7 @@ func pretty(f *ast.File) (io.Reader, error) {
 func Main() error {
 	args := &Args{}
 	flag.StringVar(&args.Dir, "dir", "", "the source directory contains Go files")
-	flag.StringVar(&args.Out, "out", "bindings.gh.go", "the output file that will be created in -dir")
+	flag.StringVar(&args.Out, "out", "gh.go", "the path for output file")
 	flag.StringVar(&args.Recv, "recv", "", "ignore handlers defined on other receivers")
 	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
 	flag.Parse()
@@ -122,7 +121,7 @@ func Main() error {
 	if err != nil {
 		return fmt.Errorf("pretty printing: %w", err)
 	}
-	fh, err := os.Create(filepath.Join(args.Dir, args.Out))
+	fh, err := os.Create(args.Out)
 	if err != nil {
 		return fmt.Errorf("creating output file: %w", err)
 	}
