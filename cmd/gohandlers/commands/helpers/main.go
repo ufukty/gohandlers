@@ -8,13 +8,14 @@ import (
 	"go/ast"
 	"go/printer"
 	"go/token"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/imports"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/post"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/utilities"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
 	"github.com/ufukty/gohandlers/pkg/inspects"
@@ -25,11 +26,6 @@ type Args struct {
 	Out     string
 	Recv    string
 	Verbose bool
-}
-
-func post(src string) string {
-	src = strings.ReplaceAll(src, "}\nfunc", "}\n\nfunc")
-	return src
 }
 
 func filterByRecv(infoss map[inspects.Receiver]map[string]inspects.Info, recvt string) (map[inspects.Receiver]map[string]inspects.Info, error) {
@@ -60,6 +56,17 @@ func ordered(infoss map[inspects.Receiver]map[string]inspects.Info) []funcrecv {
 		return cmp.Or(cmp.Compare(a.receiver.Type, b.receiver.Type), cmp.Compare(a.handler, b.handler))
 	})
 	return o
+}
+
+func pretty(f *ast.File) (io.Reader, error) {
+	b := bytes.NewBuffer([]byte{})
+	err := printer.Fprint(b, token.NewFileSet(), f)
+	if err != nil {
+		return nil, fmt.Errorf("printing: %w", err)
+	}
+	fmt.Fprint(b, version.Top())
+	fmt.Fprint(b, post.Process(b.String()))
+	return b, nil
 }
 
 func Main() error {
@@ -94,9 +101,7 @@ func Main() error {
 	}
 
 	f.Decls = append(f.Decls, construct.Listers(infoss, pkg)...)
-
 	f.Decls = append(f.Decls, utilities.Produce(infoss)...)
-
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]
 		if i.RequestType != nil {
@@ -113,18 +118,19 @@ func Main() error {
 		}
 	}
 
+	print, err := pretty(f)
+	if err != nil {
+		return fmt.Errorf("pretty printing: %w", err)
+	}
 	fh, err := os.Create(filepath.Join(args.Dir, args.Out))
 	if err != nil {
-		return fmt.Errorf("creating file: %w", err)
+		return fmt.Errorf("creating output file: %w", err)
 	}
 	defer fh.Close()
-	b := bytes.NewBuffer([]byte{})
-	err = printer.Fprint(b, token.NewFileSet(), f)
+	_, err = io.Copy(fh, print)
 	if err != nil {
-		return fmt.Errorf("printing: %w", err)
+		return fmt.Errorf("writing to output file: %w", err)
 	}
-	fmt.Fprint(fh, version.Top())
-	fmt.Fprint(fh, post(b.String()))
 
 	return nil
 }
