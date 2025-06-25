@@ -105,6 +105,7 @@ func Main() error {
 				f.Decls = append(f.Decls, construct.BqUnmarshalFormData(i))
 			}
 			f.Decls = append(f.Decls, construct.BqParse(i))
+			f.Decls = append(f.Decls, construct.BqValidate(i.RequestType))
 		}
 		if i.ResponseType != nil {
 			f.Decls = append(f.Decls, construct.BsWrite(i))
