@@ -55,6 +55,7 @@ func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
+		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"github.com/ufukty/gohandlers/pkg/gohandlers"`}},
 	}
 	if needsBytes(infoss) {
 		imports = append(imports,
