@@ -93,6 +93,8 @@ func Main() error {
 		},
 	}
 
+	f.Decls = append(f.Decls, construct.Listers(infoss, pkg)...)
+
 	f.Decls = append(f.Decls, utilities.Produce(infoss)...)
 
 	for _, o := range ordered(infoss) {
