@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/imports"
@@ -60,13 +61,12 @@ func ordered(infoss map[inspects.Receiver]map[string]inspects.Info) []funcrecv {
 
 func pretty(f *ast.File) (io.Reader, error) {
 	b := bytes.NewBuffer([]byte{})
+	fmt.Fprint(b, version.Top())
 	err := printer.Fprint(b, token.NewFileSet(), f)
 	if err != nil {
 		return nil, fmt.Errorf("printing: %w", err)
 	}
-	fmt.Fprint(b, version.Top())
-	fmt.Fprint(b, post.Process(b.String()))
-	return b, nil
+	return strings.NewReader(post.Process(b.String())), nil
 }
 
 func Main() error {
