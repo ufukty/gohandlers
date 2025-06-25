@@ -13,7 +13,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/bindings/produce"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/imports"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/utilities"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
@@ -98,15 +98,15 @@ func Main() error {
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]
 		if i.RequestType != nil {
-			f.Decls = append(f.Decls, produce.BqBuild(i))
+			f.Decls = append(f.Decls, construct.BqBuild(i))
 			if len(i.RequestType.Params.Form) > 0 {
-				f.Decls = append(f.Decls, produce.BqUnmarshalFormData(i))
+				f.Decls = append(f.Decls, construct.BqUnmarshalFormData(i))
 			}
-			f.Decls = append(f.Decls, produce.BqParse(i))
+			f.Decls = append(f.Decls, construct.BqParse(i))
 		}
 		if i.ResponseType != nil {
-			f.Decls = append(f.Decls, produce.BsWrite(i))
-			f.Decls = append(f.Decls, produce.BsParse(i))
+			f.Decls = append(f.Decls, construct.BsWrite(i))
+			f.Decls = append(f.Decls, construct.BsParse(i))
 		}
 	}
 
