@@ -24,6 +24,7 @@ type Args struct {
 	Dir     string
 	Out     string
 	Recv    string
+	PkgName string
 	Verbose bool
 }
 
@@ -72,6 +73,7 @@ func Main() error {
 	args := &Args{}
 	flag.StringVar(&args.Dir, "dir", "", "the source directory contains Go files for handlers and binding types")
 	flag.StringVar(&args.Out, "out", "gh.go", "the path for output file")
+	flag.StringVar(&args.PkgName, "pkg", "", "override the package name resolved from Go files")
 	flag.StringVar(&args.Recv, "recv", "", "ignore handlers defined on other receivers")
 	flag.BoolVar(&args.Verbose, "v", false, "prints additional information")
 	flag.Parse()
@@ -81,9 +83,13 @@ func Main() error {
 		return fmt.Errorf("bad arguments")
 	}
 
-	infoss, pkg, err := inspects.Dir(args.Dir, args.Verbose)
+	infoss, pkgName, err := inspects.Dir(args.Dir, args.Verbose)
 	if err != nil {
 		return fmt.Errorf("inspecting the directory: %w", err)
+	}
+
+	if args.PkgName != "" {
+		pkgName = args.PkgName
 	}
 
 	if args.Recv != "" {
@@ -93,13 +99,13 @@ func Main() error {
 		}
 	}
 	f := &ast.File{
-		Name: ast.NewIdent(pkg),
+		Name: ast.NewIdent(pkgName),
 		Decls: []ast.Decl{
 			&ast.GenDecl{Tok: token.IMPORT, Specs: imports.List(infoss)},
 		},
 	}
 
-	f.Decls = append(f.Decls, construct.Listers(infoss, pkg)...)
+	f.Decls = append(f.Decls, construct.Listers(infoss)...)
 	f.Decls = append(f.Decls, utilities.Produce(infoss)...)
 	for _, o := range ordered(infoss) {
 		i := infoss[o.receiver][o.handler]

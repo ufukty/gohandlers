@@ -8,7 +8,7 @@ import (
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
-func Listers(infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string) []ast.Decl {
+func Listers(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
 	var handlerinfo ast.Expr = &ast.SelectorExpr{
 		X:   ast.NewIdent("gohandlers"),
 		Sel: ast.NewIdent("HandlerInfo"),
