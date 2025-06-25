@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
@@ -31,7 +32,7 @@ func Main() error {
 		return fmt.Errorf("inspecting directory and handlers: %w", err)
 	}
 
-	err = create(filepath.Join(args.Dir, args.Out), infoss, pkgname)
+	err = construct.Listers(filepath.Join(args.Dir, args.Out), infoss, pkgname)
 	if err != nil {
 		return fmt.Errorf("creating the main file: %w", err)
 	}
