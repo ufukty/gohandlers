@@ -1,51 +1,14 @@
-package list
+package construct
 
 import (
-	"bytes"
-	"fmt"
 	"go/ast"
-	"go/format"
-	"go/printer"
 	"go/token"
-	"io"
-	"os"
 	"slices"
-	"strings"
 
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
-func quotes(src string) string {
-	return fmt.Sprintf("%q", src)
-}
-
-func addnewlines(f string) string {
-	f = strings.ReplaceAll(f, "}\nfunc", "}\n\nfunc")
-	hit := "HandlerInfo"
-	f = strings.ReplaceAll(f, fmt.Sprintf("%s{", hit), fmt.Sprintf("%s{\n", hit)) // beginning composite literal
-	f = strings.ReplaceAll(f, "}, \"", "},\n\"")                                  // after each line
-	f = strings.ReplaceAll(f, "}}", "},\n}")                                      // ending composite literal
-	return f
-}
-
-func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, pkgname string) error {
-	f := &ast.File{
-		Name:  ast.NewIdent(pkgname),
-		Decls: []ast.Decl{},
-	}
-
-	imports := []ast.Spec{
-		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: quotes("github.com/ufukty/gohandlers/pkg/gohandlers")}},
-	}
-
-	f.Decls = append(f.Decls,
-		&ast.GenDecl{
-			Tok:   token.IMPORT,
-			Specs: imports,
-		},
-	)
-
+func Listers(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {
 	var handlerinfo ast.Expr = &ast.SelectorExpr{
 		X:   ast.NewIdent("gohandlers"),
 		Sel: ast.NewIdent("HandlerInfo"),
@@ -123,25 +86,6 @@ func create(dst string, infoss map[inspects.Receiver]map[string]inspects.Info, p
 			return 1
 		}
 	})
-	f.Decls = append(f.Decls, fds...)
 
-	b := bytes.NewBufferString("")
-	fmt.Fprint(b, version.Top())
-	err := printer.Fprint(b, token.NewFileSet(), f)
-	if err != nil {
-		return fmt.Errorf("printing: %w", err)
-	}
-	o, err := os.Create(dst)
-	if err != nil {
-		return fmt.Errorf("creating output file: %w", err)
-	}
-	defer o.Close()
-
-	bt, err := format.Source([]byte(addnewlines(b.String())))
-	if err != nil {
-		return fmt.Errorf("formatting output file: %w", err)
-	}
-	io.Copy(o, bytes.NewBuffer(bt))
-
-	return nil
+	return fds
 }

@@ -1,4 +1,4 @@
-package produce
+package construct
 
 func ternary[T any](cond bool, t, f T) T {
 	if cond {
