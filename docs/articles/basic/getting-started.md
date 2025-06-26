@@ -1,4 +1,4 @@
-# 🎉 Getting Started
+# Getting Started
 
 Building HTTP APIs in Go is powerful, but repetitive boilerplate often sneaks into your handlers, validation, and routing setup. Wouldn't it be great if you could automate away that tedious code?
 
@@ -6,9 +6,7 @@ Meet **Gohandlers**, your new best friend for creating robust, maintainable, and
 
 This comprehensive, friendly guide will help you quickly and confidently get started with Gohandlers, step-by-step. Let's dive right in!
 
----
-
-## ✨ What is Gohandlers, anyway?
+## What is Gohandlers, anyway?
 
 **Gohandlers** is a code-generation tool designed to remove boilerplate when building HTTP handlers in Go. It automatically generates serialization, validation, routing, clients, and mocks—freeing you to focus purely on your business logic.
 
@@ -24,29 +22,39 @@ Sounds good? Let’s set it up!
 
 Use these validators inside your handlers to quickly return precise validation errors.
 
----
+## Installation
 
-## 🚧 Installation
+Make sure you have a recent version of Go installed (Go 1.24+). Install Gohandlers by running:
 
-Install the Gohandlers CLI with one simple Go command:
-
-```bash
+```sh
 go install github.com/ufukty/gohandlers/cmd/gohandlers@latest
 ```
 
-This gives you immediate access to the `Gohandlers` command-line tool.
+This will put the `gohandlers` binary in your `GOPATH/bin`. To check if your temrinal can find Gohandlers binary:
 
-Ensure your Go environment (`$GOPATH/bin`) is set in your system’s `PATH`. Check your installation with:
-
-```bash
-gohandlers
+```sh
+which -a gohandlers
 ```
 
-If you see list of available commands, you're all set!
+> **Suggestion**
+>
+> Use the `make install` command to assign version number correctly.
 
----
+## Usage
 
-## 🗂️ Project structure
+The general syntax of the tool is:
+
+```bash
+gohandlers [command] [flags]
+```
+
+Run this to see available flags for each subcommand:
+
+```sh
+gohandlers [command] -help
+```
+
+## Project structure
 
 Let's create a minimal project to see Gohandlers in action:
 
@@ -71,9 +79,7 @@ petstore/
 
 Each handler file will define request and response structs, along with handler logic.
 
----
-
-## 🧩 Binding types
+## Binding types
 
 Create simple Go structs with clear field tags to describe your HTTP inputs and outputs:
 
@@ -122,9 +128,7 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 
 No parsing, validation, or serialization logic is needed—Gohandlers handles it automatically.
 
----
-
-## 🤙 Generate `Parse`, `Write` and `Build` helpers for binding types
+## Generate `Parse`, `Write` and `Build` helpers for binding types
 
 Run the `bindings` command to auto-generate serialization/deserialization code:
 
@@ -142,9 +146,7 @@ func (resp CreatePetResponse) Write(w http.ResponseWriter) error { /* ... */ }
 
 Your handlers can now directly parse requests and write responses effortlessly!
 
----
-
-## ✅ Add effortless validation
+## Add effortless validation
 
 Gohandlers also automates validation generation:
 
@@ -164,9 +166,7 @@ func (req CreatePetRequest) Validate() map[string]error {
 }
 ```
 
----
-
-## 🗺️ Automatic Handler Registration
+## Automatic Handler Registration
 
 Stop manually registering your routes! Instead, use the auto-generated handler listing:
 
@@ -192,9 +192,7 @@ func main() {
 
 Voila! All your handlers are registered automatically.
 
----
-
-## 🏁 Run Your Server
+## Run Your Server
 
 Start your server:
 
@@ -225,9 +223,7 @@ You'll receive a JSON response:
 
 Congrats! You've successfully set up your first Gohandlers-based API endpoint.
 
----
-
-## 🎁 Generate typed API clients (bonus!)
+## Generate typed API clients (bonus!)
 
 Let’s not forget clients. Generate strongly typed Go clients for your API consumers:
 
@@ -242,9 +238,7 @@ client := client.NewClient(client.StaticPool("http://localhost:8080"))
 resp, err := client.CreatePet(ctx, dto.Pet{Name: "Buddy", Tag: "dog"})
 ```
 
----
-
-## 🧪 Mock clients for simple testing
+## Mock clients for simple testing
 
 Testing your handlers couldn't be easier:
 
@@ -254,9 +248,7 @@ gohandlers mock -dir handlers/pets -out mock.gh.go -pkg client -v
 
 Your unit tests become simple, predictable, and maintainable!
 
----
-
-## 🎯 Final thoughts: Why use Gohandlers?
+## Final thoughts: Why use Gohandlers?
 
 By adopting Gohandlers, you're making your life easier in so many ways:
 
