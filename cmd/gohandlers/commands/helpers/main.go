@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/printer"
 	"go/token"
 	"io"
@@ -66,7 +67,12 @@ func pretty(f *ast.File) (io.Reader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("printing: %w", err)
 	}
-	return strings.NewReader(post.Process(b.String())), nil
+	proccessed := post.Process(b.String())
+	formatted, err := format.Source([]byte(proccessed))
+	if err != nil {
+		return nil, fmt.Errorf("formatting: %w", err)
+	}
+	return strings.NewReader(string(formatted)), nil
 }
 
 func Main() error {
