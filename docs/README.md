@@ -1,12 +1,81 @@
-# 🚀 Gohandlers
+# Gohandlers
 
 <img src=".assets/github-social-preview.png" style="width:min(100%, 640px);border-radius:8px">
 
-**Gohandlers** is a command-line tool for Go that automates the generation of boilerplate code for HTTP handlers and their associated types. It’s designed for developers building REST APIs in Go, who want to keep server and client code in sync without manually writing OpenAPI/Swagger specs. By analyzing your Go code (handlers and types), Gohandlers generates type-safe code for parsing HTTP requests, building responses, registering routes, and even creating client libraries — all without reflection and with compile-time safety.
+**Gohandlers** is a CLI tool for Go developers to automate generating 🗿 type safe and 💩 reflectless binding type **helpers**, endpoint **listers** and **clients** for RPC-like use over HTTP without proto.
 
----
+## Summary
 
-## 🤔 Why Use Gohandlers?
+### What you give
+
+A folder with a bunch of Go files each contain binding types and `http.HandlerFunc`s:
+
+```go
+type CreateAccountRequest struct {
+  Firstname columns.HumanName        `json:"firstname"`
+  Lastname  columns.HumanName        `json:"lastname"`
+  Birthday  transports.HumanBirthday `json:"birthday"`
+  Country   transports.Country       `json:"country"`
+
+  QueryParameter1  `query:"query-param-1"`
+  QueryParameter1  `route:"param2"`
+}
+
+// POST
+func (p *Public) CreateAccount(w http.ResponseWriter, r *http.Request)
+```
+
+### What you get
+
+Handler listers:
+
+```go
+func ListHandlers() map[string]gohandlers.HandlerInfo
+func (pu *Public)  ListHandlers() map[string]gohandlers.HandlerInfo
+func (pr *Private) ListHandlers() map[string]gohandlers.HandlerInfo
+```
+
+> Listers return the map of handler name and a struct of method, path and pointer to the handler.
+
+Binding helpers:
+
+```go
+// For requests:
+func (bq CreateAccountRequest) Build(host string) (*http.Request, error)
+func (bq *CreateAccountRequest) Parse(rq *http.Request) error
+func (bq CreateAccountRequest) Validate() (issues map[string]any)
+
+// For responses:
+func (bs CreateEmailGrantResponse) Write(w http.ResponseWriter) error
+func (bs *CreateEmailGrantResponse) Parse(rs *http.Response) error
+```
+
+Client implementation and a mock with methods like:
+
+```go
+type Pool interface {
+  Host() (string, error)
+}
+
+type Client struct {
+  p Pool
+}
+
+func (c *Client) CreateAccount(bq *endpoints.CreateAccountRequest) (*http.Response, error)
+func (c *Client) CreateEmailGrant(bq *endpoints.CreateEmailGrantRequest) (*endpoints.CreateEmailGrantResponse, error)
+func (c *Client) CreatePasswordGrant(bq *endpoints.CreatePasswordGrantRequest) (*endpoints.CreatePasswordGrantResponse, error)
+func (c *Client) CreatePhoneGrant(bq *endpoints.CreatePhoneGrantRequest) (*endpoints.CreatePhoneGrantResponse, error)
+
+// for the tests don't need the real deal
+type Interface interface {
+  CreateAccount(*endpoints.CreateAccountRequest) (*http.Response, error)
+  CreateEmailGrant(*endpoints.CreateEmailGrantRequest) (*endpoints.CreateEmailGrantResponse, error)
+  CreatePasswordGrant(*endpoints.CreatePasswordGrantRequest) (*endpoints.CreatePasswordGrantResponse, error)
+  CreatePhoneGrant(*endpoints.CreatePhoneGrantRequest) (*endpoints.CreatePhoneGrantResponse, error)
+}
+```
+
+## Why Use Gohandlers?
 
 -   **Single Source of Truth:** The server implementation (your Go handlers and types) becomes the **single source of truth** for your API. No need to maintain separate OpenAPI YAML/JSON files — your Go code is the spec, and Gohandlers generates the rest.
 -   **Eliminate Boilerplate:** It **skips repetitive boilerplate** by generating request parsing and response writing code. This means you write your handler logic, define input/output types, and Gohandlers fills in the glue code (like reading query params, writing JSON bodies, etc.).
@@ -15,13 +84,11 @@
 
 In short, Gohandlers aims to **fill the missing gap** in framework-less web development by **connecting your handlers, types, and routing in one automated step**. This improves API **consistency and documentation**, since the code itself describes available endpoints, methods, and expected data.
 
----
-
-## 🚧 Installation
+## Installation
 
 Make sure you have a recent version of Go installed (Go 1.24+). Install Gohandlers by running:
 
-```bash
+```sh
 go install github.com/ufukty/gohandlers/cmd/gohandlers@latest
 ```
 
@@ -35,9 +102,7 @@ which -a gohandlers
 >
 > Use the `make install` command to assign version number correctly.
 
----
-
-## 🎸 Usage
+## Usage
 
 The general syntax of the tool is:
 
@@ -51,24 +116,7 @@ Run this to see available flags for each subcommand:
 gohandlers [command] -help
 ```
 
----
-
-## 🛠️ Commands
-
-Gohandlers provide multiple commands to support stepped adoption. Here is a quick overview:
-
-| Command      | Purpose                                                                                                         |
-| ------------ | --------------------------------------------------------------------------------------------------------------- |
-| **bindings** | Creates `Build()`, `Parse()`, and `Write()` methods for request/response serialization inside `bindings.gh.go`. |
-| **client**   | Generates strongly typed API clients wrapping HTTP interactions inside `client.gh.go`.                          |
-| **list**     | Provides a `ListHandlers()` registry inside `list.gh.go`.                                                       |
-| **mock**     | Generates mock implementations of API clients for testing inside `mock.gh.go`.                                  |
-| **validate** | Generates request validation methods that collects responses from each field validator and returns in a map.    |
-| **yaml**     | Writes the handler metadata to a YAML file inside `gh.yml`.                                                     |
-
----
-
-## 🎉 Getting started
+## Getting started
 
 1. **Define your handlers and types:** Write your handlers following the expected patterns:
 
@@ -87,9 +135,7 @@ Gohandlers provide multiple commands to support stepped adoption. Here is a quic
 
 4. **Use generated code:** In your server, call `bq.Parse(r)` at the top of handlers to get a filled request struct; use `bs.Write(w)` to output responses. In other services (or even the same codebase), use the `Client` to make requests in a type-safe way. In tests, use `Mock` to simulate server behavior.
 
----
-
-## 🧶 How Gohandlers Works?
+## How Gohandlers Works?
 
 To better utilize Gohandlers, it helps to know how it identifies handlers and types:
 
@@ -124,17 +170,13 @@ To better utilize Gohandlers, it helps to know how it identifies handlers and ty
 
 -   **Conflict Detection:** Gohandlers will alert you if it detects conflicting paths or methods (like one handler's body/verb inferred method conflicts with the specifed doc method). This helps maintain clarity as your API grows.
 
----
-
-## 🐈 Full example: Petstore
+## Full example: Petstore
 
 See petstore repository to see a full example which shows how everything works in concert.
 
 Go to [github.com/ufukty/gohandlers-petstore](https://github.com/ufukty/gohandlers-petstore)
 
----
-
-## ✏️ Summary
+## Summary
 
 Gohandlers streamlines Go API development by **eliminating the disconnect between server code and API specifications**. It **solves pain points** like writing request parsing logic, keeping documentation up-to-date, and writing client libraries by hand. With a few commands, you get:
 
