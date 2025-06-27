@@ -51,8 +51,7 @@ type CreateAccountRequest struct {
   Birthday  transports.HumanBirthday `json:"birthday"`
   Country   transports.Country       `json:"country"`
 
-  RouteParameter1 basics.String `route:"param2"`
-  QueryParameter1 basics.Int    `query:"query-param-1"`
+  RedirectUrl basics.String    `query:"redirect"`
 }
 
 // POST
@@ -107,6 +106,15 @@ type Interface interface {
 }
 ```
 
-## Go to Petstore
+Warnings for inferred, implied and specified endpoint methods:
 
-See [Petstore](https://github.com/ufukty/gohandlers-petstore) example in Github to understand how backend development works with Gohandlers:
+```
+$ gohandlers helpers -v 1>/dev/null
+error: checkmembershipeventual.go:CheckMembershipEventual: assigned "POST" but the request binding type doesn't contain a body
+warning: creategroup.go:CreateGroup: handler name implies "POST" but doc comment specifies "GET"
+error: creategroup.go:CreateGroup: assigned "GET" but the request binding type contains a body
+```
+
+## Visit Petstore
+
+Visit [Gohandlers Petstore in Github](https://github.com/ufukty/gohandlers-petstore) to see how using Go for backend development looks like when Gohandlers is in use.
