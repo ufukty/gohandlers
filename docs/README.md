@@ -14,9 +14,10 @@ In short, Gohandlers aims to **fill the missing gap** in framework-less web deve
 -   Get listers:
     -   Easy to register all endpoints
     -   No handlers left unregistered
--   Client code
+-   Get client code
     -   Real and mock implementations
     -   Interface for testing
+    -   RPC-like service-to-service requests
 -   Route method & paths:
     -   Inference via handler prefix and binding body
     -   Override via doc-comments
