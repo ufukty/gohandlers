@@ -186,7 +186,6 @@ header {
   #home {
     display: block;
     font-size: clamp(1.5em, 2vw, 2em);
-    font-weight: 600;
     text-wrap: nowrap;
   }
 
