@@ -170,41 +170,6 @@ body {
   }
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0;
-
-  border-bottom: 1px solid light-dark(#eee, #262728);
-
-  & > * {
-    padding: 20px;
-    display: block;
-  }
-
-  #home {
-    display: block;
-    font-size: clamp(1.5em, 2vw, 2em);
-    text-wrap: nowrap;
-  }
-
-  #gohandlers-in-github {
-    padding: 10px 20px;
-    color: light-dark(#444, #000f21);
-    background-color: light-dark(#eee, #1167d1);
-    border-radius: 1000px;
-    margin: 20px;
-    text-wrap: nowrap;
-
-    @media screen and (width<800px) {
-      .wide {
-        display: none;
-      }
-    }
-  }
-}
-
 hr {
   display: none;
 }
