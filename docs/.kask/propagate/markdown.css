@@ -3,44 +3,38 @@ body {
 }
 
 .markdown {
+  & > * {
+    width: 100%;
+    margin: 20px 0;
+  }
 
-  p:not(:has(img)),
-  li:not(:has(pre)),
-  blockquote {
+  & > ul,
+  & > ol,
+  & > p:not(:has(:not(:is(p, strong, italic, code, a)))),
+  & > blockquote {
+    min-width: 70%;
     max-width: 600px;
   }
 
-  >p:not(:has(img)),
-  >li:not(:has(pre)),
-  >blockquote {
-    width: min(100%, 600px);
-  }
-
-  >p:has(img),
-  >table,
-  >pre.chroma,
-  >figure:has(pre.chroma),
-  >ul,
-  >ol {
-    margin-top: 10px;
+  > p:has(img),
+  > table,
+  > pre.chroma,
+  > figure:has(pre.chroma),
+  > ul,
+  > ol {
+    margin: 10px 0;
   }
 
   strong {
     font-weight: 600;
   }
 
-  &>*:first-child {
+  & > *:first-child {
     margin-top: 0;
   }
 
-  *:not(pre)>code {
-    background-color: light-dark(#ececec, #212326);
-
+  *:not(pre) > code {
     font-family: "Fira Mono", monospace !important;
-    font-weight: 400;
-
-    border-radius: 8px;
-    padding: 0.1em 0.4em;
   }
 
   a {
@@ -59,10 +53,14 @@ body {
 
   blockquote {
     padding: 10px 20px;
-    color: light-dark(#6a4800, #ffbf35);
-    background-color: light-dark(#fff8e9, #2d2700);
+    color: light-dark(#6a4800, #de9e5f);
+    background-color: light-dark(#fff8e9, #28231f);
     border-radius: 8px;
-    margin: 40px 0;
+
+    code {
+      color: light-dark(#885d00, #28231f);
+      background-color: light-dark(#fbe4b4, #de9e5f);
+    }
   }
 
   hr {
@@ -73,8 +71,8 @@ body {
     margin: 50px 0;
   }
 
-  >ul,
-  >ol {
+  > ul,
+  > ol {
     margin-left: 10px;
   }
 
@@ -94,7 +92,7 @@ body {
     }
   }
 
-  >ol {
+  > ol {
     margin-bottom: 15px;
   }
 
@@ -109,7 +107,7 @@ body {
 
     padding-inline-start: 0;
 
-    >li {
+    > li {
       display: list-item;
       list-style-type: none;
       text-align: match-parent;
@@ -117,11 +115,11 @@ body {
       margin-left: 40px;
     }
 
-    >li>* {
+    > li > * {
       margin-top: 16px;
     }
 
-    >li::before {
+    > li::before {
       display: inline;
 
       box-sizing: border-box;
@@ -154,11 +152,11 @@ body {
     border-collapse: separate;
     border-spacing: 0;
 
-    @media screen and (max-width:700px) {
+    @media screen and (max-width: 700px) {
       min-width: calc(100% - 40px);
     }
 
-    @media screen and (min-width:700px) {
+    @media screen and (min-width: 700px) {
       min-width: 100%;
     }
 
@@ -178,7 +176,7 @@ body {
         font-weight: bolder;
 
         th {
-          background-color: light-dark(white, #191a1b);
+          background-color: light-dark(white, #171717);
           border-bottom: 2px solid light-dark(#eee, #555);
         }
       }
@@ -190,21 +188,20 @@ body {
   }
 
   pre.chroma {
-    background-color: light-dark(#f9f9f9, #212326);
-
-    border-radius: 8px;
-    padding: 20px 20px 20px 40px;
+    padding: 20px 30px 20px 40px;
 
     user-select: initial;
     -webkit-user-select: initial;
 
-    max-width: 100%;
-    overflow-x: scroll;
-    overflow-y: visible;
-
     font-optical-sizing: auto;
     line-height: 1.24;
     font-size: 11pt;
+
+    width: max-content;
+    max-width: 100%;
+    overflow-x: scroll;
+
+    counter-reset: line;
 
     color: light-dark(#24292f, #a7b1bc);
 
@@ -256,10 +253,6 @@ body {
     }
   }
 
-  pre.chroma {
-    counter-reset: line;
-  }
-
   .line:before {
     display: inline-block;
 
@@ -280,7 +273,7 @@ body {
     transform: translateX(-22px);
   }
 
-  >figure {
+  > figure {
     &:has(pre.chroma) {
       display: flex;
       flex-direction: column-reverse;
@@ -288,12 +281,12 @@ body {
       overflow: hidden;
     }
 
-    pre.chroma+figcaption {
+    pre.chroma + figcaption {
       background-color: light-dark(#eee, #eee);
       padding: 10px 20px;
     }
 
-    >pre.chroma {
+    > pre.chroma {
       border-radius: 0px;
       padding: 20px 20px 20px 40px;
     }
