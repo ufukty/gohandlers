@@ -34,13 +34,7 @@ body {
   }
 
   *:not(pre) > code {
-    background-color: light-dark(#ececec, #212326);
-
     font-family: "Fira Mono", monospace !important;
-    font-weight: 400;
-
-    border-radius: 8px;
-    padding: 0.1em 0.4em;
   }
 
   a {
