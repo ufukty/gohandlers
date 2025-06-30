@@ -2,9 +2,9 @@
 
 <img src=".assets/github-social-preview.png" style="width:min(100%, 640px);border-radius:8px">
 
-**Gohandlers** is a CLI tool for Go developers to automate generating type safe and reflectless binding type **helpers**, endpoint **listers** and **clients** for RPC-like use over HTTP without proto.
+Gohandlers is a CLI tool for Go developers to automate generating type safe and reflectless binding type helpers, endpoint listers and clients for RPC-like use over HTTP without proto.
 
-In short, Gohandlers aims to **fill the missing gap** in framework-less web development by **connecting your handlers, types, and routing in one automated step**. This improves API **consistency and documentation**, since the code itself describes available endpoints, methods, and expected data.
+In short, Gohandlers aims to fill the missing gap in framework-less web development by connecting your handlers, types, and routing in one automated step. This improves API consistency and documentation, since the code itself describes available endpoints, methods, and expected data.
 
 ## Features
 
