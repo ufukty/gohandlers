@@ -51,7 +51,7 @@ type CreateAccountRequest struct {
   Birthday  transports.HumanBirthday `json:"birthday"`
   Country   transports.Country       `json:"country"`
 
-  RedirectUrl basics.String    `query:"redirect"`
+  RedirectUrl basics.String `query:"redirect"`
 }
 
 // POST
