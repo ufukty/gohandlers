@@ -24,21 +24,36 @@ Use these validators inside your handlers to quickly return precise validation e
 
 ## Installation
 
-Make sure you have a recent version of Go installed (Go 1.24+). Install Gohandlers by running:
+Generating code requires `gohandlers` command to be installed on a `PATH` accessible folder.
+
+To assign the version number correctly, clone the repository and run `make install` inside the `gohandlers` folder.
 
 ```sh
-go install github.com/ufukty/gohandlers/cmd/gohandlers@latest
+cd "$(mktemp -d)"
+git clone https://github.com/ufukty/gohandlers
+cd gohandlers
+
 ```
 
-This will put the `gohandlers` binary in your `GOPATH/bin`. To check if your temrinal can find Gohandlers binary:
+If you don't mind the generated files miss the version number you can use `go` command as well:
 
 ```sh
-which -a gohandlers
+go install github.com/ufukty/gohandlers@latest
 ```
 
-> **Suggestion**
->
-> Use the `make install` command to assign version number correctly.
+You also need the `get` and `import` the `gohandlers` package provided by the same repository.
+
+Switch to the directory of your project's module root and get the package:
+
+```sh
+go get github.com/ufukty/gohandlers/pkg/gohandlers
+```
+
+Don't forget to run `vendor` subcommand if you vendor your dependencies:
+
+```sh
+go mod vendor
+```
 
 ## Usage
 
@@ -128,14 +143,9 @@ func (p *Pets) CreatePet(w http.ResponseWriter, r *http.Request) {
 
 No parsing, validation, or serialization logic is needed—Gohandlers handles it automatically.
 
-## Generate `Parse`, `Write` and `Build` helpers for binding types
+## Creating helpers
 
-Run the `bindings` command to auto-generate serialization/deserialization code:
-
-```bash
-cd handlers/pets
-gohandlers bindings -dir . -out bindings.gh.go
-```
+Running `helpers` subcommand will generate a `gh.go` file which contains:
 
 The magic happens automatically, producing methods like:
 
@@ -151,7 +161,7 @@ Your handlers can now directly parse requests and write responses effortlessly!
 Gohandlers also automates validation generation:
 
 ```bash
-gohandlers validate -dir . -out validate.gh.go
+gohandlers helpers [-dir .] [-out gh.go]
 ```
 
 You'll get field-level validators like:
