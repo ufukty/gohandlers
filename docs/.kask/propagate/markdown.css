@@ -188,9 +188,6 @@ body {
   }
 
   pre.chroma {
-    background-color: light-dark(#f9f9f9, #232323);
-
-    border-radius: 8px;
     padding: 20px 30px 20px 40px;
 
     user-select: initial;
