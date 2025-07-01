@@ -13,7 +13,7 @@ func File(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc,
 	}
 	f.Decls = append(f.Decls,
 		iface(infoss, pkgsrc, importpkg != ""),
-		mockstruct(),
+		mockstruct(infoss, pkgsrc, importpkg != ""),
 	)
 	f.Decls = append(f.Decls,
 		mockmethods(infoss, pkgsrc, importpkg != "")...,

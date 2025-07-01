@@ -1,6 +1,7 @@
 package construct
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"slices"
@@ -8,7 +9,7 @@ import (
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
-func methodtype(hi inspects.Info, pkgsrc string, imported bool) *ast.FuncType {
+func methodtype(hi inspects.Info, pkgsrc string, imported, namedparams bool) *ast.FuncType {
 	var bq ast.Expr
 	var bn ast.Expr
 
@@ -28,8 +29,13 @@ func methodtype(hi inspects.Info, pkgsrc string, imported bool) *ast.FuncType {
 		bn = &ast.Ident{Name: hi.ResponseType.Typename}
 	}
 
+	param1 := &ast.Field{Type: &ast.StarExpr{X: bq}}
+	if namedparams {
+		param1.Names = append(param1.Names, &ast.Ident{Name: "bq"})
+	}
+
 	ft := &ast.FuncType{
-		Params: &ast.FieldList{List: []*ast.Field{{Type: &ast.StarExpr{X: bq}}}},
+		Params: &ast.FieldList{List: []*ast.Field{param1}},
 		Results: &ast.FieldList{List: []*ast.Field{
 			{Type: &ast.StarExpr{X: bn}},
 			{Type: &ast.Ident{Name: "error"}},
@@ -50,7 +56,7 @@ func iface(infoss map[inspects.Receiver]map[string]inspects.Info, pkgsrc string,
 			list = append(list,
 				&ast.Field{
 					Names: []*ast.Ident{{Name: hn}},
-					Type:  methodtype(hi, pkgsrc, imported),
+					Type:  methodtype(hi, pkgsrc, imported, false),
 				},
 			)
 		}
@@ -81,13 +87,25 @@ func iface(infoss map[inspects.Receiver]map[string]inspects.Info, pkgsrc string,
 	return gd
 }
 
-func mockstruct() *ast.GenDecl {
+func mockstruct(infoss map[inspects.Receiver]map[string]inspects.Info, pkgsrc string, imported bool) *ast.GenDecl {
+	fs := []*ast.Field{}
+	for _, infos := range infoss {
+		for hn, hi := range infos {
+			if hi.RequestType == nil {
+				continue // TODO:
+			}
+			fs = append(fs, &ast.Field{
+				Names: []*ast.Ident{{Name: hn + "Func"}},
+				Type:  methodtype(hi, pkgsrc, imported, false),
+			})
+		}
+	}
 	return &ast.GenDecl{
 		Tok: token.TYPE,
 		Specs: []ast.Spec{
 			&ast.TypeSpec{
 				Name: &ast.Ident{Name: "Mock"},
-				Type: &ast.StructType{Fields: &ast.FieldList{}},
+				Type: &ast.StructType{Fields: &ast.FieldList{List: fs}},
 			},
 		},
 	}
@@ -105,9 +123,31 @@ func mockmethods(infoss map[inspects.Receiver]map[string]inspects.Info, pkgsrc s
 					{Names: []*ast.Ident{{Name: "m"}}, Type: &ast.StarExpr{X: &ast.Ident{Name: "Mock"}}},
 				}},
 				Name: &ast.Ident{Name: hn},
-				Type: methodtype(hi, pkgsrc, imported),
+				Type: methodtype(hi, pkgsrc, imported, true),
 				Body: &ast.BlockStmt{List: []ast.Stmt{
-					&ast.ReturnStmt{Results: []ast.Expr{&ast.Ident{Name: "nil"}, &ast.Ident{Name: "nil"}}},
+					&ast.IfStmt{
+						Cond: &ast.BinaryExpr{
+							X:  &ast.SelectorExpr{X: &ast.Ident{Name: "m"}, Sel: &ast.Ident{Name: hn + "Func"}},
+							Op: token.EQL,
+							Y:  &ast.Ident{Name: "nil"},
+						},
+						Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{
+							&ast.Ident{Name: "nil"},
+							&ast.CallExpr{
+								Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
+								Args: []ast.Expr{
+									&ast.BasicLit{
+										Kind:  token.STRING,
+										Value: fmt.Sprintf(`"not implemented: %s"`, hn),
+									},
+								},
+							},
+						}}}},
+					},
+					&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
+						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "m"}, Sel: &ast.Ident{Name: hn + "Func"}},
+						Args: []ast.Expr{&ast.Ident{Name: "bq"}},
+					}}},
 				}},
 			})
 		}
