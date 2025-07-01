@@ -9,7 +9,7 @@ import (
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
-func imports(importpkg string) []ast.Spec {
+func imports(importpkg string) ast.Decl {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
@@ -30,7 +30,69 @@ func imports(importpkg string) []ast.Spec {
 			return 1
 		}
 	})
-	return imports
+	return &ast.GenDecl{
+		Tok:   token.IMPORT,
+		Specs: imports,
+	}
+}
+
+func pool() ast.Decl {
+	return &ast.GenDecl{
+		Tok: token.TYPE,
+		Specs: []ast.Spec{
+			&ast.TypeSpec{
+				Name: &ast.Ident{Name: "Pool"},
+				Type: &ast.InterfaceType{Methods: &ast.FieldList{List: []*ast.Field{{
+					Names: []*ast.Ident{{Name: "Host"}},
+					Type: &ast.FuncType{
+						Params:  &ast.FieldList{},
+						Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.Ident{Name: "string"}}, {Type: &ast.Ident{Name: "error"}}}},
+					},
+				}}}},
+			},
+		},
+	}
+}
+
+func client() ast.Decl {
+	return &ast.GenDecl{
+		Tok: token.TYPE,
+		Specs: []ast.Spec{
+			&ast.TypeSpec{
+				Name: &ast.Ident{Name: "Client"},
+				Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
+					{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
+				}}},
+			},
+		},
+	}
+}
+
+func clientConstructor() ast.Decl {
+	return &ast.FuncDecl{
+		Name: &ast.Ident{Name: "NewClient"},
+		Type: &ast.FuncType{
+			Params: &ast.FieldList{List: []*ast.Field{
+				{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
+			}},
+			Results: &ast.FieldList{List: []*ast.Field{
+				{Type: &ast.StarExpr{X: &ast.Ident{Name: "Client"}}},
+			}},
+		},
+		Body: &ast.BlockStmt{List: []ast.Stmt{
+			&ast.ReturnStmt{Results: []ast.Expr{
+				&ast.UnaryExpr{
+					Op: token.AND,
+					X: &ast.CompositeLit{
+						Type: &ast.Ident{Name: "Client"},
+						Elts: []ast.Expr{
+							&ast.KeyValueExpr{Key: &ast.Ident{Name: "p"}, Value: &ast.Ident{Name: "p"}},
+						},
+					},
+				},
+			}},
+		}},
+	}
 }
 
 func File(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc, importpkg string) *ast.File {
@@ -40,60 +102,10 @@ func File(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc,
 	}
 
 	f.Decls = append(f.Decls,
-		&ast.GenDecl{
-			Tok:   token.IMPORT,
-			Specs: imports(importpkg),
-		},
-		&ast.GenDecl{
-			Tok: token.TYPE,
-			Specs: []ast.Spec{
-				&ast.TypeSpec{
-					Name: &ast.Ident{Name: "Pool"},
-					Type: &ast.InterfaceType{Methods: &ast.FieldList{List: []*ast.Field{{
-						Names: []*ast.Ident{{Name: "Host"}},
-						Type: &ast.FuncType{
-							Params:  &ast.FieldList{},
-							Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.Ident{Name: "string"}}, {Type: &ast.Ident{Name: "error"}}}},
-						},
-					}}}},
-				},
-			},
-		},
-		&ast.GenDecl{
-			Tok: token.TYPE,
-			Specs: []ast.Spec{
-				&ast.TypeSpec{
-					Name: &ast.Ident{Name: "Client"},
-					Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
-						{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
-					}}},
-				},
-			},
-		},
-		&ast.FuncDecl{
-			Name: &ast.Ident{Name: "NewClient"},
-			Type: &ast.FuncType{
-				Params: &ast.FieldList{List: []*ast.Field{
-					{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
-				}},
-				Results: &ast.FieldList{List: []*ast.Field{
-					{Type: &ast.StarExpr{X: &ast.Ident{Name: "Client"}}},
-				}},
-			},
-			Body: &ast.BlockStmt{List: []ast.Stmt{
-				&ast.ReturnStmt{Results: []ast.Expr{
-					&ast.UnaryExpr{
-						Op: token.AND,
-						X: &ast.CompositeLit{
-							Type: &ast.Ident{Name: "Client"},
-							Elts: []ast.Expr{
-								&ast.KeyValueExpr{Key: &ast.Ident{Name: "p"}, Value: &ast.Ident{Name: "p"}},
-							},
-						},
-					},
-				}},
-			}},
-		},
+		imports(importpkg),
+		pool(),
+		client(),
+		clientConstructor(),
 	)
 
 	fds := []ast.Decl{}
