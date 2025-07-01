@@ -1,6 +1,7 @@
 package construct
 
 import (
+	"cmp"
 	"fmt"
 	"go/ast"
 	"go/token"
@@ -100,6 +101,9 @@ func mockstruct(infoss map[inspects.Receiver]map[string]inspects.Info, pkgsrc st
 			})
 		}
 	}
+	slices.SortFunc(fs, func(a, b *ast.Field) int {
+		return cmp.Compare(string(a.Names[0].Name), string(b.Names[0].Name))
+	})
 	return &ast.GenDecl{
 		Tok: token.TYPE,
 		Specs: []ast.Spec{
