@@ -1,16 +1,13 @@
 package client
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
-	"go/printer"
-	"go/token"
+	"io"
 	"os"
-	"strings"
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/client/construct"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/internal/pretty"
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
@@ -20,12 +17,6 @@ type Args struct {
 	Pkg     string
 	Import  string
 	Verbose bool
-}
-
-func post(src string) string {
-	src = strings.ReplaceAll(src, "}\nfunc", "}\n\nfunc")
-	src = strings.ReplaceAll(src, "}\ntype", "}\n\ntype")
-	return src
 }
 
 func Main() error {
@@ -49,18 +40,19 @@ func Main() error {
 
 	f := construct.File(infoss, args.Pkg, pkgsrc, args.Import)
 
+	print, err := pretty.Print(f)
+	if err != nil {
+		return fmt.Errorf("pretty printing: %w", err)
+	}
 	fh, err := os.Create(args.Out)
 	if err != nil {
-		return fmt.Errorf("creating file: %w", err)
+		return fmt.Errorf("creating output file: %w", err)
 	}
 	defer fh.Close()
-	b := bytes.NewBuffer([]byte{})
-	err = printer.Fprint(b, token.NewFileSet(), f)
+	_, err = io.Copy(fh, print)
 	if err != nil {
-		return fmt.Errorf("printing: %w", err)
+		return fmt.Errorf("writing to output file: %w", err)
 	}
-	fmt.Fprint(fh, version.Top())
-	fmt.Fprint(fh, post(b.String()))
 
 	return nil
 }
