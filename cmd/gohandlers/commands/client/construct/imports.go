@@ -5,20 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 	"slices"
-
-	"github.com/ufukty/gohandlers/pkg/inspects"
 )
-
-func importNetHttp(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
-	for _, infos := range infoss {
-		for _, hi := range infos {
-			if hi.ResponseType == nil {
-				return true
-			}
-		}
-	}
-	return false
-}
 
 func imports(importpkg string) ast.Decl {
 	imports := []ast.Spec{
