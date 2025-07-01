@@ -9,7 +9,6 @@ import (
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/client"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/mock"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/yaml"
 )
@@ -22,7 +21,6 @@ func Main() error {
 	commands := map[string]func() error{
 		"client":  client.Main,
 		"helpers": helpers.Main,
-		"mock":    mock.Main,
 		"version": version.Main,
 		"yaml":    yaml.Main,
 	}
