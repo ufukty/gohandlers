@@ -9,13 +9,6 @@ import (
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
-func ternary[T any](cond bool, t, f T) T {
-	if cond {
-		return t
-	}
-	return f
-}
-
 func importNetHttp(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	for _, infos := range infoss {
 		for _, hi := range infos {
