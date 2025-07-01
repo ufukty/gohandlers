@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/client/construct"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
@@ -46,7 +47,7 @@ func Main() error {
 		return fmt.Errorf("inspecting files: %w", err)
 	}
 
-	f := file(infoss, args.Pkg, pkgsrc, args.Import)
+	f := construct.File(infoss, args.Pkg, pkgsrc, args.Import)
 
 	fh, err := os.Create(args.Out)
 	if err != nil {
