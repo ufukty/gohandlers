@@ -3,6 +3,7 @@ package construct
 import (
 	"go/ast"
 	"go/token"
+	"slices"
 
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
@@ -12,6 +13,65 @@ func ternary[T any](cond bool, t, f T) T {
 		return t
 	}
 	return f
+}
+
+func pool() ast.Decl {
+	return &ast.GenDecl{
+		Tok: token.TYPE,
+		Specs: []ast.Spec{
+			&ast.TypeSpec{
+				Name: &ast.Ident{Name: "Pool"},
+				Type: &ast.InterfaceType{Methods: &ast.FieldList{List: []*ast.Field{{
+					Names: []*ast.Ident{{Name: "Host"}},
+					Type: &ast.FuncType{
+						Params:  &ast.FieldList{},
+						Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.Ident{Name: "string"}}, {Type: &ast.Ident{Name: "error"}}}},
+					},
+				}}}},
+			},
+		},
+	}
+}
+
+func client() ast.Decl {
+	return &ast.GenDecl{
+		Tok: token.TYPE,
+		Specs: []ast.Spec{
+			&ast.TypeSpec{
+				Name: &ast.Ident{Name: "Client"},
+				Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
+					{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
+				}}},
+			},
+		},
+	}
+}
+
+func clientConstructor() ast.Decl {
+	return &ast.FuncDecl{
+		Name: &ast.Ident{Name: "NewClient"},
+		Type: &ast.FuncType{
+			Params: &ast.FieldList{List: []*ast.Field{
+				{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
+			}},
+			Results: &ast.FieldList{List: []*ast.Field{
+				{Type: &ast.StarExpr{X: &ast.Ident{Name: "Client"}}},
+			}},
+		},
+		Body: &ast.BlockStmt{List: []ast.Stmt{
+			&ast.ReturnStmt{Results: []ast.Expr{
+				&ast.UnaryExpr{
+					Op: token.AND,
+					X: &ast.CompositeLit{
+						Type: &ast.Ident{Name: "Client"},
+						Elts: []ast.Expr{
+							&ast.KeyValueExpr{Key: &ast.Ident{Name: "p"}, Value: &ast.Ident{Name: "p"}},
+						},
+					},
+				},
+			}},
+		}},
+	}
 }
 
 func clientMethod(hn string, hi inspects.Info, pkgsrc string, imported bool) *ast.FuncDecl {
@@ -205,4 +265,26 @@ func clientMethod(hn string, hi inspects.Info, pkgsrc string, imported bool) *as
 	)
 
 	return fd
+}
+
+func clientMethods(infoss map[inspects.Receiver]map[string]inspects.Info, pkgsrc, importpkg string) []ast.Decl {
+	fds := []ast.Decl{}
+	for _, infos := range infoss {
+		for hn, hi := range infos {
+			if hi.RequestType == nil {
+				continue
+			}
+			fds = append(fds, clientMethod(hn, hi, pkgsrc, importpkg != ""))
+		}
+	}
+	slices.SortFunc(fds, func(a, b ast.Decl) int {
+		if a.(*ast.FuncDecl).Name.Name < b.(*ast.FuncDecl).Name.Name {
+			return -1
+		} else if a.(*ast.FuncDecl).Name.Name == b.(*ast.FuncDecl).Name.Name {
+			return 0
+		} else {
+			return 1
+		}
+	})
+	return fds
 }

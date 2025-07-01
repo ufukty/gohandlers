@@ -36,65 +36,6 @@ func imports(importpkg string) ast.Decl {
 	}
 }
 
-func pool() ast.Decl {
-	return &ast.GenDecl{
-		Tok: token.TYPE,
-		Specs: []ast.Spec{
-			&ast.TypeSpec{
-				Name: &ast.Ident{Name: "Pool"},
-				Type: &ast.InterfaceType{Methods: &ast.FieldList{List: []*ast.Field{{
-					Names: []*ast.Ident{{Name: "Host"}},
-					Type: &ast.FuncType{
-						Params:  &ast.FieldList{},
-						Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.Ident{Name: "string"}}, {Type: &ast.Ident{Name: "error"}}}},
-					},
-				}}}},
-			},
-		},
-	}
-}
-
-func client() ast.Decl {
-	return &ast.GenDecl{
-		Tok: token.TYPE,
-		Specs: []ast.Spec{
-			&ast.TypeSpec{
-				Name: &ast.Ident{Name: "Client"},
-				Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
-					{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
-				}}},
-			},
-		},
-	}
-}
-
-func clientConstructor() ast.Decl {
-	return &ast.FuncDecl{
-		Name: &ast.Ident{Name: "NewClient"},
-		Type: &ast.FuncType{
-			Params: &ast.FieldList{List: []*ast.Field{
-				{Names: []*ast.Ident{{Name: "p"}}, Type: &ast.Ident{Name: "Pool"}},
-			}},
-			Results: &ast.FieldList{List: []*ast.Field{
-				{Type: &ast.StarExpr{X: &ast.Ident{Name: "Client"}}},
-			}},
-		},
-		Body: &ast.BlockStmt{List: []ast.Stmt{
-			&ast.ReturnStmt{Results: []ast.Expr{
-				&ast.UnaryExpr{
-					Op: token.AND,
-					X: &ast.CompositeLit{
-						Type: &ast.Ident{Name: "Client"},
-						Elts: []ast.Expr{
-							&ast.KeyValueExpr{Key: &ast.Ident{Name: "p"}, Value: &ast.Ident{Name: "p"}},
-						},
-					},
-				},
-			}},
-		}},
-	}
-}
-
 func File(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc, importpkg string) *ast.File {
 	f := &ast.File{
 		Name: &ast.Ident{Name: pkgdst},
@@ -106,26 +47,7 @@ func File(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc,
 		},
 	}
 
-	fds := []ast.Decl{}
-	for _, infos := range infoss {
-		for hn, hi := range infos {
-			if hi.RequestType == nil {
-				continue
-			}
-			fds = append(fds, clientMethod(hn, hi, pkgsrc, importpkg != ""))
-		}
-	}
-	slices.SortFunc(fds, func(a, b ast.Decl) int {
-		if a.(*ast.FuncDecl).Name.Name < b.(*ast.FuncDecl).Name.Name {
-			return -1
-		} else if a.(*ast.FuncDecl).Name.Name == b.(*ast.FuncDecl).Name.Name {
-			return 0
-		} else {
-			return 1
-		}
-	})
-
-	f.Decls = append(f.Decls, fds...)
+	f.Decls = append(f.Decls, clientMethods(infoss, pkgsrc, importpkg)...)
 
 	return f
 }
