@@ -132,7 +132,7 @@ func clientMethod(hn string, hi inspects.Info, pkgsrc string, imported bool) *as
 					&ast.Ident{Name: "nil"},
 					&ast.CallExpr{
 						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"Host: %w"`}, &ast.Ident{Name: "err"}},
+						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"selecting host: %w"`}, &ast.Ident{Name: "err"}},
 					},
 				}},
 			}},
@@ -154,7 +154,7 @@ func clientMethod(hn string, hi inspects.Info, pkgsrc string, imported bool) *as
 					&ast.Ident{Name: "nil"},
 					&ast.CallExpr{
 						Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"Build: %w"`}, &ast.Ident{Name: "err"}},
+						Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"building request: %w"`}, &ast.Ident{Name: "err"}},
 					},
 				}},
 			}},
@@ -182,7 +182,7 @@ func clientMethod(hn string, hi inspects.Info, pkgsrc string, imported bool) *as
 							&ast.CallExpr{
 								Fun: &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
 								Args: []ast.Expr{
-									&ast.BasicLit{Kind: token.STRING, Value: `"Do: %w"`},
+									&ast.BasicLit{Kind: token.STRING, Value: `"sending: %w"`},
 									&ast.Ident{Name: "err"},
 								},
 							},
@@ -250,7 +250,7 @@ func clientMethod(hn string, hi inspects.Info, pkgsrc string, imported bool) *as
 						&ast.Ident{Name: "nil"},
 						&ast.CallExpr{
 							Fun:  &ast.SelectorExpr{X: &ast.Ident{Name: "fmt"}, Sel: &ast.Ident{Name: "Errorf"}},
-							Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"Parse: %w"`}, &ast.Ident{Name: "err"}},
+							Args: []ast.Expr{&ast.BasicLit{Kind: token.STRING, Value: `"parsing response: %w"`}, &ast.Ident{Name: "err"}},
 						},
 					}},
 				}},
