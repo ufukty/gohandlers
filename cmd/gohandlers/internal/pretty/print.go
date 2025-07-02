@@ -21,7 +21,10 @@ func Print(f *ast.File) (io.Reader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("printing: %w", err)
 	}
-	proccessed := post.Process(b.String())
+	proccessed, err := post.Process(b.String())
+	if err != nil {
+		return nil, fmt.Errorf("second print: %w", err)
+	}
 	formatted, err := format.Source([]byte(proccessed))
 	if err != nil {
 		return nil, fmt.Errorf("formatting: %w", err)
