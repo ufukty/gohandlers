@@ -1,6 +1,7 @@
 package imports
 
 import (
+	"cmp"
 	"go/ast"
 	"go/token"
 	"slices"
@@ -55,21 +56,20 @@ func thirdparty(s string) bool {
 	return strings.Contains(strings.Split(s, "/")[0], ".")
 }
 
+func localFirst(a, b string) int {
+	if !thirdparty(a) && thirdparty(b) {
+		return -1
+	} else if thirdparty(a) && !thirdparty(b) {
+		return 1
+	}
+	return 0
+}
+
 func sortImports(specs []ast.Spec) {
 	slices.SortFunc(specs, func(a, b ast.Spec) int {
 		sa := a.(*ast.ImportSpec).Path.Value
 		sb := b.(*ast.ImportSpec).Path.Value
-		if !thirdparty(sa) && thirdparty(sb) {
-			return -1
-		} else if thirdparty(sa) && !thirdparty(sb) {
-			return 1
-		} else if sa < sb {
-			return -1
-		} else if sa == sb {
-			return 0
-		} else {
-			return 1
-		}
+		return cmp.Or(localFirst(sa, sb), cmp.Compare(sa, sb))
 	})
 }
 
