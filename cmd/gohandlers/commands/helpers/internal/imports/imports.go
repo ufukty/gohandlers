@@ -3,9 +3,8 @@ package imports
 import (
 	"go/ast"
 	"go/token"
-	"slices"
-	"strings"
 
+	"github.com/ufukty/gohandlers/cmd/gohandlers/internal/pretty/sort"
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
@@ -51,28 +50,6 @@ func needsBytes(infoss map[inspects.Receiver]map[string]inspects.Info) bool {
 	return false
 }
 
-func thirdparty(s string) bool {
-	return strings.Contains(strings.Split(s, "/")[0], ".")
-}
-
-func sortImports(specs []ast.Spec) {
-	slices.SortFunc(specs, func(a, b ast.Spec) int {
-		sa := a.(*ast.ImportSpec).Path.Value
-		sb := b.(*ast.ImportSpec).Path.Value
-		if !thirdparty(sa) && thirdparty(sb) {
-			return -1
-		} else if thirdparty(sa) && !thirdparty(sb) {
-			return 1
-		} else if sa < sb {
-			return -1
-		} else if sa == sb {
-			return 0
-		} else {
-			return 1
-		}
-	})
-}
-
 func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
@@ -94,6 +71,6 @@ func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"strings"`}},
 		)
 	}
-	sortImports(imports)
+	sort.Imports(imports)
 	return imports
 }

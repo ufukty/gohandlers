@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"go/ast"
 	"go/token"
-	"slices"
+
+	"github.com/ufukty/gohandlers/cmd/gohandlers/internal/pretty/sort"
 )
 
 func imports(importpkg string) ast.Decl {
@@ -17,17 +18,7 @@ func imports(importpkg string) ast.Decl {
 			&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: fmt.Sprintf("%q", importpkg)}},
 		)
 	}
-	slices.SortFunc(imports, func(a, b ast.Spec) int {
-		va := a.(*ast.ImportSpec).Path.Value
-		vb := b.(*ast.ImportSpec).Path.Value
-		if va < vb {
-			return -1
-		} else if va == vb {
-			return 0
-		} else {
-			return 1
-		}
-	})
+	sort.Imports(imports)
 	return &ast.GenDecl{
 		Tok:   token.IMPORT,
 		Specs: imports,

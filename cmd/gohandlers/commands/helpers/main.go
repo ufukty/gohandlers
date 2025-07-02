@@ -1,24 +1,19 @@
 package helpers
 
 import (
-	"bytes"
 	"cmp"
 	"flag"
 	"fmt"
 	"go/ast"
-	"go/format"
-	"go/printer"
 	"go/token"
 	"io"
 	"os"
 	"slices"
-	"strings"
 
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/imports"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/post"
 	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/utilities"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
+	"github.com/ufukty/gohandlers/cmd/gohandlers/internal/pretty"
 	"github.com/ufukty/gohandlers/pkg/inspects"
 )
 
@@ -58,21 +53,6 @@ func ordered(infoss map[inspects.Receiver]map[string]inspects.Info) []funcrecv {
 		return cmp.Or(cmp.Compare(a.receiver.Type, b.receiver.Type), cmp.Compare(a.handler, b.handler))
 	})
 	return o
-}
-
-func pretty(f *ast.File) (io.Reader, error) {
-	b := bytes.NewBuffer([]byte{})
-	fmt.Fprint(b, version.Top())
-	err := printer.Fprint(b, token.NewFileSet(), f)
-	if err != nil {
-		return nil, fmt.Errorf("printing: %w", err)
-	}
-	proccessed := post.Process(b.String())
-	formatted, err := format.Source([]byte(proccessed))
-	if err != nil {
-		return nil, fmt.Errorf("formatting: %w", err)
-	}
-	return strings.NewReader(string(formatted)), nil
 }
 
 func Main() error {
@@ -129,7 +109,7 @@ func Main() error {
 		}
 	}
 
-	print, err := pretty(f)
+	print, err := pretty.Print(f)
 	if err != nil {
 		return fmt.Errorf("pretty printing: %w", err)
 	}
