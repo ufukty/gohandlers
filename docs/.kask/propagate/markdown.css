@@ -10,7 +10,6 @@ body {
 
   & > ul,
   & > ol,
-  & > p:not(:has(:not(:is(p, strong, italic, code, a)))),
   & > blockquote {
     min-width: 70%;
     max-width: 600px;
