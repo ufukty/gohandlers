@@ -12,13 +12,17 @@ html {
 }
 
 header {
-  border-bottom: 1px solid light-dark(#0001, #fff1);
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background-color: light-dark(#fffa, #171717aa);
-  -webkit-backdrop-filter: blur(30px);
-  backdrop-filter: blur(30px);
+  @media screen and (width<=800px) {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    border-bottom: 1px solid light-dark(#0001, #fff1);
+    background-color: light-dark(#fffa, #171717aa);
+
+    -webkit-backdrop-filter: blur(30px);
+    backdrop-filter: blur(30px);
+  }
 
   display: flex;
   gap: 10px;
@@ -40,13 +44,6 @@ header {
     }
   }
 
-  #link-to-github {
-    padding: 5px 10px;
-    background-color: #0072b8;
-    color: light-dark(#fff, #ffffff);
-    border-radius: 8px;
-  }
-
   button {
     appearance: none;
     border: none;
@@ -60,6 +57,12 @@ header {
 
   .header-icon {
     fill: light-dark(#444, #aaa);
+  }
+
+  @media screen and (width>800px) {
+    button {
+      display: none;
+    }
   }
 }
 

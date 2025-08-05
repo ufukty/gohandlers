@@ -1,6 +1,6 @@
 # Gohandlers
 
-<img src=".assets/card-github.png" style="width:min(100%, 640px);border-radius:8px">
+<img src=".assets/card-github.png" style="width:min(100%, 640px)">
 
 Gohandlers is a CLI tool for Go developers to automate generating type safe and reflectless binding type helpers, endpoint listers and clients for RPC-like use over HTTP without proto.
 
