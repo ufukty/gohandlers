@@ -1,4 +1,7 @@
 {
+  "[markdown]": {
+    "prettier.tabWidth": 4
+  },
   "markdown.styles": [
     ".vscode/md.css"
   ]
