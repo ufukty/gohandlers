@@ -1,3 +1,68 @@
+html {
+  position: relative;
+
+  &:has(#navs.open) {
+    height: 100vh;
+    overflow: hidden;
+  }
+}
+
+html {
+  scroll-padding-top: 60px;
+}
+
+header {
+  border-bottom: 1px solid light-dark(#0001, #fff1);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: light-dark(#fffa, #171717aa);
+  -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(30px);
+
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  width: 100vw;
+
+  #logotype {
+    display: inline-block;
+    padding: 10px 20px;
+
+    font-size: 1.5em;
+    line-height: normal;
+    text-decoration: none;
+    transition: color 90ms ease-out;
+
+    &:hover {
+      color: light-dark(#000, #fff);
+    }
+  }
+
+  #link-to-github {
+    padding: 5px 10px;
+    background-color: #0072b8;
+    color: light-dark(#fff, #ffffff);
+    border-radius: 8px;
+  }
+
+  button {
+    appearance: none;
+    border: none;
+    background: none;
+    padding: 20px;
+    cursor: pointer;
+    & > svg {
+      display: block;
+    }
+  }
+
+  .header-icon {
+    fill: light-dark(#444, #aaa);
+  }
+}
+
 #navs {
   nav {
     ul ul {
@@ -23,43 +88,85 @@
     }
 
     a {
-
       &:hover,
       &.active {
         color: light-dark(black, white);
       }
     }
   }
+}
 
-  @media screen and (width<700px) {
+@media screen and (width<800px) {
+  #navs {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    z-index: 1;
+    inset: 0;
+
     display: flex;
-    flex-direction: column;
-    gap: 20px;
+    flex-direction: row;
+    overflow: hidden;
 
-    details {
-      border-radius: 8px;
-      overflow: hidden;
+    &:not(.open) {
+      background-color: light-dark(#fff0, #0000);
+      display: none;
+    }
 
-      summary {
-        padding: 10px;
-        background-color: light-dark(#eee, #000);
-        cursor: pointer;
+    &.open {
+      background-color: light-dark(#fff8, #0008);
+      backdrop-filter: blur(100px);
+    }
+
+    transition-property: backdrop-filter, background-color, display;
+    transition-duration: 300ms;
+    transition-timing-function: ease-in-out;
+    transition-behavior: allow-discrete;
+
+    & > nav {
+      width: 100vw;
+      height: 100vh;
+      padding: 100px 20px 20px;
+      overflow: scroll;
+      flex-shrink: 0;
+
+      ul {
+        transition-property: transform, display;
+        transition-duration: 300ms;
+        transition-delay: 200ms;
+        transition-timing-function: ease-in-out;
+        transition-behavior: allow-discrete;
+      }
+      &:not(.on-spot) ul {
+        transform: translateX(-2px);
       }
 
-      .summarized {
-        padding: 10px;
-        background-color: light-dark(#f8f8f8, #111);
+      & > ul {
+        transition-property: transform, opacity, display;
+        transition-duration: 300ms;
+        transition-delay: 200ms;
+        transition-timing-function: ease-in-out;
+        transition-behavior: allow-discrete;
+      }
+      &:not(.on-spot) > ul {
+        opacity: 0;
       }
     }
   }
 
-  @media screen and (700px<=width) {
-    &>nav>details {
+  @starting-style {
+    #navs {
+      backdrop-filter: blur(0);
+      opacity: 0;
+    }
 
-      &,
-      &>* {
-        display: block;
-      }
+    #navs > nav ul {
+      transform: translateX(-2px);
+    }
+
+    #navs > nav > ul {
+      opacity: 0;
+      transform: translateX(-2px);
     }
   }
 }

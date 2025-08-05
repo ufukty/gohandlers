@@ -57,68 +57,83 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=PT+Mono&display=swap" rel="stylesheet">
   </head>
 
   <body>
 
-    <div id="markdown-page-column-layout">
+    <header>
+      <button id="sitemap-button" onclick="toggleSitemap()">
+        <svg class="header-icon" width="23px" height="18px" viewBox="0 0 23 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <rect x="0" y="0" width="23" height="2" rx="1"></rect>
+          <rect x="0" y="8" width="23" height="2" rx="1"></rect>
+          <rect x="0" y="16" width="23" height="2" rx="1"></rect>
+        </svg>
+      </button>
 
-      <div id="navs">
-        <nav id="sitemap">
-          <details open>
-            <summary>Site map</summary>
-            <div class="summarized">
-              {{template "sitemap-item" .Root}}
-            </div>
-          </details>
-        </nav>
+      <a href="/" id="logotype">Gohandlers</a>
+      <a href="https://github.com/ufukty/gohandlers">GitHub</a>
 
-        {{with .Markdown.Toc}}
-        <nav id="toc">
-          <details open>
-            <summary>In this page</summary>
-            <div class="summarized">
-              {{template "toc-item" .}}
-            </div>
-          </details>
-        </nav>{{end}}
-      </div>
+      {{with .Markdown.Toc}}
+      <button id="toc-button" onclick="toggleToc()">
+        <svg class="header-icon" width="27px" height="20px" viewBox="0 0 27 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <rect x="0" y="0" width="4" height="4" rx="2"></rect>
+          <rect x="0" y="8" width="4" height="4" rx="2"></rect>
+          <rect x="0" y="16" width="4" height="4" rx="2"></rect>
+          <rect x="9" y="1" width="18" height="2" rx="1"></rect>
+          <rect x="9" y="9" width="18" height="2" rx="1"></rect>
+          <rect x="9" y="17" width="18" height="2" rx="1"></rect>
+        </svg>
+      </button>
+      {{end}}
+    </header>
 
-      <script>
-        function onChange(eval, callback) {
-          let last;
-          return () => {
-            let next = eval()
-            if (last != next) {
-              last = next
-              callback()
-            }
-          }
-        }
-        function detailsElemStateAdjuster() {
-          let elems = document.querySelectorAll("nav>details")
-          let summaries = document.querySelectorAll("nav>details>summary")
-          return () => {
-            elems.forEach(e => {
-              e.open = window.innerWidth >= 700
-            })
-            summaries.forEach(e => {
-              e.style.display = window.innerWidth >= 700 ? "none" : "block"
-              e.onclick = window.innerWidth >= 700 ? (e) => { e.preventDefault() } : undefined
-            })
-          }
-        }
-        let adjuster = detailsElemStateAdjuster()
-        adjuster()
-        window.addEventListener("resize", onChange(() => { return window.innerWidth >= 700 }, adjuster, 100))
-      </script>
-
-      <main class="markdown">
-        {{.Markdown.Content}}
-      </main>
-
+    <div id="navs">
+      <nav id="sitemap">{{template "sitemap-item" .Root}}</nav>
+      {{with .Markdown.Toc}}
+      <nav id="toc">{{template "toc-item" .}}</nav>
+      {{end}}
     </div>
+
+    <script>
+      var navs = document.getElementById("navs")
+      var toc = document.getElementById("toc")
+      var sitemap = document.getElementById("sitemap")
+      /** @type {HTMLDivElement} */
+      var onSpot = undefined
+      /** @param {HTMLDivElement} elem */
+      function toggleNavsFor(elem) {
+        if (onSpot === elem) {
+          onSpot.classList.remove("on-spot")
+          navs.classList.remove("open");
+          onSpot = undefined
+        } else if (onSpot !== undefined) {
+          navs.style.scrollBehavior = "smooth"
+          navs.scrollLeft = elem.offsetLeft
+          elem.classList.add("on-spot")
+          onSpot.classList.remove("on-spot")
+          onSpot = elem
+        } else {
+          navs.classList.add("open")
+          navs.style.scrollBehavior = "none"
+          navs.scrollLeft = elem.offsetLeft
+          elem.classList.add("on-spot")
+          onSpot = elem
+        }
+      }
+
+      function toggleSitemap() {
+        toggleNavsFor(sitemap)
+      }
+      function toggleToc() {
+        toggleNavsFor(toc)
+      }
+    </script>
+
+    <main class="markdown">
+      {{.Markdown.Content}}
+    </main>
+
   </body>
 
 </html>
