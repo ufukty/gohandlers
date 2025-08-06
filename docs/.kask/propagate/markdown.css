@@ -7,26 +7,15 @@ body {
     padding-top: 20px;
   }
 
-  & > *:not(:is(h1, h2, h3, h4, h5, h6)) {
-    width: 100%;
-    margin: 20px 0;
-  }
-
   p:not(:has(img, pre, table, ul, ol)) {
-    max-width: 400px;
+    columns: 2;
+    column-gap: 20px;
   }
 
-  & > *:not(pre) {
-    padding: 0 20px;
-  }
-
-  > p:has(img),
-  > table,
-  > pre.chroma,
-  > figure:has(pre.chroma),
-  > ul,
-  > ol {
-    margin: 10px 0;
+  @media screen and (width<=800px) {
+    > *:not(:has(pre, table, ul, ol)) {
+      padding: 0 20px;
+    }
   }
 
   strong {
@@ -78,7 +67,7 @@ body {
 
   > ul,
   > ol {
-    margin-left: 10px;
+    padding: 0 10px;
   }
 
   ul {
@@ -94,6 +83,7 @@ body {
 
       text-align: match-parent;
       margin-left: 20px;
+      list-style-position: inside;
     }
   }
 

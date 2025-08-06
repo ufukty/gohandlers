@@ -2,9 +2,11 @@ html {
   position: relative;
   scroll-padding-top: 60px;
 
-  &:has(#navs.open) {
-    height: 100vh;
-    overflow: hidden;
+  @media screen and (width<=800px) {
+    &:has(#navs.open) {
+      height: 100vh;
+      overflow: hidden;
+    }
   }
 }
 
