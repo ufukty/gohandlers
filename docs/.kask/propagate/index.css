@@ -80,7 +80,6 @@ p {
 
 body {
   width: 100vw;
-  padding-bottom: 200px;
 
   @media screen and (800px<width) and (width<1700px) {
     display: grid;
@@ -98,13 +97,14 @@ body {
       display: flex;
       flex-direction: column;
       gap: 100px;
-      padding: 20px;
+      padding: 20px 0 20px 20px;
     }
 
     & > main {
       grid-column: 2 / 3;
       grid-row: 2 / 3;
       overflow-x: hidden;
+      padding-bottom: 50vh;
     }
   }
 
@@ -113,7 +113,7 @@ body {
     grid-template-columns: 400px 1fr 400px;
     justify-content: space-between;
     align-items: start;
-    gap: 20px;
+    gap: 0 20px;
 
     position: relative;
 
@@ -125,7 +125,7 @@ body {
         grid-row: 2 / 3;
         top: 0;
         position: sticky;
-        padding: 20px;
+        padding: 20px 0 20px 20px;
       }
 
       & > nav#toc {
@@ -133,7 +133,7 @@ body {
         grid-row: 2 / 3;
         top: 0;
         position: sticky;
-        padding: 20px;
+        padding: 20px 20px 20px 0;
       }
     }
 
@@ -141,9 +141,11 @@ body {
       grid-column: 2 / 3;
       grid-row: 2 / 3;
       justify-self: center;
-      margin-bottom: 500px;
       width: 100%;
       overflow: hidden;
+      padding: 20px 0 50vh;
     }
   }
+}
+
 }
