@@ -88,9 +88,15 @@
     </header>
 
     <div id="navs">
-      <nav id="sitemap">{{template "sitemap-item" .Root}}</nav>
+      <nav id="sitemap">
+        <div class="nav-header">Sitemap</div>
+        {{template "sitemap-item" .Root}}
+      </nav>
       {{with .Markdown.Toc}}
-      <nav id="toc">{{template "toc-item" .}}</nav>
+      <nav id="toc">
+        <div class="nav-header">In this page</div>
+        {{template "toc-item" .}}
+      </nav>
       {{end}}
     </div>
 

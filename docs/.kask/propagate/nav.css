@@ -67,31 +67,38 @@ header {
 
 #navs {
   nav {
-    ul ul {
-      margin-left: 20px;
-    }
-
-    li {
-      list-style: none;
-      text-indent: 1.6em hanging;
-    }
-
-    a,
-    span {
-      display: block;
-      padding: 0 5px;
-      border-radius: 8px;
-      text-align: left;
-    }
-
-    span {
+    & > .nav-header {
+      font-size: 1.1em;
       color: light-dark(#aaa, #444);
+      margin-bottom: 10px;
     }
 
-    a {
-      &:hover,
-      &.active {
-        color: light-dark(black, white);
+    & > ul {
+      ul {
+        margin-left: 20px;
+      }
+
+      li {
+        list-style: none;
+        text-indent: 1.6em hanging;
+      }
+
+      a,
+      span {
+        display: block;
+        border-radius: 8px;
+        text-align: left;
+      }
+
+      span {
+        color: light-dark(#aaa, #444);
+      }
+
+      a {
+        &:hover,
+        &.active {
+          color: light-dark(black, white);
+        }
       }
     }
   }
@@ -110,12 +117,12 @@ header {
     overflow: hidden;
 
     &:not(.open) {
-      background-color: light-dark(#fff0, #0000);
+      background-color: light-dark(#fff0, #17171700);
       display: none;
     }
 
     &.open {
-      background-color: light-dark(#fffe, #000e);
+      background-color: light-dark(#fffe, #171717ee);
       backdrop-filter: blur(100px);
     }
 
@@ -155,7 +162,7 @@ header {
     #navs.open {
       display: flex;
       backdrop-filter: blur(0px);
-      background-color: light-dark(#fff0, #0000);
+      background-color: light-dark(#fff0, #17171700);
     }
   }
 }
