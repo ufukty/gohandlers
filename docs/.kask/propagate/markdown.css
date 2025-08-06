@@ -3,9 +3,17 @@ body {
 }
 
 .markdown {
-  & > * {
+  @media screen and (width<=800px) {
+    padding-top: 20px;
+  }
+
+  & > *:not(:is(h1, h2, h3, h4, h5, h6)) {
     width: 100%;
     margin: 20px 0;
+  }
+
+  p:not(:has(img, pre, table, ul, ol)) {
+    max-width: 400px;
   }
 
   & > *:not(pre) {
