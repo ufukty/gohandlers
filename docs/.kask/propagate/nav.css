@@ -1,14 +1,11 @@
 html {
   position: relative;
+  scroll-padding-top: 60px;
 
   &:has(#navs.open) {
     height: 100vh;
     overflow: hidden;
   }
-}
-
-html {
-  scroll-padding-top: 60px;
 }
 
 header {
