@@ -96,13 +96,13 @@ header {
   }
 }
 
-@media screen and (width<800px) {
+@media screen and (width<=800px) {
   #navs {
     width: 100vw;
     height: 100vh;
     position: fixed;
     z-index: 1;
-    inset: 0;
+    inset: 61px 0 0;
 
     display: flex;
     flex-direction: row;
@@ -114,7 +114,7 @@ header {
     }
 
     &.open {
-      background-color: light-dark(#fff8, #0008);
+      background-color: light-dark(#fffe, #000e);
       backdrop-filter: blur(100px);
     }
 
@@ -126,47 +126,35 @@ header {
     & > nav {
       width: 100vw;
       height: 100vh;
-      padding: 100px 20px 20px;
+      padding: 20px;
       overflow: scroll;
       flex-shrink: 0;
+      transition: opacity 300ms ease-out allow-discrete;
+
+      &:not(.on-spot) {
+        opacity: 0;
+      }
 
       ul {
-        transition-property: transform, display;
-        transition-duration: 300ms;
-        transition-delay: 200ms;
-        transition-timing-function: ease-in-out;
-        transition-behavior: allow-discrete;
+        transition: transform 300ms ease-out allow-discrete;
       }
+
       &:not(.on-spot) ul {
         transform: translateX(-2px);
       }
 
-      & > ul {
-        transition-property: transform, opacity, display;
-        transition-duration: 300ms;
+      &.on-spot,
+      &.on-spot ul {
         transition-delay: 200ms;
-        transition-timing-function: ease-in-out;
-        transition-behavior: allow-discrete;
-      }
-      &:not(.on-spot) > ul {
-        opacity: 0;
       }
     }
   }
 
   @starting-style {
-    #navs {
-      backdrop-filter: blur(0);
-      opacity: 0;
-    }
-
-    #navs > nav ul {
-      transform: translateX(-2px);
-    }
-
-    #navs > nav > ul {
-      opacity: 0;
-      transform: translateX(-2px);
+    #navs.open {
+      display: flex;
+      backdrop-filter: blur(0px);
+      background-color: light-dark(#fff0, #0000);
     }
   }
 }

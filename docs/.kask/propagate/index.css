@@ -81,13 +81,6 @@ body {
   width: 100vw;
   padding-bottom: 200px;
 
-  @media screen and (width<=800px) {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
   @media screen and (800px<width) and (width<1700px) {
     display: grid;
     grid-template-columns: 250px 1fr;
