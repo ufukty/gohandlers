@@ -35,12 +35,10 @@ body {
 
   @media screen and (800px<width) and (width<1700px) {
     display: grid;
-    grid-template-columns: 400px 1fr;
+    grid-template-columns: 300px 1fr;
     justify-content: left;
     align-items: start;
     gap: 20px;
-
-    position: relative;
 
     & > #navs {
       grid-column: 1 / 2;
@@ -57,6 +55,7 @@ body {
       grid-row: 2 / 3;
       overflow-x: hidden;
       padding-bottom: 50vh;
+      padding-right: 20px;
     }
   }
 
