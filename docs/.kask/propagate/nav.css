@@ -66,6 +66,10 @@ header {
 }
 
 #navs {
+  a {
+    text-decoration: none;
+  }
+
   nav {
     & > .nav-header {
       font-size: 1.1em;

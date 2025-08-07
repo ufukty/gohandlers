@@ -24,60 +24,6 @@ html {
   scroll-margin-top: 70px;
 }
 
-a {
-  text-decoration: none;
-}
-
-.nowrap {
-  white-space: nowrap;
-}
-
-h1 {
-  --heading-order: 6;
-  font-size: 2em;
-}
-
-h2 {
-  --heading-order: 5;
-  font-size: 1.7em;
-}
-
-h3 {
-  --heading-order: 4;
-  font-size: 1.3em;
-}
-
-h4 {
-  --heading-order: 3;
-  font-size: 1.2em;
-}
-
-h5 {
-  --heading-order: 2;
-}
-
-h6 {
-  --heading-order: 1;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-weight: 500;
-  margin: 40px 0;
-}
-
-:not(:is(h1, h2, h3, h4, h5, h6)) + :is(h1, h2, h3, h4, h5, h6) {
-  margin-top: calc(((7 - var(--heading-order)) / 6 + 1) * 100px);
-}
-
-p {
-  margin: 10px 0;
-}
-
 body {
   width: 100vw;
 

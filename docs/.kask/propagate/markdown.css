@@ -4,7 +4,7 @@ body {
 
 .markdown {
   @media screen and (width<=800px) {
-    padding-top: 20px;
+    padding-top: 50px;
   }
 
   p:not(:has(img, pre, table, ul, ol)) {
@@ -21,12 +21,45 @@ body {
     font-weight: 600;
   }
 
+  *:not(pre) > code {
+    font-family: "Fira Mono", monospace !important;
+  }
+
+  h1 {
+    --significance: 6;
+    font-size: 2em;
+  }
+
+  h2 {
+    --significance: 5;
+    font-size: 1.7em;
+  }
+
+  h3 {
+    --significance: 4;
+    font-size: 1.3em;
+  }
+
+  h4 {
+    --significance: 3;
+    font-size: 1.2em;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6) {
+    font-weight: 500;
+    margin: 40px 0;
+  }
+
+  :not(:is(h1, h2, h3, h4, h5, h6)) + :is(h1, h2, h3, h4, h5, h6) {
+    margin-top: calc(((13 - var(--significance)) / 6) * 100px);
+  }
+
   & > *:first-child {
     margin-top: 0;
   }
-
-  *:not(pre) > code {
-    font-family: "Fira Mono", monospace !important;
+  
+  p {
+    margin: 10px 0;
   }
 
   a {
