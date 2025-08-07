@@ -73,7 +73,7 @@ header {
   nav {
     & > .nav-header {
       &:not(:first-child) {
-        margin-top: 100px;
+        margin-top: 20px;
       }
 
       font-size: 1.1em;
