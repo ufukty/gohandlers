@@ -82,7 +82,9 @@ body {
   width: 100vw;
 
   @media screen and (width<=800px) {
-    padding-bottom: 50vh;
+    & > main {
+      padding-bottom: 50vh;
+    }
   }
 
   @media screen and (800px<width) and (width<1700px) {
