@@ -115,6 +115,7 @@
         } else if (onSpot !== undefined) {
           navs.style.scrollBehavior = "smooth"
           navs.scrollLeft = elem.offsetLeft
+          elem.scrollTop = 0
           elem.classList.add("on-spot")
           onSpot.classList.remove("on-spot")
           onSpot = elem
@@ -122,6 +123,7 @@
           navs.classList.add("open")
           navs.style.scrollBehavior = "none"
           navs.scrollLeft = elem.offsetLeft
+          elem.scrollTop = 0
           elem.classList.add("on-spot")
           onSpot = elem
         }
