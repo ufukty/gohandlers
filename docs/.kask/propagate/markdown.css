@@ -8,8 +8,7 @@ body {
   }
 
   p:not(:has(img, pre, table, ul, ol)) {
-    columns: 2;
-    column-gap: 20px;
+    max-width: 500px;
   }
 
   @media screen and (width<=800px) {
