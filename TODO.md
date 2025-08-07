@@ -1,2 +1,0 @@
-- Add support to specify prefix for handler URL
-- Add support for developers to mark binding types to ignore in doc comments: `// gh:ignore`
