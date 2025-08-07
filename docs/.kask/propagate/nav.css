@@ -72,6 +72,10 @@ header {
 
   nav {
     & > .nav-header {
+      &:not(:first-child) {
+        margin-top: 100px;
+      }
+
       font-size: 1.1em;
       color: light-dark(#aaa, #444);
       margin-bottom: 10px;
@@ -102,6 +106,43 @@ header {
         &:hover,
         &.active {
           color: light-dark(black, white);
+        }
+      }
+    }
+
+    &#sitemap > #link-grid {
+      display: grid;
+      grid-template-columns: min-content 1fr;
+      justify-content: start;
+      align-items: center;
+      gap: 0 10px;
+
+      a {
+        display: contents;
+
+        svg {
+          width: 16px;
+
+          &.github-logo {
+            fill: light-dark(#444, #aaa);
+          }
+        }
+
+        span {
+          padding: 2px 0;
+          line-height: normal;
+        }
+
+        &:hover {
+          span {
+            color: light-dark(#000, #fff);
+          }
+
+          svg {
+            &.github-logo {
+              fill: light-dark(#000, #fff);
+            }
+          }
         }
       }
     }
@@ -141,22 +182,30 @@ header {
       padding: 80px 20px 20px;
       overflow: scroll;
       flex-shrink: 0;
-      transition: opacity 300ms ease-out allow-discrete;
+      transition: opacity 300ms ease-out;
 
       &:not(.on-spot) {
         opacity: 0;
       }
 
-      ul {
-        transition: transform 300ms ease-out allow-discrete;
+      ul,
+      #link-grid,
+      #link-grid > a > span {
+        transition: transform 300ms ease-out;
       }
 
-      &:not(.on-spot) ul {
-        transform: translateX(-2px);
+      &:not(.on-spot) {
+        ul,
+        #link-grid,
+        #link-grid > a > span {
+          transform: translateX(-2px);
+        }
       }
 
       &.on-spot,
-      &.on-spot ul {
+      &.on-spot ul,
+      &.on-spot #link-grid,
+      &.on-spot #link-grid > a > span {
         transition-delay: 200ms;
       }
     }
