@@ -26,32 +26,28 @@ body {
   }
 
   h1 {
-    --significance: 6;
-    font-size: 3em;
+    --significance: 4;
   }
 
   h2 {
-    --significance: 5;
-    font-size: 2em;
+    --significance: 3;
   }
 
   h3 {
-    --significance: 4;
-    font-size: 1.5em;
+    --significance: 2;
   }
 
-  h4 {
-    --significance: 3;
-    font-size: 1.2em;
+  h4,
+  h5,
+  h6 {
+    --significance: 1;
   }
 
   :is(h1, h2, h3, h4, h5, h6) {
+    font-size: calc(1em + var(--significance) * 0.25em);
     font-weight: 500;
-    margin: 20px 0;
-  }
 
-  :not(:is(h1, h2, h3, h4, h5, h6)) + :is(h1, h2, h3, h4, h5, h6) {
-    margin-top: calc(((13 - var(--significance)) / 6) * 30px);
+    margin: calc(var(--significance) * 10px) 0;
   }
 
   & > *:first-child {
