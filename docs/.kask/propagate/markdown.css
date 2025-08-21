@@ -8,7 +8,7 @@ body {
   }
 
   p:not(:has(img, pre, table, ul, ol)) {
-    max-width: 500px;
+    max-width: 640px;
   }
 
   @media screen and (width<=800px) {
@@ -27,17 +27,17 @@ body {
 
   h1 {
     --significance: 6;
-    font-size: 2em;
+    font-size: 3em;
   }
 
   h2 {
     --significance: 5;
-    font-size: 1.7em;
+    font-size: 2em;
   }
 
   h3 {
     --significance: 4;
-    font-size: 1.3em;
+    font-size: 1.5em;
   }
 
   h4 {
@@ -47,17 +47,17 @@ body {
 
   :is(h1, h2, h3, h4, h5, h6) {
     font-weight: 500;
-    margin: 40px 0;
+    margin: 20px 0;
   }
 
   :not(:is(h1, h2, h3, h4, h5, h6)) + :is(h1, h2, h3, h4, h5, h6) {
-    margin-top: calc(((13 - var(--significance)) / 6) * 100px);
+    margin-top: calc(((13 - var(--significance)) / 6) * 30px);
   }
 
   & > *:first-child {
     margin-top: 0;
   }
-  
+
   p {
     margin: 10px 0;
   }
@@ -230,7 +230,7 @@ body {
 
     counter-reset: line;
 
-    color: light-dark(#24292f, #a7b1bc);
+    color: light-dark(#444, #aaa);
 
     * {
       font-family: "Fira Code", monospace !important;
@@ -238,7 +238,7 @@ body {
     }
 
     .nx {
-      color: light-dark(#24292f, #a7b1bc);
+      color: light-dark(#444, #aaa);
     }
 
     .s,
