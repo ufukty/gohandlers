@@ -11,23 +11,22 @@ html {
 }
 
 header {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+
   @media screen and (width<=800px) {
     position: sticky;
     top: 0;
     z-index: 2;
 
-    border-bottom: 1px solid light-dark(#0001, #fff1);
-    background-color: light-dark(#fffa, #171717aa);
-
     -webkit-backdrop-filter: blur(30px);
     backdrop-filter: blur(30px);
-  }
 
-  display: flex;
-  gap: 10px;
-  justify-content: space-between;
-  align-items: center;
-  width: 100vw;
+    border-bottom: 1px solid light-dark(#0001, #fff1);
+    background-color: light-dark(#fffa, #171717aa);
+  }
 
   #logotype {
     display: inline-block;
