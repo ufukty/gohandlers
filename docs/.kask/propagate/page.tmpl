@@ -1,24 +1,37 @@
-{{define "sitemap-item"}}
-{{with .}}
+{{define "sitemap-item-helper"}}
+{{if ne .Href ""}}<a href="{{.Href}}">{{.Title}}</a>
+{{else}}<span>{{.Title}}</span>
+{{end}}
+{{with .Children}}
 <ul>
-  {{if ne .Href ""}}
-  <a href="{{.Href}}">{{.Title}}</a>
-  {{else}}
-  <span>{{.Title}}</span>
+  {{range .}}
+  <li>{{template "sitemap-item-helper" .}}</li>
   {{end}}
-  {{range .Children}}
-  <li>{{template "sitemap-item" .}}</li>{{end}}
+</ul>
+{{end}}
+{{end}}
+
+{{define "sitemap-item"}}
+<ul>
+  <li>{{template "sitemap-item-helper" .}}</li>
+</ul>
+{{end}}
+
+{{define "toc-item-helper"}}
+<a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>
+{{with .Children}}
+<ul>
+  {{range .}}
+  <li>{{template "toc-item-helper" .}}</li>
+  {{end}}
 </ul>
 {{end}}
 {{end}}
 
 {{define "toc-item"}}
-{{if gt .Level 0}}<a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>{{end}}
-{{with .Children}}
 <ul>
-  {{range .}}
-  <li>{{template "toc-item" .}}</li>{{end}}
-</ul>{{end}}
+  <li>{{template "toc-item-helper" .}}</li>
+</ul>
 {{end}}
 
 {{define "markdown-page"}}
@@ -133,7 +146,7 @@
       {{with .Markdown.Toc}}
       <nav id="toc">
         <div class="nav-header">In this page</div>
-        {{template "toc-item" .}}
+        {{template "toc-item" (index .Children 0)}}
       </nav>
       {{end}}
 
