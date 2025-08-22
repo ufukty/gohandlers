@@ -18,7 +18,6 @@ html {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: light-dark(#444, #aaa);
   background-color: light-dark(#fff, #171717);
-  line-height: 2em;
   font-weight: 400;
   scroll-behavior: smooth;
   scroll-margin-top: 70px;

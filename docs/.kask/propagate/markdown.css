@@ -22,7 +22,7 @@ body {
   }
 
   *:not(pre) > code {
-    font-family: "Fira Mono", monospace !important;
+    font-family: "Fira Code", monospace !important;
   }
 
   h1 {
@@ -44,7 +44,8 @@ body {
   }
 
   :is(h1, h2, h3, h4, h5, h6) {
-    font-size: calc(1em + var(--significance) * 0.25em);
+    font-size: calc(1em + var(--significance) * 0.35em);
+    line-height: normal;
     font-weight: 500;
 
     margin: calc(var(--significance) * 10px) 0;
@@ -56,6 +57,11 @@ body {
 
   p {
     margin: 10px 0;
+  }
+
+  li,
+  p {
+    line-height: 2em;
   }
 
   a {

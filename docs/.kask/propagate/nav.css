@@ -76,9 +76,10 @@ header {
         margin-top: 20px;
       }
 
-      font-size: 1.1em;
-      color: light-dark(#aaa, #444);
       margin-bottom: 10px;
+      font-size: 1.1em;
+      line-height: 2em;
+      color: light-dark(#aaa, #444);
     }
 
     & > ul {
@@ -96,6 +97,7 @@ header {
         display: block;
         border-radius: 8px;
         text-align: left;
+        line-height: 2em;
       }
 
       span {
