@@ -3,23 +3,6 @@ body {
 }
 
 .markdown {
-  @media screen and (width<=800px) {
-    padding-top: 50px;
-  }
-
-  p:not(:has(img, pre, table, ul, ol)),
-  ul,
-  ol,
-  blockquote {
-    max-width: 640px;
-  }
-
-  @media screen and (width<=800px) {
-    > *:not(:has(pre, table, ul, ol)) {
-      padding: 0 20px;
-    }
-  }
-
   strong {
     font-weight: 600;
   }
@@ -47,7 +30,7 @@ body {
   }
 
   :is(h1, h2, h3, h4, h5, h6) {
-    font-size: calc(1em + var(--significance) * 0.35em);
+    font-size: calc(1em + var(--significance) * 0.1em);
     line-height: normal;
     font-weight: 500;
 
@@ -98,7 +81,6 @@ body {
 
   hr {
     color: none;
-    width: 100%;
     border: none;
     border-bottom: 1px solid light-dark(#eee, #2a2e32);
     margin: 50px 0;
@@ -186,21 +168,20 @@ body {
     border-collapse: separate;
     border-spacing: 0;
 
-    @media screen and (max-width: 700px) {
-      min-width: calc(100% - 40px);
-    }
-
-    @media screen and (min-width: 700px) {
-      min-width: 100%;
-    }
-
     th {
       text-align: left;
     }
 
     th,
     td {
-      padding: 10px 20px 10px 0px;
+      padding: 10px 50px;
+
+      &:first-child {
+        padding-left: 0;
+      }
+      &:last-child {
+        padding-right: 0;
+      }
     }
 
     thead {
@@ -229,9 +210,9 @@ body {
 
     font-optical-sizing: auto;
     line-height: 1.24;
-    font-size: 11pt;
+    font-size: 12px;
 
-    width: min(100%, max-content);
+    max-width: 100%;
     overflow-x: scroll;
 
     counter-reset: line;
