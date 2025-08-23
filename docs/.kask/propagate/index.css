@@ -14,7 +14,7 @@
 }
 
 html {
-  font-size: 16px;
+  font-size: 14px;
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: light-dark(#444, #aaa);
   background-color: light-dark(#fff, #171717);
@@ -28,88 +28,46 @@ body {
 
   @media screen and (width<=800px) {
     & > main {
-      padding-bottom: 50vh;
+      padding-top: 50px;
+
+      > *:not(:has(pre, table, ul, ol)) {
+        padding: 0 20px;
+      }
     }
   }
 
-  @media screen and (800px<width) and (width<1400px) {
+  @media screen and (800px<width) {
     display: grid;
     grid-template-columns: 300px 1fr;
-    justify-content: left;
     align-items: start;
-    gap: 20px;
+    gap: 0 5vw;
+    padding: 5vw 0 30vh 5vw;
 
-    & > header {
-      grid-column: 1 / 3;
-    }
-
-    & > #navs {
-      grid-column: 1 / 2;
-      grid-row: 2 / 3;
-
+    & > #controls {
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      padding: 0 0 20px 20px;
+      gap: 5vw;
 
-      height: 100%;
-      position: relative;
-
-      & > #toc {
-        position: sticky;
-        top: 0;
+      & > #navs {
+        display: contents;
       }
     }
 
     & > main {
-      grid-column: 2 / 3;
-      grid-row: 2 / 3;
-      overflow-x: hidden;
-      padding-bottom: 50vh;
-      padding-right: 20px;
-    }
-  }
+      max-width: 100%;
 
-  @media screen and (1400px<=width) {
-    display: grid;
-    grid-template-columns: 350px 1fr 350px;
-    justify-content: space-between;
-    align-items: start;
-    gap: 0 20px;
-
-    position: relative;
-
-    & > header {
-      grid-column: 1 / 4;
-    }
-
-    & > #navs {
-      display: contents;
-
-      & > nav#sitemap {
-        grid-column: 1 / 2;
-        grid-row: 2 / 3;
-        top: 0;
-        position: sticky;
-        padding: 20px 0 20px 20px;
+      & > p:not(:has(img, pre, table, ul, ol)) {
+        max-width: calc(100% - 5vw);
       }
 
-      & > nav#toc {
-        grid-column: 3 / 4;
-        grid-row: 2 / 3;
-        top: 0;
-        position: sticky;
-        padding: 20px 20px 20px 0;
+      > *:not(pre) {
+        padding-right: 5vw;
       }
-    }
 
-    & > main {
-      grid-column: 2 / 3;
-      grid-row: 2 / 3;
-      justify-self: center;
-      width: 100%;
-      overflow: hidden;
-      padding: 20px 0 50vh;
+      > pre {
+        max-width: 100%;
+        overflow-x: scroll;
+      }
     }
   }
 }
