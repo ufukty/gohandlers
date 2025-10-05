@@ -7,7 +7,7 @@ import (
 	"go/token"
 	"slices"
 
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 func methodtype(hi inspects.Info, pkgsrc string, imported, namedparams bool) *ast.FuncType {

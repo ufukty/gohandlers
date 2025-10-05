@@ -17,7 +17,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/ufukty/gohandlers/pkg/inspects/join"
+	"go.ufukty.com/gohandlers/pkg/inspects/join"
 )
 
 func first[E any](i iter.Seq[E]) (e E) {

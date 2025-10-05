@@ -5,7 +5,7 @@ import (
 	"go/token"
 	"slices"
 
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 func ternary[T any](cond bool, t, f T) T {

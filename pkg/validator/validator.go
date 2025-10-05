@@ -7,7 +7,7 @@ package validator
 import (
 	"regexp"
 
-	"github.com/ufukty/gohandlers/pkg/validator/validate"
+	"go.ufukty.com/gohandlers/pkg/validator/validate"
 )
 
 type Strings struct {

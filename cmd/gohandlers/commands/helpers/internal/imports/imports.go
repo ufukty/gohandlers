@@ -4,8 +4,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/ufukty/gohandlers/cmd/gohandlers/internal/pretty/sort"
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/internal/pretty/sort"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 // bq.Parse and bs.Parse needs for content type check
@@ -54,7 +54,7 @@ func List(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Spec {
 	imports := []ast.Spec{
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"fmt"`}},
 		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"net/http"`}},
-		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"github.com/ufukty/gohandlers/pkg/gohandlers"`}},
+		&ast.ImportSpec{Path: &ast.BasicLit{Kind: token.STRING, Value: `"go.ufukty.com/gohandlers/pkg/gohandlers"`}},
 	}
 	if needsBytes(infoss) {
 		imports = append(imports,

@@ -3,7 +3,7 @@ package construct
 import (
 	"go/ast"
 
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 func File(infoss map[inspects.Receiver]map[string]inspects.Info, pkgdst, pkgsrc, importpkg string) *ast.File {

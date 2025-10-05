@@ -5,7 +5,7 @@ import (
 	"go/token"
 	"slices"
 
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 func Listers(infoss map[inspects.Receiver]map[string]inspects.Info) []ast.Decl {

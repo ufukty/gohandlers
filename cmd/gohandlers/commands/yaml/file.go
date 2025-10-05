@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 
 	"gopkg.in/yaml.v3"
 )

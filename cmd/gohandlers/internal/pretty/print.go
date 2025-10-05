@@ -10,8 +10,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/version"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/internal/pretty/post"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/version"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/internal/pretty/post"
 )
 
 func Print(f *ast.File) (io.Reader, error) {
