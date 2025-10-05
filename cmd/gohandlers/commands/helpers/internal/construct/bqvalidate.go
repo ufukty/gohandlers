@@ -4,8 +4,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/ufukty/gohandlers/internal/sorted"
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/internal/sorted"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 func merge[K comparable, V any](maps ...map[K]V) map[K]V {

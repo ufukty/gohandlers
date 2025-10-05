@@ -1,4 +1,4 @@
-module github.com/ufukty/gohandlers
+module go.ufukty.com/gohandlers
 
 go 1.23.0
 

@@ -1,7 +1,7 @@
 .PHONY: build
 
 VERSION := $(shell git describe --tags --always --dirty)
-LDFLAGS := -ldflags "-X 'github.com/ufukty/gohandlers/cmd/gohandlers/commands/version.Version=$(VERSION)'"
+LDFLAGS := -ldflags "-X 'go.ufukty.com/gohandlers/cmd/gohandlers/commands/version.Version=$(VERSION)'"
 
 build:
 	@echo "Version $(VERSION)..."

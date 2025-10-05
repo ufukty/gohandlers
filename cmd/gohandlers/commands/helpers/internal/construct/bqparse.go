@@ -5,8 +5,8 @@ import (
 	"go/ast"
 	"go/token"
 
-	"github.com/ufukty/gohandlers/internal/sorted"
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/internal/sorted"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 type bqParse struct{}

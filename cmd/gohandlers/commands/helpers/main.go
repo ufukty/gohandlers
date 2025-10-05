@@ -10,11 +10,11 @@ import (
 	"os"
 	"slices"
 
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/imports"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/helpers/internal/utilities"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/internal/pretty"
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/helpers/internal/imports"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/helpers/internal/utilities"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/internal/pretty"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 type Args struct {

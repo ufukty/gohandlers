@@ -6,9 +6,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/ufukty/gohandlers/cmd/gohandlers/commands/client/construct"
-	"github.com/ufukty/gohandlers/cmd/gohandlers/internal/pretty"
-	"github.com/ufukty/gohandlers/pkg/inspects"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/client/construct"
+	"go.ufukty.com/gohandlers/cmd/gohandlers/internal/pretty"
+	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
 type Args struct {
