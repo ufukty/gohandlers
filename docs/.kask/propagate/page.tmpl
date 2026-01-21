@@ -1,6 +1,6 @@
 {{define "sitemap-item-helper"}}
-{{if ne .Href ""}}<a href="{{.Href}}">{{.Title}}</a>
-{{else}}<span>{{.Title}}</span>
+{{if ne .Href ""}}<a href="{{trustedHtml .Href}}">{{trustedHtml .Title}}</a>
+{{else}}<span>{{trustedHtml .Title}}</span>
 {{end}}
 {{with .Children}}
 <ul>
@@ -18,7 +18,7 @@
 {{end}}
 
 {{define "toc-item-helper"}}
-<a href="#{{.ID}}" class="toc{{.Level}}">{{.Title}}</a>
+<a href="#{{trustedHtml .ID}}" class="toc{{.Level}}">{{trustedHtml .Title}}</a>
 {{with .Children}}
 <ul>
   {{range .}}
@@ -190,7 +190,7 @@
     </script>
 
     <main class="markdown">
-      {{.Markdown.Content}}
+      {{trustedHtml .Markdown.Content}}
     </main>
 
   </body>
