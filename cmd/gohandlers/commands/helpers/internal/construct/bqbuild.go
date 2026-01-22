@@ -19,6 +19,13 @@ type bqBuild struct {
 	table bqBuildSymbolTable
 }
 
+func ternary[T any](cond bool, t, f T) T {
+	if cond {
+		return t
+	}
+	return f
+}
+
 func (p *bqBuild) route(info inspects.Info) []ast.Stmt {
 	stmts := []ast.Stmt{}
 	for rp, fn := range sorted.ByValues(info.RequestType.Params.Route) {
