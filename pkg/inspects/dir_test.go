@@ -140,9 +140,10 @@ func TestHandlerMethodComplaints(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.description, func(t *testing.T) {
 			var bti *BindingTypeInfo
-			if tc.requestBinding == WithoutBody {
+			switch tc.requestBinding {
+			case WithoutBody:
 				bti = &BindingTypeInfo{ContainsBody: false}
-			} else if tc.requestBinding == WithBody {
+			case WithBody:
 				bti = &BindingTypeInfo{ContainsBody: true}
 			}
 			h := &ast.FuncDecl{Name: ast.NewIdent(tc.handlerName)}
@@ -197,9 +198,10 @@ func TestHandlerMethod(t *testing.T) {
 	for _, tc := range tcs {
 		t.Run(tc.description, func(t *testing.T) {
 			var bti *BindingTypeInfo
-			if tc.requestBinding == WithoutBody {
+			switch tc.requestBinding {
+			case WithoutBody:
 				bti = &BindingTypeInfo{ContainsBody: false}
-			} else if tc.requestBinding == WithBody {
+			case WithBody:
 				bti = &BindingTypeInfo{ContainsBody: true}
 			}
 			h := &ast.FuncDecl{Name: ast.NewIdent(tc.handlerName)}
