@@ -11,11 +11,13 @@ import (
 	"testing"
 )
 
-const GET = "GET"
-const POST = "POST"
-const PUT = "PUT"
-const PATCH = "PATCH"
-const DELETE = "DELETE"
+const (
+	GET    = "GET"
+	POST   = "POST"
+	PUT    = "PUT"
+	PATCH  = "PATCH"
+	DELETE = "DELETE"
+)
 
 func TestParseDoc(t *testing.T) {
 	type tc struct {
@@ -24,35 +26,56 @@ func TestParseDoc(t *testing.T) {
 		output      Doc
 	}
 	tcs := []tc{
-		{description: "ignore",
-			input: []string{"// gh:ignore"}, output: Doc{Mode: "ignore"}},
-
-		{description: "ignore with whitespaces",
-			input: []string{"//    gh:ignore"}, output: Doc{Mode: "ignore"}},
-
-		{description: "only the method",
-			input: []string{"// GET"}, output: Doc{Method: GET}},
-
-		{description: "only the method with whitespaces",
-			input: []string{"//   GET   "}, output: Doc{Method: GET}},
-
-		{description: "only the path",
-			input: []string{"// /index.html"}, output: Doc{Path: "/index.html"}},
-
-		{description: "only the path with whitespaces",
-			input: []string{"//     /index.html   "}, output: Doc{Path: "/index.html"}},
-
-		{description: "method and path",
-			input: []string{"// GET /index.html"}, output: Doc{Method: GET, Path: "/index.html"}},
-
-		{description: "method and path with whitespaces",
-			input: []string{"//   GET   /index.html    "}, output: Doc{Method: GET, Path: "/index.html"}},
-
-		{description: "ignore, method and path",
-			input: []string{"// gh:ignore", "// GET /index.html"}, output: Doc{Method: GET, Path: "/index.html", Mode: "ignore"}},
-
-		{description: "ignore, method and path with whitespaces",
-			input: []string{"//   gh:ignore    ", "// GET     /index.html   "}, output: Doc{Method: GET, Path: "/index.html", Mode: "ignore"}},
+		{
+			description: "ignore",
+			input:       []string{"// gh:ignore"},
+			output:      Doc{Mode: "ignore"},
+		},
+		{
+			description: "ignore with whitespaces",
+			input:       []string{"//    gh:ignore"},
+			output:      Doc{Mode: "ignore"},
+		},
+		{
+			description: "only the method",
+			input:       []string{"// GET"},
+			output:      Doc{Method: GET},
+		},
+		{
+			description: "only the method with whitespaces",
+			input:       []string{"//   GET   "},
+			output:      Doc{Method: GET},
+		},
+		{
+			description: "only the path",
+			input:       []string{"// /index.html"},
+			output:      Doc{Path: "/index.html"},
+		},
+		{
+			description: "only the path with whitespaces",
+			input:       []string{"//     /index.html   "},
+			output:      Doc{Path: "/index.html"},
+		},
+		{
+			description: "method and path",
+			input:       []string{"// GET /index.html"},
+			output:      Doc{Method: GET, Path: "/index.html"},
+		},
+		{
+			description: "method and path with whitespaces",
+			input:       []string{"//   GET   /index.html    "},
+			output:      Doc{Method: GET, Path: "/index.html"},
+		},
+		{
+			description: "ignore, method and path",
+			input:       []string{"// gh:ignore", "// GET /index.html"},
+			output:      Doc{Method: GET, Path: "/index.html", Mode: "ignore"},
+		},
+		{
+			description: "ignore, method and path with whitespaces",
+			input:       []string{"//   gh:ignore    ", "// GET     /index.html   "},
+			output:      Doc{Method: GET, Path: "/index.html", Mode: "ignore"},
+		},
 	}
 
 	for _, tc := range tcs {
