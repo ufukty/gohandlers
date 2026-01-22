@@ -16,7 +16,7 @@ jobs:
   Go:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions/setup-go@v5
         with: { go-version-file: go.mod }
       - run: go mod download
@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 10
     permissions: { security-events: write }
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: github/codeql-action/init@v4
         with: { languages: go, queries: security-and-quality }
       - uses: actions/setup-go@v5
