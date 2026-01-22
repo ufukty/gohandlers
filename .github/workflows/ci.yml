@@ -10,9 +10,7 @@ concurrency:
   group: codeql-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  security-events: write
-  contents: read
+permissions: read-all
 
 jobs:
   Go:
