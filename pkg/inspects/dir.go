@@ -222,7 +222,7 @@ func (m Mode) ParseBindings() bool {
 
 type Doc struct {
 	Method, Path string
-	Mode
+	Mode         Mode
 }
 
 var whitespaces = regexp.MustCompile(`\s+`)
@@ -311,7 +311,7 @@ func electMethod(docComment, handlerName, requestBinding string) string {
 
 func handlerMethod(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo, filename string) (string, []string) {
 	fromBindingType := ""
-	if rti != nil && doc.ParseBindings() {
+	if rti != nil && doc.Mode.ParseBindings() {
 		fromBindingType = decideMethodFromRequest(rti)
 	}
 	fromHandlerName := decideMethodFromHandlerName(h)
@@ -329,7 +329,7 @@ func handlerMethod(h *ast.FuncDecl, doc Doc, rti *BindingTypeInfo, filename stri
 		}
 	}
 
-	if doc.ParseBindings() {
+	if doc.Mode.ParseBindings() {
 		// implicit assignment notices
 		// TODO: decide if assigning method by handler name prefix implicit?
 		if !okDoc && !okName {

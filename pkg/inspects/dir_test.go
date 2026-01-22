@@ -63,8 +63,8 @@ func TestParseDoc(t *testing.T) {
 			}
 			fd := &ast.FuncDecl{Doc: &ast.CommentGroup{List: list}}
 			got := parseDoc(fd)
-			if got.Ignore() != tc.output.Ignore() {
-				t.Errorf(".Ignore: expected '%v' got '%v'", tc.output.Ignore(), got.Ignore())
+			if got.Mode.Ignore() != tc.output.Mode.Ignore() {
+				t.Errorf(".Ignore: expected '%v' got '%v'", tc.output.Mode.Ignore(), got.Mode.Ignore())
 			}
 			if got.Method != tc.output.Method {
 				t.Errorf(".Method: expected '%v' got '%v'", tc.output.Method, got.Method)
