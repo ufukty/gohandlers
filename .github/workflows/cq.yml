@@ -2,7 +2,7 @@ name: Code Quality
 
 on:
   workflow_dispatch:
-  schedule: [cron: "26 4 * * *"]
+  schedule: [cron: "30 4 * * *"]
 
 concurrency:
   group: codeql-${{ github.workflow }}-${{ github.ref }}
