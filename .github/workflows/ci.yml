@@ -22,5 +22,5 @@ jobs:
       - run: go mod download
       - run: go mod verify
       - run: go mod tidy; git diff --exit-code go.mod go.sum
-      - uses: golangci/golangci-lint-action@v9
+      - uses: golangci/golangci-lint-action@e2e40021c9007020676c93680a36e3ab06c6cd33 # v9
       - run: go test -race -v ./...
