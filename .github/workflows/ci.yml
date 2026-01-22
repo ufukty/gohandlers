@@ -1,25 +1,39 @@
 name: CI
 
 on:
-  push: {}
-  pull_request: {}
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule: [cron: "26 4 * * *"]
+
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  security-events: write
+  contents: read
 
 jobs:
-  build-and-test:
+  Go:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
-      - name: check out code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with: { go-version: "1.24.2" }
+      - run: go mod download
+      - run: go test ./...
 
-      - name: set up go
-        uses: actions/setup-go@v3
-        with:
-          go-version: "1.24.2"
-
-      - name: get dependencies
-        run: go mod download
-
-      - name: run tests
-        run: go test ./...
+  CodeQL:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: { packages: read, actions: read }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v4
+        with: { languages: go, queries: security-and-quality }
+      - uses: actions/setup-go@v3
+      - run: go mod download
+      - run: go build ./...
+      - uses: github/codeql-action/analyze@v4
+        with: { category: "/language:go" }
