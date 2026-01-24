@@ -7,7 +7,10 @@ body {
     padding-top: 50px;
   }
 
-  p:not(:has(img, pre, table, ul, ol)) {
+  p:not(:has(img, pre, table, ul, ol)),
+  ul,
+  ol,
+  blockquote {
     max-width: 640px;
   }
 
@@ -88,6 +91,8 @@ body {
     code {
       color: light-dark(#885d00, #28231f);
       background-color: light-dark(#fbe4b4, #de9e5f);
+      padding-inline: 3px;
+      border-radius: 4px;
     }
   }
 
@@ -226,8 +231,7 @@ body {
     line-height: 1.24;
     font-size: 11pt;
 
-    width: max-content;
-    max-width: 100%;
+    width: min(100%, max-content);
     overflow-x: scroll;
 
     counter-reset: line;
@@ -304,20 +308,26 @@ body {
 
   > figure {
     &:has(pre.chroma) {
+      margin-block: 20px;
+
       display: flex;
       flex-direction: column-reverse;
+
+      border: 1px solid light-dark(#eee, #2e2e2e);
       border-radius: 8px;
-      overflow: hidden;
-    }
 
-    pre.chroma + figcaption {
-      background-color: light-dark(#eee, #eee);
-      padding: 10px 20px;
-    }
+      & > figcaption {
+        border-bottom: 1px solid light-dark(#eee, #2e2e2e);
+        opacity: 0.5;
+        padding: 10px 20px;
+      }
+      & > pre.chroma {
+        padding: 20px 20px 20px 40px;
+      }
 
-    > pre.chroma {
-      border-radius: 0px;
-      padding: 20px 20px 20px 40px;
+      @media screen and (width<=800px) {
+        margin-inline: 20px;
+      }
     }
   }
 }
