@@ -32,6 +32,16 @@ body {
     }
   }
 
+  & > header > #logotype {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    & > span {
+      margin-top: 2px;
+    }
+  }
+
   @media screen and (800px<width) and (width<1400px) {
     display: grid;
     grid-template-columns: 300px 1fr;
