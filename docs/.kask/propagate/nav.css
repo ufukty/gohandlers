@@ -28,8 +28,11 @@ header {
     background-color: light-dark(#fffa, #171717aa);
   }
 
-  #logotype {
-    display: inline-block;
+  #home {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
     padding: 20px;
 
     @media screen and (width<=800px) {
@@ -39,10 +42,33 @@ header {
     font-size: 1.5em;
     line-height: normal;
     text-decoration: none;
-    transition: color 90ms ease-out;
 
-    &:hover {
+    & > #home-text {
+      display: flex;
+      flex-direction: row;
+      justify-content: start;
+      align-items: center;
+      gap: 4px;
+
+      & > #logotype,
+      & > #beta-mark {
+        transition: color 90ms ease-out;
+      }
+
+      & > #beta-mark {
+        color: light-dark(#5d99a4, #8cb9c2);
+        font-size: 0.6em;
+        font-weight: 500;
+        margin-top: -16px;
+      }
+    }
+
+    &:hover > #home-text > #logotype {
       color: light-dark(#000, #fff);
+    }
+
+    &:hover > #home-text > #beta-mark {
+      color: light-dark(#06bede, #72dcf1);
     }
   }
 
