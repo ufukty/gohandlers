@@ -1,0 +1,21 @@
+name = "gohandlers"
+compatibility_date = "2026-03-13"
+preview_urls = true
+
+[build]
+command = "bash .workers/build.sh"
+
+[assets]
+directory = "./docs-build"
+not_found_handling = "404-page"
+
+[[routes]]
+pattern = "gohandlers.ufukty.com"
+custom_domain = true
+
+[observability]
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
