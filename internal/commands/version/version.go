@@ -6,7 +6,7 @@ import (
 	"go.ufukty.com/gohandlers/internal/version"
 )
 
-func Run() error {
+func Main() error {
 	v, err := version.OfBuild()
 	if err != nil {
 		return fmt.Errorf("digging build details: %w", err)
