@@ -7,10 +7,10 @@ import (
 	"slices"
 	"strings"
 
-	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/client"
-	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/helpers"
-	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/version"
-	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/yaml"
+	"go.ufukty.com/gohandlers/internal/commands/client"
+	"go.ufukty.com/gohandlers/internal/commands/helpers"
+	"go.ufukty.com/gohandlers/internal/commands/version"
+	"go.ufukty.com/gohandlers/internal/commands/yaml"
 )
 
 func listcmds(commands map[string]func() error) string {

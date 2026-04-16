@@ -10,7 +10,7 @@ import (
 	"io"
 	"strings"
 
-	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/version"
+	"go.ufukty.com/gohandlers/internal/commands/version"
 	"go.ufukty.com/gohandlers/internal/pretty/post"
 )
 

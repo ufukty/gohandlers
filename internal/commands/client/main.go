@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/client/construct"
+	"go.ufukty.com/gohandlers/internal/commands/client/construct"
 	"go.ufukty.com/gohandlers/internal/pretty"
 	"go.ufukty.com/gohandlers/pkg/inspects"
 )
