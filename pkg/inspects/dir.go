@@ -16,8 +16,6 @@ import (
 	"slices"
 	"strings"
 	"unicode"
-
-	"go.ufukty.com/gohandlers/pkg/inspects/join"
 )
 
 func first[E any](i iter.Seq[E]) (e E) {
@@ -130,8 +128,8 @@ func bti(rqtn string, ts *ast.TypeSpec) (*BindingTypeInfo, error) {
 
 	if len(bti.Params.Json) > 0 && len(bti.Params.Form) > 0 {
 		return nil, fmt.Errorf("determining Content Type for body: both json {%s} and form {%s} tagged fields found",
-			join.Values(bti.Params.Json, ", "),
-			join.Values(bti.Params.Form, ", "),
+			strings.Join(slices.Collect(maps.Values(bti.Params.Json)), ", "),
+			strings.Join(slices.Collect(maps.Values(bti.Params.Form)), ", "),
 		)
 	}
 
@@ -423,21 +421,47 @@ type Info struct {
 	ResponseType *BindingTypeInfo
 }
 
-func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error) {
-	d, err := parser.ParseDir(token.NewFileSet(), dir, nil, parser.AllErrors|parser.ParseComments)
+func parse(dir string) (map[string]*ast.File, error) {
+	des, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, "", fmt.Errorf("parsing files in directory: %w", err)
+		return nil, fmt.Errorf("list entries: %w", err)
 	}
+	p := map[string]*ast.File{}
+	pkgfiles := map[string][]string{}
+	for _, de := range des {
+		if filepath.Ext(de.Name()) == ".go" {
+			f, err := parser.ParseFile(token.NewFileSet(), filepath.Join(dir, de.Name()), nil, parser.AllErrors|parser.ParseComments)
+			if err != nil {
+				return nil, fmt.Errorf("parse %q: %w", de.Name(), err)
+			}
+			p[de.Name()] = f
+			pkgname := f.Name.Name
+			if _, ok := pkgfiles[pkgname]; !ok {
+				pkgfiles[pkgname] = []string{}
+			}
+			pkgfiles[pkgname] = append(pkgfiles[pkgname], de.Name())
+		}
+	}
+	if len(pkgfiles) > 1 {
+		ss := []string{}
+		for pkg, files := range pkgfiles {
+			ss = append(ss, fmt.Sprintf("%s (%s)", pkg, strings.Join(files, ", ")))
+		}
+		return nil, fmt.Errorf("found more than one packages: %s", strings.Join(ss, ", "))
+	} else if len(pkgfiles) == 0 {
+		return nil, fmt.Errorf("no packages found")
+	}
+	return p, nil
+}
 
-	if len(d) > 1 {
-		return nil, "", fmt.Errorf("found more than one packages: %s", join.Keys(d, ", "))
-	} else if len(d) == 0 {
-		return nil, "", fmt.Errorf("no packages found")
+func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error) {
+	p, err := parse(dir)
+	if err != nil {
+		return nil, "", fmt.Errorf("parsing: %w", err)
 	}
-	p := d[first(maps.Keys(d))]
 
 	infoss := map[Receiver]map[string]Info{}
-	for fn, f := range p.Files {
+	for fn, f := range p {
 		for _, h := range findHandlers(f) {
 			doc := parseDoc(h)
 			if doc.Mode.Ignore() {
@@ -502,5 +526,5 @@ func Dir(dir string, verbose bool) (map[Receiver]map[string]Info, string, error)
 		}
 	}
 
-	return infoss, first(maps.Values(p.Files)).Name.Name, nil
+	return infoss, first(maps.Values(p)).Name.Name, nil
 }

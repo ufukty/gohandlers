@@ -5,7 +5,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	"go.ufukty.com/gohandlers/cmd/gohandlers/internal/pretty/sort"
+	"go.ufukty.com/gohandlers/internal/pretty/sort"
 )
 
 func imports(importpkg string) ast.Decl {
