@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/version"
-	"go.ufukty.com/gohandlers/cmd/gohandlers/internal/pretty/post"
+	"go.ufukty.com/gohandlers/internal/pretty/post"
 )
 
 func Print(f *ast.File) (io.Reader, error) {

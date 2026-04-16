@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/client/construct"
-	"go.ufukty.com/gohandlers/cmd/gohandlers/internal/pretty"
+	"go.ufukty.com/gohandlers/internal/pretty"
 	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 

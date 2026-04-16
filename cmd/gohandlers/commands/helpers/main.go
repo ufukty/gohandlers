@@ -13,7 +13,7 @@ import (
 	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/helpers/internal/construct"
 	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/helpers/internal/imports"
 	"go.ufukty.com/gohandlers/cmd/gohandlers/commands/helpers/internal/utilities"
-	"go.ufukty.com/gohandlers/cmd/gohandlers/internal/pretty"
+	"go.ufukty.com/gohandlers/internal/pretty"
 	"go.ufukty.com/gohandlers/pkg/inspects"
 )
 
