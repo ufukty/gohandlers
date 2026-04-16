@@ -10,9 +10,9 @@ import (
 	"os"
 	"slices"
 
-	"go.ufukty.com/gohandlers/internal/commands/helpers/internal/construct"
-	"go.ufukty.com/gohandlers/internal/commands/helpers/internal/imports"
-	"go.ufukty.com/gohandlers/internal/commands/helpers/internal/utilities"
+	"go.ufukty.com/gohandlers/internal/cmd/helpers/internal/construct"
+	"go.ufukty.com/gohandlers/internal/cmd/helpers/internal/imports"
+	"go.ufukty.com/gohandlers/internal/cmd/helpers/internal/utilities"
 	"go.ufukty.com/gohandlers/internal/pretty"
 	"go.ufukty.com/gohandlers/pkg/inspects"
 )
